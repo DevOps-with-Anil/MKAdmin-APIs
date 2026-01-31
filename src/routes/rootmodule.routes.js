@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const auth = require('../middlewares/authMiddleware');
+const auth = require('../middleware/auth');
 const ctrl = require('../controllers/rootmodule.controller');
 
 // Protect system catalog

@@ -5,33 +5,34 @@ const connectDB = require('./config/db');
 
 const moduleRoutes = require('./routes/rootmodule.routes');
 
-// require('./config/env');
+const seedSuperAdmin = require('./script/seedDefaultValue');
 
 const app = express();
 connectDB();
-// Adding Super admin credentials just after connected DB();
-const seedSuperAdmin = require('./script/seedDefaultValue');
-seedSuperAdmin();
 
-
+// Seed only in development
+if (process.env.NODE_ENV === 'development') {
+  seedSuperAdmin();
+}
 
 app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 
 
+// ================= SUPER ADMIN ROUTES =================
 app.use('/api/auth', require('./routes/auth.routes'));
-app.use('/api/users', require('./routes/user.routes'));
-app.use('/api/tenants', require('./routes/tenant.routes'));
-app.use('/api/modules', require('./routes/rootmodule.routes'));
+app.use('/api/profile', require('./routes/adminProfile.routes'));
+// ======================================================
 
-
-
-app.use('/api/modules', moduleRoutes);
-
-// Default end point to check server is running....
-app.use('/', (req, res) => res.send('APIs are running on port 4000...'));
-app.listen(process.env.PORT, () => {
-console.log('Server running on port', process.env.PORT);
+app.get('/', (req, res) => {
+  res.send('APIs are running...');
 });
+
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => {
+  console.log('Server running on port', PORT);
+});
+
+
 
