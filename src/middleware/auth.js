@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require('../config/env');
 const User = require('../models/User');
 
+
 module.exports = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
@@ -11,17 +12,25 @@ module.exports = async (req, res, next) => {
     }
 
     const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    const user = await User.findById(decoded.id).populate('role');
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    // 🔥 LOAD FULL USER + ROLE
+    const user = await User.findById(decoded._id)
+      .populate('role');
+
     if (!user) {
       return res.status(401).json({ message: 'User not found' });
     }
 
-    req.user = user;
+    if (user.status !== 'ACTIVE') {
+      return res.status(403).json({ message: 'User is inactive' });
+    }
+
+    req.user = user; // FULL USER OBJECT
     next();
-  } catch (error) {
-    console.error('Auth error:', error.message);
+  } catch (err) {
+    console.error('Auth error:', err);
     return res.status(401).json({ message: 'Invalid or expired token' });
   }
 };

@@ -1,174 +1,165 @@
-const Module = require('../models/RootModule');
+const RootModule = require('../models/RootModule');
+const auditLogger = require('../utils/auditLogger');
 
-const VALID_STATUS = ['ACTIVE', 'INACTIVE'];
-const VALID_LEVELS = ['ROOT'];
+
 
 /**
- * Create Global Module Package (ROOT or TENANT)
+ * CREATE MODULE
  */
 exports.createModule = async (req, res) => {
-  const { name, actions = [], level } = req.body;
+  const { name, actions = [] } = req.body;
 
-  if (!name) {
-    return res.status(400).json({ message: 'Module name is required' });
+  const exists = await RootModule.findOne({ name });
+  if (exists) {
+    return res.status(400).json({ message: 'Module already exists' });
   }
 
-  if (!VALID_LEVELS.includes(level)) {
-    return res.status(400).json({ message: 'Invalid module level (ROOT or TENANT)' });
+  // Validate duplicate action names
+  const actionNames = actions.map(a => a.name.toUpperCase());
+  const unique = new Set(actionNames);
+  if (unique.size !== actionNames.length) {
+    return res.status(400).json({ message: 'Duplicate action names in module' });
   }
 
-  const formattedActions = actions.map(a => ({
-    name: a.name,
-    status: a.status || 'ACTIVE'
-  }));
 
   try {
-    const mod = await Module.create({
-      name,
-      actions: formattedActions,
-      level
+    const module = await RootModule.create({
+    name,
+    actions,
+    level: 'ROOT'
+  });
+  
+  await auditLogger({
+      req,
+      user: req.user,
+      action: 'CREATE',
+      module: 'ROOT_MODULES',
+      entityId: module._id,
+      entityName: module.name,
+      after: module,
+      message: 'Root module created'
     });
 
-    res.status(201).json(mod);
+    res.json(module);
+    } catch (err) {
+  await auditLogger({
+      req,
+      user: req.user,
+      action: 'CREATE',
+      module: 'ROOT_MODULES',
+      status: 'FAILED',
+      message: err.message
+    });
 
-  } catch (err) {
-    if (err.code === 11000) {
-      return res.status(409).json({ message: 'Module already exists' });
-    }
     throw err;
   }
 };
 
 /**
- * List All Modules
- * Optional filter by level
- * ?level=ROOT | ?level=TENANT
+ * LIST MODULES
  */
-exports.getModules = async (req, res) => {
-  const { level } = req.query;
-  const filter = {};
-
-  if (level) {
-    if (!VALID_LEVELS.includes(level)) {
-      return res.status(400).json({ message: 'Invalid level filter' });
-    }
-    filter.level = level;
-  }
-
-  const modules = await Module.find(filter).sort({ level: 1, name: 1 });
+exports.listModules = async (req, res) => {
+  const modules = await RootModule.find().sort({ createdAt: 1 });
   res.json(modules);
 };
 
 /**
- * Update Module Status
+ * UPDATE MODULE
+ */
+exports.updateModule = async (req, res) => {
+  const module = await RootModule.findByIdAndUpdate(
+    req.params.id,
+    req.body,
+    { new: true }
+  );
+
+  if (!module) {
+    return res.status(404).json({ message: 'Module not found' });
+  }
+
+  res.json(module);
+};
+
+/**
+ * UPDATE MODULE STATUS
  */
 exports.updateModuleStatus = async (req, res) => {
-  const { id } = req.params;
-  const { status } = req.body;
+  const module = await RootModule.findByIdAndUpdate(
+    req.params.id,
+    { status: req.body.status },
+    { new: true }
+  );
 
-  if (!VALID_STATUS.includes(status)) {
-    return res.status(400).json({ message: 'Invalid status' });
+  res.json(module);
+};
+
+/**
+ * ADD ACTION TO MODULE
+ */
+exports.addAction = async (req, res) => {
+  const { name } = req.body;
+
+  const module = await RootModule.findById(req.params.id);
+  if (!module) {
+    return res.status(404).json({ message: 'Module not found' });
   }
 
-  const mod = await Module.findByIdAndUpdate(
-    id,
-    { status },
-    { new: true }
+  const exists = module.actions.find(
+    a => a.name === name.toUpperCase()
   );
 
-  if (!mod) return res.status(404).json({ message: 'Module not found' });
+  if (exists) {
+    return res.status(400).json({ message: 'Action already exists in module' });
+  }
 
-  res.json(mod);
+  module.actions.push({ name });
+  await module.save();
+
+  res.json(module);
 };
 
 /**
- * Add Actions to Module
- */
-exports.addActions = async (req, res) => {
-  const { id } = req.params;
-  const { actions = [] } = req.body;
-
-  const mod = await Module.findById(id);
-  if (!mod) return res.status(404).json({ message: 'Module not found' });
-
-  const existing = mod.actions.map(a => a.name);
-
-  const newActions = actions
-    .filter(a => a.name && !existing.includes(a.name.toUpperCase()))
-    .map(a => ({
-      name: a.name,
-      status: a.status || 'ACTIVE'
-    }));
-
-  mod.actions.push(...newActions);
-  await mod.save();
-
-  res.json(mod);
-};
-
-/**
- * Replace All Actions
- */
-exports.replaceActions = async (req, res) => {
-  const { id } = req.params;
-  const { actions = [] } = req.body;
-
-  const formattedActions = actions.map(a => ({
-    name: a.name,
-    status: a.status || 'ACTIVE'
-  }));
-
-  const mod = await Module.findByIdAndUpdate(
-    id,
-    { actions: formattedActions },
-    { new: true }
-  );
-
-  if (!mod) return res.status(404).json({ message: 'Module not found' });
-
-  res.json(mod);
-};
-
-/**
- * Update Single Action Status
+ * UPDATE ACTION STATUS
  */
 exports.updateActionStatus = async (req, res) => {
-  const { moduleId, actionName } = req.params;
-  const { status } = req.body;
+  const { actionName, status } = req.body;
 
-  if (!VALID_STATUS.includes(status)) {
-    return res.status(400).json({ message: 'Invalid status' });
+  const module = await RootModule.findById(req.params.id);
+  if (!module) {
+    return res.status(404).json({ message: 'Module not found' });
   }
 
-  const mod = await Module.findOneAndUpdate(
-    {
-      _id: moduleId,
-      'actions.name': actionName.toUpperCase()
-    },
-    { $set: { 'actions.$.status': status } },
-    { new: true }
+  const action = module.actions.find(
+    a => a.name === actionName.toUpperCase()
   );
 
-  if (!mod) {
-    return res.status(404).json({ message: 'Module or Action not found' });
+  if (!action) {
+    return res.status(404).json({ message: 'Action not found' });
   }
 
-  res.json(mod);
+  action.status = status;
+  await module.save();
+
+  // res.json({ message: 'Action updated successfully.' });
+  res.json(module);
 };
 
 /**
- * Deactivate Module
+ * DELETE ACTION FROM MODULE
  */
-exports.deactivateModule = async (req, res) => {
-  const { id } = req.params;
+exports.deleteAction = async (req, res) => {
+  const { actionName } = req.body;
 
-  const mod = await Module.findByIdAndUpdate(
-    id,
-    { status: 'INACTIVE' },
-    { new: true }
+  const module = await RootModule.findById(req.params.id);
+  if (!module) {
+    return res.status(404).json({ message: 'Module not found' });
+  }
+
+  module.actions = module.actions.filter(
+    a => a.name !== actionName.toUpperCase()
   );
 
-  if (!mod) return res.status(404).json({ message: 'Module not found' });
+  await module.save();
 
-  res.json(mod);
+  res.json(module);
 };

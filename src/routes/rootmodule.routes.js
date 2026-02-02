@@ -5,15 +5,19 @@ const ctrl = require('../controllers/rootmodule.controller');
 // Protect system catalog
 router.use(auth);
 
-// Modules
+/**
+ * MODULES
+ */
 router.post('/', ctrl.createModule);
-router.get('/', ctrl.getModules);
+router.get('/', ctrl.listModules);
+router.put('/:id', ctrl.updateModule);
 router.patch('/:id/status', ctrl.updateModuleStatus);
-router.patch('/:id/deactivate', ctrl.deactivateModule);
 
-// Actions
-router.post('/:id/actions', ctrl.addActions);
-router.put('/:id/actions', ctrl.replaceActions);
-router.patch('/:moduleId/actions/:actionName/status', ctrl.updateActionStatus);
+/**
+ * ACTIONS (Embedded)
+ */
+router.post('/:id/actions', ctrl.addAction);
+router.patch('/:id/actions/status', ctrl.updateActionStatus);
+router.delete('/:id/actions', ctrl.deleteAction);
 
 module.exports = router;

@@ -4,7 +4,6 @@ const morgan = require('morgan');
 const connectDB = require('./config/db');
 
 const moduleRoutes = require('./routes/rootmodule.routes');
-
 const seedSuperAdmin = require('./script/seedDefaultValue');
 
 const app = express();
@@ -23,6 +22,11 @@ app.use(morgan('dev'));
 // ================= SUPER ADMIN ROUTES =================
 app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/profile', require('./routes/adminProfile.routes'));
+app.use('/api/systemmodules', require('./routes/rootmodule.routes'));
+app.use('/api/roles', require('./routes/role.routes'));
+
+
+
 // ======================================================
 
 app.get('/', (req, res) => {
