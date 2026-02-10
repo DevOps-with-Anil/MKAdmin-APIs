@@ -1,43 +1,70 @@
 const Role = require('../models/Role');
 
-/**
- * RBAC Permission Middleware
- * Usage: permissionMiddleware('SYSTEM_MODULES', 'VIEW')
- */
-module.exports = (moduleCode, action) => {
+// =========================================
+// 🔐 Permission Check Middleware (RBAC)
+// =========================================
+// Validates whether the logged-in user
+// has access to a specific module/action.
+//
+// Usage:
+// checkPermission('MODULE_KEY', 'ACTION_KEY')
+
+const checkPermission = (moduleKey, actionKey) => {
   return async (req, res, next) => {
+
+    // Debug log for permission checks
+    console.log('🔐 Check Permission:', moduleKey, actionKey);
+
     try {
+      // Extract authenticated user from request
       const user = req.user;
 
+      // Block if user or role is missing
       if (!user || !user.role) {
-        return res.status(403).json({ message: 'Access denied (no role)' });
+        return res.status(401).json({ success: false, message: 'Unauthorized' });
       }
 
-      // Load role with permissions
-      const role = await Role.findById(user.role).lean();
+      // Load full role with permissions
+      const role = await Role.findById(user.role);
+
+      // Block if role does not exist
       if (!role) {
-        return res.status(403).json({ message: 'Role not found' });
+        return res.status(403).json({ success: false, message: 'Role not found' });
       }
 
-      const hasPermission = role.permissions?.some(p =>
-        p.module === moduleCode &&
-        p.actions?.includes(action)
+      // System role or ROOT ADMIN bypass (full access)
+      if (role.isSystemRole === true || role.name === 'ROOT ADMIN') {
+        return next();
+      }
+
+      // Check module and action permissions
+      const hasPermission = role.permissions.some(p => 
+        // Match module key or wildcard
+        (p.moduleKey === moduleKey || p.moduleKey === '*') &&
+        p.allowed === true &&
+        // Match action key or wildcard
+        p.actions?.some(a => 
+          (a.actionKey === actionKey || a.actionKey === '*') &&
+          a.allowed === true
+        )
       );
 
+      // Block if permission not granted
       if (!hasPermission) {
-        return res.status(403).json({
-          message: `Forbidden: Missing permission ${moduleCode}:${action}`
-        });
+        return res.status(403).json({ success: false, message: 'Permission denied' });
       }
 
-      // Hook point for future:
-      // - Plan enforcement
-      // - Module/Action active check
-      // - Feature flags
-
+      // Permission granted, continue
       next();
+
     } catch (err) {
-      next(err);
+      // Log unexpected middleware errors
+      console.error('Permission middleware error:', err);
+
+      // Return generic server error
+      return res.status(500).json({ success: false, message: 'Internal server error' });
     }
   };
 };
+
+module.exports = { checkPermission };

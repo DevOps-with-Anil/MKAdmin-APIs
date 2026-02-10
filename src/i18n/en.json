@@ -1,0 +1,108 @@
+{
+
+  "AUTH.LOGIN_SUCCESS": "Login successful",
+  "AUTH.LOGIN_FAILED": "Login failed. Please try again.",
+
+  "AUTH.INVALID_CREDENTIALS": "Invalid email or password",
+
+  "AUTH.TOKEN_MISSING": "Authentication token is missing",
+  "AUTH.TOKEN_INVALID": "Authentication token is invalid",
+  "AUTH.TOKEN_EXPIRED": "Authentication token has expired",
+
+  "AUTH.ACCOUNT_INACTIVE": "Your account is inactive. Please contact support.",
+  "AUTH.ACCOUNT_LOCKED": "Your account is locked. Please contact support.",
+
+  "AUTH.LOGOUT_SUCCESS": "Logged out successfully",
+  "AUTH.LOGOUT_ALL_SUCCESS": "Logged out from all devices successfully",
+  
+
+
+  "USER.PROFILE_FETCHED": "User profile fetched successfully",
+  "SERVER_ERROR": "Server error",
+  "USER_NOT_FOUND": "User not found",
+
+
+  "MODULE.KEY_REQUIRED": "Module key and name are required.",
+  "MODULE.EXISTS": "Module key already exists.",
+  "MODULE.CREATED": "Module created successfully.",
+  "MODULE.CREATE_FAILED": "Failed to create module.",
+  "MODULE.LIST_FETCHED": "Module list fetched successfully.",
+  "MODULE.LIST_FAILED": "Failed to fetch module list.",
+  "MODULE.NOT_FOUND": "Module not found.",
+  "MODULE.FETCHED": "Module fetched successfully.",
+  "MODULE.UPDATED": "Module updated successfully.",
+  "MODULE.UPDATE_FAILED": "Failed to update module.",
+  "MODULE.DELETED": "Module deleted successfully.",
+  "MODULE.DELETE_FAILED": "Failed to delete module.",
+  "MODULE.STATUS_UPDATED": "Module status updated successfully.",
+  "MODULE.STATUS_UPDATE_FAILED": "Failed to update module status.",
+  "MODULE.INACTIVE": "Cannot perform action on inactive module.",
+  "MODULE.NOTHING_TO_UPDATE": "Nothing to update.",
+
+  "ACTION.KEY_REQUIRED": "Action key is required.",
+  "ACTION.EXISTS": "Action key already exists in this module.",
+  "ACTION.NAME_EXISTS": "Action name already exists in this module.",
+  "ACTION.ADDED": "Action added successfully.",
+  "ACTION.ADD_FAILED": "Failed to add action.",
+  "ACTION.UPDATED": "Action updated successfully.",
+  "ACTION.UPDATE_FAILED": "Failed to update action.",
+  "ACTION.DELETED": "Action deleted successfully.",
+  "ACTION.DELETE_FAILED": "Failed to delete action.",
+  "ACTION.DUPLICATE_KEY": "Duplicate action keys found.",
+  "ACTION.NOT_FOUND":"Action not found.",
+
+
+
+  "USER.CREATED": "User created successfully.",
+  "USER.UPDATED": "User updated successfully.",
+  "USER.LIST_FETCHED": "User list fetched successfully.",
+  "USER.PASSWORD_RESET": "Password reset successfully.",
+  "USER.PASSWORD_CHANGED": "Password changed successfully.",
+  "USER.NOT_FOUND": "User not found.",
+  "USER.EMAIL_EXISTS": "A user with this email already exists.",
+  "USER.INVALID_ROLE": "Invalid role selected.",
+  "USER.CREATE_FAILED": "Failed to create user.",
+  "USER.UPDATE_FAILED": "Failed to update user.",
+  "USER.LIST_FAILED": "Failed to fetch users.",
+
+  "PASSWORD.TOO_WEAK": "Password must be at least 8 characters long.",
+  "PASSWORD.REQUIRED": "Password is required.",
+  "PASSWORD.CURRENT_INVALID": "Current password is incorrect.",
+  "PASSWORD.RESET_FAILED": "Failed to reset password.",
+  "PASSWORD.CHANGE_FAILED": "Failed to change password.",
+
+  "VALIDATION.NAME_REQUIRED": "Full name is required.",
+  "VALIDATION.EMAIL_REQUIRED": "Email address is required.",
+  "VALIDATION.PASSWORD_REQUIRED": "Password is required.",
+  "VALIDATION.ROLE_REQUIRED": "Role is required.",
+  "VALIDATION.PHONE_CODE_REQUIRED": "Country code is required.",
+  "VALIDATION.PHONE_REQUIRED": "Mobile number is required.",
+  "VALIDATION.INVALID_EMAIL": "Please enter a valid email address.",
+  "VALIDATION.INVALID_PHONE": "Please enter a valid mobile number.",
+  "VALIDATION.INVALID_PASSWORD": "Password must include uppercase, lowercase, number, and special character.",
+  
+  
+  "ROLE.NAME_REQUIRED": "Role name is required.",
+  "ROLE.EXISTS": "Role already exists.",
+  "ROLE.CREATED": "Role created successfully.",
+  "ROLE.CREATE_FAILED": "Failed to create role.",
+  "ROLE.LIST_FETCHED": "Roles fetched successfully.",
+  "ROLE.LIST_FAILED": "Failed to fetch roles.",
+  "ROLE.NOT_FOUND": "Role not found.",
+  "ROLE.UPDATED": "Role updated successfully.",
+  "ROLE.UPDATE_FAILED": "Failed to update role.",
+  "ROLE.STATUS_REQUIRED": "Role status is required.",
+  "ROLE.STATUS_UPDATED": "Role status updated successfully.",
+  "ROLE.STATUS_UPDATE_FAILED": "Failed to update role status.",
+  "MODULES.ARRAY_REQUIRED": "Modules array is required.",
+  "MODULE.INVALID_KEY": "Invalid module key.",
+  "ACTIONS.ARRAY_REQUIRED": "Actions array is required.",
+  "ACTION.INVALID_KEY": "Invalid action key.",
+  "ROLE.CANNOT_MODIFY_SUPER_ADMIN": "Cannot modify SUPER_ADMIN role.",
+  "PERMISSIONS.UPDATED": "Permissions updated successfully.",
+  "PERMISSIONS.ASSIGN_FAILED": "Failed to assign permissions."
+
+  
+}
+
+

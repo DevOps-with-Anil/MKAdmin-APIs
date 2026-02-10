@@ -1,0 +1,96 @@
+{
+
+  
+  "AUTH.INVALID_CREDENTIALS": "Email ou mot de passe invalide.",
+  "AUTH.ACCOUNT_INACTIVE": "Le compte n'est pas actif.",
+  "AUTH.LOGIN_SUCCESS": "Connexion réussie.",
+  "AUTH.LOGIN_FAILED": "Échec de la connexion. Veuillez réessayer.",
+
+
+  "USER.PROFILE_FETCHED": "Profil utilisateur récupéré avec succès",
+  "SERVER_ERROR": "Erreur du serveur",
+  "USER_NOT_FOUND": "Utilisateur non trouvé",
+
+
+  "MODULE.EXISTS": "La clé du module existe déjà.",
+  "MODULE.CREATED": "Module créé avec succès.",
+  "MODULE.CREATE_FAILED": "Échec de la création du module.",
+  "MODULE.LIST_FETCHED": "Liste des modules récupérée avec succès.",
+  "MODULE.LIST_FAILED": "Échec de la récupération de la liste des modules.",
+  "MODULE.NOT_FOUND": "Module introuvable.",
+  "MODULE.FETCHED": "Module récupéré avec succès.",
+  "MODULE.UPDATED": "Module mis à jour avec succès.",
+  "MODULE.UPDATE_FAILED": "Échec de la mise à jour du module.",
+  "MODULE.DELETED": "Module supprimé avec succès.",
+  "MODULE.DELETE_FAILED": "Échec de la suppression du module.",
+  "MODULE.STATUS_UPDATED": "Statut du module mis à jour avec succès.",
+  "MODULE.STATUS_UPDATE_FAILED": "Échec de la mise à jour du statut du module.",
+  "MODULE.INACTIVE": "Impossible d'effectuer une action sur un module inactif.",
+  "MODULE.NOTHING_TO_UPDATE": "Rien à mettre à jour.",
+
+  "ACTION.EXISTS": "La clé de l'action existe déjà dans ce module.",
+  "ACTION.NAME_EXISTS": "Le nom de l'action existe déjà dans ce module.",
+  "ACTION.ADDED": "Action ajoutée avec succès.",
+  "ACTION.ADD_FAILED": "Échec de l'ajout de l'action.",
+  "ACTION.UPDATED": "Action mise à jour avec succès.",
+  "ACTION.UPDATE_FAILED": "Échec de la mise à jour de l'action.",
+  "ACTION.DELETED": "Action supprimée avec succès.",
+  "ACTION.DELETE_FAILED": "Échec de la suppression de l'action.",
+  "ACTION.DUPLICATE_KEY": "Clés d'action en double trouvées.",
+
+
+  "USER.CREATED": "Utilisateur créé avec succès.",
+  "USER.UPDATED": "Utilisateur mis à jour avec succès.",
+  "USER.LIST_FETCHED": "Liste des utilisateurs récupérée avec succès.",
+  "USER.PASSWORD_RESET": "Mot de passe réinitialisé avec succès.",
+  "USER.PASSWORD_CHANGED": "Mot de passe modifié avec succès.",
+  "USER.NOT_FOUND": "Utilisateur non trouvé.",
+  "USER.EMAIL_EXISTS": "Un utilisateur avec cet email existe déjà.",
+  "USER.INVALID_ROLE": "Rôle sélectionné invalide.",
+  "USER.CREATE_FAILED": "Échec de la création de l'utilisateur.",
+  "USER.UPDATE_FAILED": "Échec de la mise à jour de l'utilisateur.",
+  "USER.LIST_FAILED": "Échec de la récupération des utilisateurs.",
+
+  "PASSWORD.TOO_WEAK": "Le mot de passe doit contenir au moins 8 caractères.",
+  "PASSWORD.REQUIRED": "Le mot de passe est requis.",
+  "PASSWORD.CURRENT_INVALID": "Le mot de passe actuel est incorrect.",
+  "PASSWORD.RESET_FAILED": "Échec de la réinitialisation du mot de passe.",
+  "PASSWORD.CHANGE_FAILED": "Échec du changement de mot de passe.",
+
+  "VALIDATION.NAME_REQUIRED": "Le nom complet est requis.",
+  "VALIDATION.EMAIL_REQUIRED": "L'adresse email est requise.",
+  "VALIDATION.PASSWORD_REQUIRED": "Le mot de passe est requis.",
+  "VALIDATION.ROLE_REQUIRED": "Le rôle est requis.",
+  "VALIDATION.PHONE_CODE_REQUIRED": "Le code pays est requis.",
+  "VALIDATION.PHONE_REQUIRED": "Le numéro de mobile est requis.",
+  "VALIDATION.INVALID_EMAIL": "Veuillez entrer une adresse email valide.",
+  "VALIDATION.INVALID_PHONE": "Veuillez entrer un numéro de mobile valide.",
+  "VALIDATION.INVALID_PASSWORD": "Le mot de passe doit inclure des majuscules, minuscules, chiffres et caractères spéciaux.",
+
+
+  
+  "ROLE.NAME_REQUIRED": "Le nom du rôle est requis.",
+  "ROLE.EXISTS": "Le rôle existe déjà.",
+  "ROLE.CREATED": "Rôle créé avec succès.",
+  "ROLE.CREATE_FAILED": "Échec de la création du rôle.",
+  "ROLE.LIST_FETCHED": "Rôles récupérés avec succès.",
+  "ROLE.LIST_FAILED": "Échec de la récupération des rôles.",
+  "ROLE.NOT_FOUND": "Rôle introuvable.",
+  "ROLE.UPDATED": "Rôle mis à jour avec succès.",
+  "ROLE.UPDATE_FAILED": "Échec de la mise à jour du rôle.",
+  "ROLE.STATUS_REQUIRED": "Le statut du rôle est requis.",
+  "ROLE.STATUS_UPDATED": "Statut du rôle mis à jour avec succès.",
+  "ROLE.STATUS_UPDATE_FAILED": "Échec de la mise à jour du statut du rôle.",
+  "MODULES.ARRAY_REQUIRED": "Le tableau des modules est requis.",
+  "MODULE.KEY_REQUIRED": "La clé du module est requise.",
+  "MODULE.INVALID_KEY": "Clé de module invalide.",
+  "ACTIONS.ARRAY_REQUIRED": "Le tableau des actions est requis.",
+  "ACTION.KEY_REQUIRED": "La clé de l'action est requise.",
+  "ACTION.INVALID_KEY": "Clé d'action invalide.",
+  "ROLE.CANNOT_MODIFY_SUPER_ADMIN": "Impossible de modifier le rôle SUPER_ADMIN.",
+  "PERMISSIONS.UPDATED": "Autorisations mises à jour avec succès.",
+  "PERMISSIONS.ASSIGN_FAILED": "Échec de l'attribution des autorisations."
+
+
+
+}
