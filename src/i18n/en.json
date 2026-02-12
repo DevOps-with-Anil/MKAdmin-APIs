@@ -100,9 +100,42 @@
   "ACTION.INVALID_KEY": "Invalid action key.",
   "ROLE.CANNOT_MODIFY_SUPER_ADMIN": "Cannot modify SUPER_ADMIN role.",
   "PERMISSIONS.UPDATED": "Permissions updated successfully.",
-  "PERMISSIONS.ASSIGN_FAILED": "Failed to assign permissions."
+  "PERMISSIONS.ASSIGN_FAILED": "Failed to assign permissions.",
+
+
+  "PLAN.NAME_REQUIRED": "Plan name is required in all languages",
+  "PLAN.CREATED": "Plan created successfully",
+  "PLAN.CREATE_FAILED": "Failed to create plan",
+  "PLAN.LIST_FETCHED": "Plan list fetched successfully",
+  "PLAN.LIST_FAILED": "Failed to fetch plan list",
+  "PLAN.NOT_FOUND": "Plan not found",
+  "PLAN.FETCHED": "Plan fetched successfully",
+  "PLAN.FETCH_FAILED": "Failed to fetch plan",
+  "PLAN.UPDATED": "Plan updated successfully",
+  "PLAN.UPDATE_FAILED": "Failed to update plan",
+  "PLAN.DELETED": "Plan deleted successfully",
+  "PLAN.DELETE_FAILED": "Failed to delete plan",
+
+  "PERMISSION.MODULES_ARRAY_REQUIRED": "Modules array is required",
+  "PERMISSION.MODULES_ASSIGNED": "Modules and actions assigned successfully",
+  "PERMISSION.MODULES_ASSIGN_FAILED": "Failed to assign modules and actions",
+  "PERMISSION.INVALID_MODULE_KEY": "Invalid module key: {moduleKey}",
+  "PERMISSION.INVALID_ACTION_KEY": "Invalid action key: {actionKey}",
 
   
+  "AFFILIATE.CREATED": "Affiliate has been successfully created.",
+  "AFFILIATE.CREATE_FAILED": "Failed to create affiliate.",
+  "AFFILIATE.FETCHED": "Affiliate details fetched successfully.",
+  "AFFILIATE.FETCH_FAILED": "Failed to fetch affiliate details.",
+  "AFFILIATE.UPDATED": "Affiliate has been successfully updated.",
+  "AFFILIATE.UPDATE_FAILED": "Failed to update affiliate.",
+  "AFFILIATE.SOFT_DELETED": "Affiliate has been soft deleted.",
+  "AFFILIATE.DELETE_FAILED": "Failed to delete affiliate.",
+  "AFFILIATE.NOT_FOUND": "Affiliate not found.",
+  "AFFILIATE.LIST_FETCHED": "Affiliate list fetched successfully.",
+  "AFFILIATE.LIST_FETCH_FAILED": "Failed to fetch affiliate list.",
+  "AFFILIATE.RESTORED": "Affiliate has been restored successfully.",
+  "AFFILIATE.RESTORE_FAILED": "Failed to restore affiliate."
+
+
 }
-
-

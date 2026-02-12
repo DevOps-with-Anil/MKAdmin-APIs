@@ -197,40 +197,124 @@ const CODES = require('../config/constants/errorCodes'); // Internal error codes
  */
 exports.createRole = async (req, res) => {
   try {
-    const { name, description } = req.body; // Extract role payload
+    let { name, description } = req.body;
 
-    if (!name) {
-      return responseFormatter.error(req, res, 400, MSG.ROLE_NAME_REQUIRED, CODES.ROL_400); // Name is mandatory
+    /**
+     * ======================================================
+     * 1️⃣ Normalize i18n Payload (Backward Compatible)
+     * ======================================================
+     * Accept both:
+     * - "name": "Super Admin"
+     * - "name": { en, fr, ar }
+     */
+
+    // Normalize name
+    if (typeof name === 'string') {
+      name = {
+        en: name.trim(),
+        fr: name.trim(),
+        ar: name.trim()
+      };
     }
 
-    const exists = await RootRole.findOne({ name: name.trim() }); // Check duplicate role name
-    if (exists) {
-      return responseFormatter.error(req, res, 400, MSG.ROLE_EXISTS, CODES.ROL_400); // Prevent duplicate role
+    // Normalize description
+    if (typeof description === 'string') {
+      description = {
+        en: description.trim(),
+        fr: description.trim(),
+        ar: description.trim()
+      };
     }
 
-    const role = await RootRole.create({ 
-      name: name.trim(), 
-      description 
-    }); // Create new role
+    if (!name?.en) {
+      return responseFormatter.error(
+        req,
+        res,
+        400,
+        MSG.ROLE_NAME_REQUIRED,
+        CODES.ROL_400
+      );
+    }
 
-    await auditLogger?.({
-      req,
-      user: req.user,                // Actor
-      action: 'CREATE_ROLE',         // Audit action
-      module: 'ROLES',               // Audit module
-      entityId: role._id,            // Affected role ID
-      entityName: role.name,         // Affected role name
-      after: role,                   // Snapshot after change
-      message: 'Role created'        // Audit message
+    /**
+     * ======================================================
+     * 2️⃣ Prevent Duplicate Role (English as primary key)
+     * ======================================================
+     */
+    const exists = await RootRole.findOne({
+      'name.en': name.en
     });
 
-    return responseFormatter.success(req, res, MSG.ROLE_CREATED, role, null, 201); // Success response
+    if (exists) {
+      return responseFormatter.error(
+        req,
+        res,
+        400,
+        MSG.ROLE_EXISTS,
+        CODES.ROL_400
+      );
+    }
+
+    /**
+     * ======================================================
+     * 3️⃣ Create Role (i18n)
+     * ======================================================
+     */
+    const role = await RootRole.create({
+      name: {
+        en: name.en.trim(),
+        fr: name.fr?.trim() || name.en.trim(),
+        ar: name.ar?.trim() || name.en.trim()
+      },
+      description: {
+        en: description?.en?.trim() || '',
+        fr: description?.fr?.trim() || description?.en?.trim() || '',
+        ar: description?.ar?.trim() || description?.en?.trim() || ''
+      }
+    });
+
+    /**
+     * ======================================================
+     * 4️⃣ Audit Log (Store English + Full i18n)
+     * ======================================================
+     */
+    await auditLogger?.({
+      req,
+      user: req.user,
+      action: 'CREATE_ROLE',
+      module: 'ROLES',
+      entityId: role._id,
+      entityName: role.name.en, // Primary label
+      after: role,
+      message: 'Role created',
+      meta: {
+        name: role.name,
+        description: role.description
+      }
+    });
+
+    return responseFormatter.success(
+      req,
+      res,
+      MSG.ROLE_CREATED,
+      role,
+      null,
+      201
+    );
 
   } catch (err) {
-    console.error('Create role error:', err); // Log server error
-    return responseFormatter.error(req, res, 500, MSG.ROLE_CREATE_FAILED, CODES.ROL_500); // Internal error response
+    console.error('Create role error:', err);
+
+    return responseFormatter.error(
+      req,
+      res,
+      500,
+      MSG.ROLE_CREATE_FAILED,
+      CODES.ROL_500
+    );
   }
 };
+
 
 /**
  * Get list of all roles (paginated)
@@ -295,55 +379,128 @@ exports.listRoles = async (req, res) => {
  */
 exports.updateRole = async (req, res) => {
   try {
-    const { name, description } = req.body; // Extract update fields
+    let { name, description } = req.body;
 
-    const role = await RootRole.findById(req.params.id); // Load role
+    const role = await RootRole.findById(req.params.id);
     if (!role) {
-      return responseFormatter.error(req, res, 404, MSG.ROLE_NOT_FOUND); // Role not found
+      return responseFormatter.error(req, res, 404, MSG.ROLE_NOT_FOUND);
     }
 
-    if (name) role.name = name.trim();        // Update role name
-    if (description !== undefined) role.description = description; // Update description
+    /**
+     * ======================================================
+     * 1️⃣ Normalize & Merge i18n Fields (Backward Compatible)
+     * ======================================================
+     */
 
-    await role.save(); // Persist changes
+    // Normalize name
+    if (typeof name === 'string') {
+      name = {
+        en: name.trim(),
+        fr: name.trim(),
+        ar: name.trim()
+      };
+    }
 
+    // Normalize description
+    if (typeof description === 'string') {
+      description = {
+        en: description.trim(),
+        fr: description.trim(),
+        ar: description.trim()
+      };
+    }
+
+    /**
+     * ======================================================
+     * 2️⃣ Prevent Duplicate Role Name (EN)
+     * ======================================================
+     */
+    if (name?.en && name.en !== role.name.en) {
+      const exists = await RootRole.findOne({
+        _id: { $ne: role._id },
+        'name.en': name.en
+      });
+
+      if (exists) {
+        return responseFormatter.error(req, res, 400, MSG.ROLE_EXISTS);
+      }
+    }
+
+    /**
+     * ======================================================
+     * 3️⃣ Merge Instead of Overwrite (Partial Update Safe)
+     * ======================================================
+     */
+
+    if (name) {
+      role.name = {
+        ...role.name,
+        ...name
+      };
+    }
+
+    if (description) {
+      role.description = {
+        ...role.description,
+        ...description
+      };
+    }
+
+    await role.save();
+
+    /**
+     * ======================================================
+     * 4️⃣ Audit Log (Primary + Full i18n)
+     * ======================================================
+     */
     await auditLogger?.({
       req,
       user: req.user,
       action: 'UPDATE_ROLE',
       module: 'ROLES',
       entityId: role._id,
-      entityName: role.name,
+      entityName: role.name.en, // English primary
       after: role,
-      message: 'Role updated'
+      message: 'Role updated',
+      meta: {
+        name: role.name,
+        description: role.description
+      }
     });
 
-    return responseFormatter.success(req, res, MSG.ROLE_UPDATED, role); // Success response
+    return responseFormatter.success(req, res, MSG.ROLE_UPDATED, role, '', 201);
 
   } catch (err) {
-    console.error('Update role error:', err); // Log error
-    return responseFormatter.error(req, res, 500, MSG.ROLE_UPDATE_FAILED); // Error response
+    console.error('Update role error:', err);
+    return responseFormatter.error(req, res, 500, MSG.ROLE_UPDATE_FAILED);
   }
 };
+
 
 /**
  * Update role status (ACTIVE / INACTIVE)
  */
 exports.updateRoleStatus = async (req, res) => {
   try {
-    const { status } = req.body; // Extract status
+    const { status } = req.body; // Extract status (Boolean)
 
-    if (!status) {
-      return responseFormatter.error(req, res, 400, MSG.ROLE_STATUS_REQUIRED); // Status is required
+    // Validate explicitly (allow false)
+    if (typeof status !== 'boolean') {
+      return responseFormatter.error(
+        req,
+        res,
+        400,
+        MSG.ROLE_STATUS_REQUIRED
+      );
     }
 
     const role = await RootRole.findById(req.params.id); // Load role
     if (!role) {
-      return responseFormatter.error(req, res, 404, MSG.ROLE_NOT_FOUND); // Role not found
+      return responseFormatter.error(req, res, 404, MSG.ROLE_NOT_FOUND);
     }
 
-    role.status = status.toUpperCase(); // Normalize + set status
-    await role.save();                  // Persist
+    role.status = status;   // ✅ Boolean assignment
+    await role.save();     // Persist
 
     await auditLogger?.({
       req,
@@ -351,120 +508,141 @@ exports.updateRoleStatus = async (req, res) => {
       action: 'UPDATE_ROLE_STATUS',
       module: 'ROLES',
       entityId: role._id,
-      entityName: role.name,
-      after: role,
-      message: 'Role status updated'
+      entityName: role.name?.en || role.name, // i18n safe
+      after: { status: role.status },
+      message: `Role status updated to ${status ? 'ACTIVE' : 'INACTIVE'}`
     });
 
-    return responseFormatter.success(req, res, MSG.ROLE_STATUS_UPDATED, role); // Success response
+    return responseFormatter.success(
+      req,
+      res,
+      MSG.ROLE_STATUS_UPDATED,
+      role,
+      null,
+      201 
+    );
 
   } catch (err) {
-    console.error('Update role status error:', err); // Log error
-    return responseFormatter.error(req, res, 500, MSG.ROLE_STATUS_UPDATE_FAILED); // Error response
+    console.error('Update role status error:', err);
+    return responseFormatter.error(
+      req,
+      res,
+      500,
+      MSG.ROLE_STATUS_UPDATE_FAILED
+    );
   }
 };
+
 
 /**
  * Assign module + action permissions to role
  */
 exports.assignPermissions = async (req, res) => {
   try {
-    const roleId = req.params.id; // Role ID from URL
-    const { modules } = req.body; // Modules + actions payload
+    const roleId = req.params.id;
+    const { modules } = req.body;
 
     if (!Array.isArray(modules)) {
-      return responseFormatter.error(req, res, 400, MSG.MODULES_ARRAY_REQUIRED); // Must be array
+      return responseFormatter.error(req, res, 400, MSG.MODULES_ARRAY_REQUIRED);
     }
 
-    const role = await RootRole.findById(roleId); // Load role
+    const role = await RootRole.findById(roleId);
     if (!role) {
-      return responseFormatter.error(req, res, 404, MSG.ROLE_NOT_FOUND); // Role not found
+      return responseFormatter.error(req, res, 404, MSG.ROLE_NOT_FOUND);
     }
 
-    if (role.name === 'SUPER_ADMIN') {
-      return responseFormatter.error(req, res, 403, MSG.CANNOT_MODIFY_SUPER_ADMIN); // Protect super admin
+    // 🛡️ Protect ROOT / SUPER ADMIN (i18n-safe)
+    const roleNameEn = role.name?.en || '';
+    if (roleNameEn === 'ROOT ADMIN' || roleNameEn === 'SUPER ADMIN') {
+      return responseFormatter.error(
+        req,
+        res,
+        403,
+        MSG.CANNOT_MODIFY_SUPER_ADMIN
+      );
     }
 
-    const newPermissions = []; // Build fresh permissions array
+    const newPermissions = [];
 
     for (const mod of modules) {
-      let { moduleKey, actions } = mod; // Extract module + actions
+      let { moduleKey, actions } = mod;
 
       if (!moduleKey) {
-        return responseFormatter.error(req, res, 400, MSG.MODULE_KEY_REQUIRED); // Module key required
+        return responseFormatter.error(req, res, 400, MSG.MODULE_KEY_REQUIRED);
       }
 
-      moduleKey = moduleKey.toUpperCase().trim(); // Normalize module key
+      moduleKey = moduleKey.toUpperCase().trim();
 
-      const rootModule = await RootModule.findOne({ 
-        key: moduleKey, 
-        isActive: true 
-      }); // Validate module exists and active
+      const rootModule = await RootModule.findOne({
+        key: moduleKey,
+        isActive: true
+      });
 
       if (!rootModule) {
         return responseFormatter.error(
-          req, 
-          res, 
-          400, 
+          req,
+          res,
+          400,
           MSG.INVALID_MODULE_KEY.replace('{moduleKey}', moduleKey)
-        ); // Invalid module
+        );
       }
 
       if (!Array.isArray(actions)) {
         return responseFormatter.error(
-          req, 
-          res, 
-          400, 
+          req,
+          res,
+          400,
           MSG.ACTIONS_ARRAY_REQUIRED.replace('{moduleKey}', moduleKey)
-        ); // Actions must be array
+        );
       }
 
-      const validActions = []; // Collect validated actions
+      const validActions = [];
 
       for (const act of actions) {
-        let { actionKey, allowed } = act; // Extract action
+        let { actionKey, allowed } = act;
 
         if (!actionKey) {
           return responseFormatter.error(
-            req, 
-            res, 
-            400, 
+            req,
+            res,
+            400,
             MSG.ACTION_KEY_REQUIRED.replace('{moduleKey}', moduleKey)
-          ); // Action key required
+          );
         }
 
-        actionKey = actionKey.toUpperCase().trim(); // Normalize action key
+        actionKey = actionKey.toUpperCase().trim();
 
         const actionExists = rootModule.actions.some(
           a => a.key === actionKey && a.isActive
-        ); // Validate action exists in root module
+        );
 
         if (!actionExists) {
           return responseFormatter.error(
-            req, 
-            res, 
-            400, 
+            req,
+            res,
+            400,
             MSG.INVALID_ACTION_KEY
               .replace('{actionKey}', actionKey)
               .replace('{moduleKey}', moduleKey)
-          ); // Invalid action
+          );
         }
 
-        validActions.push({ 
-          actionKey, 
-          allowed: !!allowed 
-        }); // Push validated action permission
+        validActions.push({
+          actionKey,
+          allowed: !!allowed
+        });
       }
 
-      newPermissions.push({ 
-        moduleKey, 
-        actions: validActions 
-      }); // Push validated module permissions
+      newPermissions.push({
+        moduleKey,
+        allowed: true,           // ✅ Explicit module-level allow
+        actions: validActions
+      });
     }
 
-    role.permissions = newPermissions;     // Replace permissions
-    role.markModified('permissions');      // Force mongoose change tracking
-    await role.save();                     // Persist permissions
+    role.permissions = newPermissions;
+    role.markModified('permissions');
+    await role.save();
 
     await auditLogger?.({
       req,
@@ -472,15 +650,28 @@ exports.assignPermissions = async (req, res) => {
       action: 'ASSIGN_PERMISSIONS',
       module: 'ROLES',
       entityId: role._id,
-      entityName: role.name,
-      after: role,
+
+      // 🌍 Use English for audit consistency
+      entityName: role.name?.en,
+
+      after: newPermissions,
       message: 'Permissions assigned to role'
     });
 
-    return responseFormatter.success(req, res, MSG.PERMISSIONS_UPDATED, role); // Success response
+    return responseFormatter.success(
+      req,
+      res,
+      MSG.PERMISSIONS_UPDATED,
+      role
+    );
 
   } catch (err) {
-    console.error('Assign permissions error:', err); // Log error
-    return responseFormatter.error(req, res, 500, MSG.PERMISSIONS_ASSIGN_FAILED); // Error response
+    console.error('Assign permissions error:', err);
+    return responseFormatter.error(
+      req,
+      res,
+      500,
+      MSG.PERMISSIONS_ASSIGN_FAILED
+    );
   }
 };

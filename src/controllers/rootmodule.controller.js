@@ -14,56 +14,117 @@ const MSG = require('../config/constants/messageKeys');            // i18n messa
  */
 const createModule = async (req, res) => {
   try {
-    const { key, modulename, actions = [] } = req.body;            // Extract module payload
+    const { key, moduleName, actions = [] } = req.body;
 
-    if (!key || !modulename) {
-      return responseFormatter.error(req, res, 400, MSG.MODULE_KEY_REQUIRED); // Required fields check
+    /**
+     * ======================================================
+     * 1️⃣ Validate Required Fields
+     * ======================================================
+     */
+    if (!key || !moduleName || typeof moduleName !== 'object') {
+      return responseFormatter.error(req, res, 400, MSG.MODULE_KEY_REQUIRED);
     }
 
-    const existing = await RootModule.findOne({ 
-      key: key.toLowerCase().trim() 
-    });                                                            // Check duplicate module key
+    const moduleKey = key.trim().toUpperCase();
 
+    /**
+     * ======================================================
+     * 2️⃣ Prevent Duplicate Module Key
+     * ======================================================
+     */
+    const existing = await RootModule.findOne({ key: moduleKey });
     if (existing) {
-      return responseFormatter.error(req, res, 409, MSG.MODULE_EXISTS); // Prevent duplicate module
+      return responseFormatter.error(req, res, 409, MSG.MODULE_EXISTS);
     }
 
-    const actionKeys = actions.map(a => a.key.toLowerCase());      // Normalize action keys
-    if (new Set(actionKeys).size !== actionKeys.length) {
-      return responseFormatter.error(req, res, 400, MSG.DUPLICATE_ACTION_KEY); // Prevent duplicate actions
+    /**
+     * ======================================================
+     * 3️⃣ Normalize Module Name (Multilingual)
+     * ======================================================
+     */
+    const normalizedModuleName = {
+      en: moduleName.en?.trim() || '',
+      fr: moduleName.fr?.trim() || '',
+      ar: moduleName.ar?.trim() || ''
+    };
+
+    /**
+     * ======================================================
+     * 4️⃣ Validate & Normalize Actions
+     * ======================================================
+     */
+    const normalizedActions = [];
+    const seenActionKeys = new Set();
+
+    for (const a of actions) {
+      if (!a.key || !a.actionName || typeof a.actionName !== 'object') {
+        return responseFormatter.error(req, res, 400, MSG.INVALID_ACTION_PAYLOAD);
+      }
+
+      const actionKey = a.key.trim().toUpperCase();
+
+      if (seenActionKeys.has(actionKey)) {
+        return responseFormatter.error(req, res, 400, MSG.DUPLICATE_ACTION_KEY);
+      }
+
+      seenActionKeys.add(actionKey);
+
+      normalizedActions.push({
+        key: actionKey,
+        actionName: {
+          en: a.actionName.en?.trim() || '',
+          fr: a.actionName.fr?.trim() || '',
+          ar: a.actionName.ar?.trim() || ''
+        }
+      });
     }
 
+    /**
+     * ======================================================
+     * 5️⃣ Create Module (MATCHING SCHEMA)
+     * ======================================================
+     */
     const module = await RootModule.create({
-      key: key.toLowerCase().trim(),                               // Normalized module key
-      modulename: modulename.trim(),                               // Clean module name
-      actions: actions.map(a => ({
-        key: a.key.toLowerCase(),                                  // Normalized action key
-        actionsname: a.actionsname                                 // Action display name
+      key: moduleKey,
+      moduleName: normalizedModuleName,   // ✅ CORRECT FIELD
+      actions: normalizedActions.map(a => ({
+        key: a.key,
+        actionName: a.actionName          // ✅ CORRECT FIELD
       })),
-      createdBy: req.user._id                                      // Audit creator
+      createdBy: req.user._id
     });
 
-    // Optional: auto-sync new module to all roles
-    // await syncNewModuleToRoles(module);
-
+    /**
+     * ======================================================
+     * 6️⃣ Audit Log
+     * ======================================================
+     */
     await auditLogger?.({
       req,
       user: req.user,
       action: 'CREATE_MODULE',
       module: 'ROOT_MODULES',
       entityId: module._id,
-      entityName: module.modulename,
+      entityName: normalizedModuleName.en || moduleKey,
       after: module,
       message: req.t(MSG.MODULE_CREATED)
     });
 
-    return responseFormatter.success(req, res, MSG.MODULE_CREATED, module, null, 201);
+    return responseFormatter.success(
+      req,
+      res,
+      MSG.MODULE_CREATED,
+      module,
+      "",
+      201
+    );
 
   } catch (err) {
-    console.error(err);                                           // Log server error
+    console.error('Create module error:', err);
     return responseFormatter.error(req, res, 500, MSG.MODULE_CREATE_FAILED);
   }
 };
+
 
 /**
  * LIST MODULES (PAGINATED)
@@ -130,7 +191,7 @@ const getModule = async (req, res) => {
   try {
     const module = await RootModule.findById(req.params.id);       // Load module by ID
     if (!module) return responseFormatter.error(req, res, 404, MSG.MODULE_NOT_FOUND); // Not found
-    return responseFormatter.success(req, res, MSG.MODULE_FETCHED, module, null, 201);
+    return responseFormatter.success(req, res, MSG.MODULE_FETCHED, module, "", 201);
   } catch (err) {
     console.error(err);                                           // Log error
     return responseFormatter.error(req, res, 500, MSG.MODULE_FETCH_FAILED);
@@ -175,7 +236,7 @@ const updateModule = async (req, res) => {
       message: req.t(MSG.MODULE_UPDATED)
     });
 
-    return responseFormatter.success(req, res, MSG.MODULE_UPDATED, module, null, 201);
+    return responseFormatter.success(req, res, MSG.MODULE_UPDATED, module, "", 201);
 
   } catch (err) {
     console.error(err);                                           // Log error
@@ -243,54 +304,107 @@ const toggleModuleStatus = async (req, res) => {
  */
 const addAction = async (req, res) => {
   try {
-    const { key, actionsname } = req.body;                         // Extract action payload
+    const { key, actionName } = req.body;
 
-    if (!key || !actionsname) {
-      return responseFormatter.error(req, res, 400, MSG.ACTION_KEY_REQUIRED); // Required fields
+    /**
+     * ======================================================
+     * 1️⃣ Validate Required Fields
+     * ======================================================
+     */
+    if (!key || !actionName || typeof actionName !== 'object') {
+      return responseFormatter.error(req, res, 400, MSG.ACTION_KEY_REQUIRED);
     }
 
-    const module = await RootModule.findById(req.params.id);       // Load module
+    const module = await RootModule.findById(req.params.id);
     if (!module) return responseFormatter.error(req, res, 404, MSG.MODULE_NOT_FOUND);
     if (!module.isActive) return responseFormatter.error(req, res, 400, MSG.MODULE_INACTIVE);
 
-    const normalizedKey = key.trim().toLowerCase();                // Normalize key
-    const normalizedName = actionsname.trim().toLowerCase();       // Normalize name
+    /**
+     * ======================================================
+     * 2️⃣ Normalize Action Key
+     * ======================================================
+     */
+    const normalizedKey = key.trim().toUpperCase();
 
+    /**
+     * ======================================================
+     * 3️⃣ Prevent Duplicate Action Key
+     * ======================================================
+     */
     if (module.actions.some(a => a.key === normalizedKey)) {
-      return responseFormatter.error(req, res, 409, MSG.ACTION_EXISTS); // Duplicate action key
+      return responseFormatter.error(req, res, 409, MSG.ACTION_EXISTS);
     }
 
-    if (module.actions.some(a => a.actionsname.toLowerCase() === normalizedName)) {
-      return responseFormatter.error(req, res, 409, MSG.ACTION_NAME_EXISTS); // Duplicate action name
+    /**
+     * ======================================================
+     * 4️⃣ Normalize Multilingual Action Name
+     * ======================================================
+     */
+    const normalizedActionName = {
+      en: actionName.en?.trim() || '',
+      fr: actionName.fr?.trim() || '',
+      ar: actionName.ar?.trim() || ''
+    };
+
+    /**
+     * ======================================================
+     * 5️⃣ Prevent Duplicate Action Name (Any Language)
+     * ======================================================
+     */
+    const isDuplicateName = module.actions.some(a => {
+      const existing = a.actionName || {};
+      return (
+        existing.en?.toLowerCase() === normalizedActionName.en.toLowerCase() ||
+        existing.fr?.toLowerCase() === normalizedActionName.fr.toLowerCase() ||
+        existing.ar?.toLowerCase() === normalizedActionName.ar.toLowerCase()
+      );
+    });
+
+    if (isDuplicateName) {
+      return responseFormatter.error(req, res, 409, MSG.ACTION_NAME_EXISTS);
     }
 
-    const newAction = { 
-      key: normalizedKey, 
-      actionsname: actionsname.trim(), 
-      isActive: true 
-    };                                                             // New action object
+    /**
+     * ======================================================
+     * 6️⃣ Create New Action (Schema Correct)
+     * ======================================================
+     */
+    const newAction = {
+      key: normalizedKey,
+      actionName: normalizedActionName,
+      isActive: true
+    };
 
-    module.actions.push(newAction);                                // Append action
-    await module.save();                                          // Persist
+    module.actions.push(newAction);
+    await module.save();
 
-    // Optional: auto-sync new action to roles
-    // await syncNewActionToRoles(module.key, normalizedKey);
-
+    /**
+     * ======================================================
+     * 7️⃣ Audit Log
+     * ======================================================
+     */
     await auditLogger?.({
       req,
       user: req.user,
       action: 'ADD_ACTION',
       module: 'ROOT_MODULES',
       entityId: module._id,
-      entityName: module.modulename,
+      entityName: module.moduleName?.en || module.key,
       after: newAction,
       message: req.t(MSG.ACTION_ADDED)
     });
 
-    return responseFormatter.success(req, res, MSG.ACTION_ADDED, module, null, 201);
+    return responseFormatter.success(
+      req,
+      res,
+      MSG.ACTION_ADDED,
+      module,
+      null,
+      201
+    );
 
   } catch (err) {
-    console.error(err);                                           // Log error
+    console.error('Add action error:', err);
 
     await auditLogger?.({
       req,
@@ -304,6 +418,7 @@ const addAction = async (req, res) => {
     return responseFormatter.error(req, res, 500, MSG.ACTION_ADD_FAILED);
   }
 };
+
 
 /**
  * UPDATE ACTION
@@ -397,48 +512,79 @@ const updateAction = async (req, res) => {
  */
 const deleteAction = async (req, res) => {
   try {
-    const { actionKey } = req.body;                                // Extract action key
+    const { actionKey } = req.body;
 
+    /**
+     * ======================================================
+     * 1️⃣ Validate Required Field
+     * ======================================================
+     */
     if (!actionKey) {
-      return responseFormatter.error(req, res, 400, MSG.ACTION_KEY_REQUIRED); // Required field
+      return responseFormatter.error(req, res, 400, MSG.ACTION_KEY_REQUIRED);
     }
 
-    const module = await RootModule.findById(req.params.id);       // Load module
+    const normalizedKey = actionKey.trim().toUpperCase();
+
+    /**
+     * ======================================================
+     * 2️⃣ Load Module
+     * ======================================================
+     */
+    const module = await RootModule.findById(req.params.id);
     if (!module) return responseFormatter.error(req, res, 404, MSG.MODULE_NOT_FOUND);
 
-    const index = module.actions.findIndex(
-      a => a.key === actionKey.toLowerCase()
-    );                                                             // Find action index
-
+    /**
+     * ======================================================
+     * 3️⃣ Find Action
+     * ======================================================
+     */
+    const index = module.actions.findIndex(a => a.key === normalizedKey);
     if (index === -1) {
-      return responseFormatter.error(req, res, 404, MSG.ACTION_NOT_FOUND); // Not found
+      return responseFormatter.error(req, res, 404, MSG.ACTION_NOT_FOUND);
     }
 
-    const action = module.actions[index];                          // Target action
-    const before = { ...action.toObject ? action.toObject() : action }; // Snapshot before
+    const action = module.actions[index];
+    const before = action.toObject ? action.toObject() : action;
 
-    module.actions.splice(index, 1);                               // Remove action
-    await module.save();                                          // Persist
+    /**
+     * ======================================================
+     * 4️⃣ Remove Action
+     * ======================================================
+     */
+    module.actions.splice(index, 1);
+    await module.save();
 
-    // Optional: cascade disable in roles
+    // Optional cascade
     // await disableActionInAllRoles(module.key, action.key);
 
+    /**
+     * ======================================================
+     * 5️⃣ Audit Log
+     * ======================================================
+     */
     await auditLogger?.({
       req,
       user: req.user,
       action: 'DELETE_ACTION',
       module: 'ROOT_MODULES',
       entityId: module._id,
-      entityName: module.modulename,
+      entityName: module.moduleName?.en || module.key,
       before,
       after: null,
       message: req.t(MSG.ACTION_DELETED)
     });
 
-    return responseFormatter.success(req, res, MSG.ACTION_DELETED, module, null);
+    return responseFormatter.success(
+      req,
+      res,
+      MSG.ACTION_DELETED,
+      module,
+      null,
+      201
+    );
 
   } catch (err) {
-    console.error(err);                                           // Log error
+    console.error('Delete action error:', err);
 
     await auditLogger?.({
       req,
@@ -452,6 +598,7 @@ const deleteAction = async (req, res) => {
     return responseFormatter.error(req, res, 500, MSG.ACTION_DELETE_FAILED);
   }
 };
+
 
 /**
  * EXPORT ALL CONTROLLERS

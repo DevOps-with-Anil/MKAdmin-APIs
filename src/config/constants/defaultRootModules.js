@@ -4,19 +4,25 @@
  * ======================================================
  * ROOT + SAAS + WHITELABEL PLATFORM
  *
- * IMPORTANT:
- * ----------
- * 1. NEVER change existing keys
+ * IMPORTANT (DO NOT BREAK):
+ * -------------------------
+ * 1. NEVER change existing keys (used as system identifiers)
  * 2. NEVER delete keys in production
- * 3. ONLY add new actions/modules
- * 4. Keys are permanent system identifiers
+ * 3. ONLY add new modules/actions
+ * 4. Keys are permanent and stored in DB & logs
  *
  * Used in:
- * - DB (RootModule)
+ * --------
+ * - RootModule collection
  * - RBAC Middleware
- * - UI Permissions
+ * - UI Permission Matrix
  * - Audit Logs
- * - Historical Tracking
+ * - Compliance & Historical Tracking
+ *
+ * Multi-language Support:
+ * -----------------------
+ * name = { en: 'English', fr: 'Français', ar: 'العربية' }
+ * NEVER localize keys — only name labels.
  */
 
 module.exports = {
@@ -24,182 +30,188 @@ module.exports = {
   /**
    * ======================================================
    * SYSTEM MODULE REGISTRY (ROOT ONLY)
-   * Controls feature & permission definitions
+   * Defines all system modules & their actions
    * ======================================================
    */
-  
   SYS_MODULES: {
-    key: 'SYS_MODULES',
-    name: 'System Modules',
+    key: 'SYS_MODULES', // System internal module key
+    name: { en: 'System Modules', fr: 'Modules système', ar: 'وحدات النظام' },
     actions: [
-      { key: 'SYS_MODULE_ADD', name: 'Add Module' },
-      { key: 'SYS_MODULE_VIEW', name: 'View Modules' },
-      { key: 'SYS_MODULE_UPDATE', name: 'Update Module Name' },
-      { key: 'SYS_MODULE_DISABLE', name: 'Disable Module' },
 
-      // Action-level management
-      { key: 'SYS_MODULE_ADD_ACTION', name: 'Add Module Action' },
-      { key: 'SYS_MODULE_UPDATE_ACTION', name: 'Update Module Action' },
-      { key: 'SYS_MODULE_DISABLE_ACTION', name: 'Disable Module Action' }
+      // ----- Module CRUD Operations -----
+      { key: 'SYS_MODULE_ADD', name: { en: 'Add Module', fr: 'Ajouter un module', ar: 'إضافة وحدة' } },
+      { key: 'SYS_MODULE_VIEW', name: { en: 'View Modules', fr: 'Voir les modules', ar: 'عرض الوحدات' } },
+      { key: 'SYS_MODULE_UPDATE', name: { en: 'Update Module Name', fr: 'Mettre à jour le nom du module', ar: 'تحديث اسم الوحدة' } },
+      { key: 'SYS_MODULE_DISABLE', name: { en: 'Disable Module', fr: 'Désactiver le module', ar: 'تعطيل الوحدة' } },
+
+      // ----- Action-level Management -----
+      { key: 'SYS_MODULE_ADD_ACTION', name: { en: 'Add Module Action', fr: 'Ajouter une action de module', ar: 'إضافة إجراء للوحدة' } },
+      { key: 'SYS_MODULE_UPDATE_ACTION', name: { en: 'Update Module Action', fr: 'Mettre à jour l’action du module', ar: 'تحديث إجراء الوحدة' } },
+      { key: 'SYS_MODULE_DISABLE_ACTION', name: { en: 'Disable Module Action', fr: 'Désactiver l’action du module', ar: 'تعطيل إجراء الوحدة' } }
     ]
   },
 
   /**
    * ======================================================
    * SYSTEM ROLES & PERMISSIONS
+   * Manages roles & permission mappings
    * ======================================================
    */
   SYS_ROLES: {
     key: 'SYS_ROLES',
-    name: 'System Roles',
+    name: { en: 'System Roles', fr: 'Rôles système', ar: 'أدوار النظام' },
     actions: [
-      { key: 'SYS_ROLE_ADD', name: 'Add Role' },
-      { key: 'SYS_ROLE_VIEW', name: 'View Roles' },
-      { key: 'SYS_ROLE_UPDATE', name: 'Update Role' },
-      { key: 'SYS_ROLE_DELETE', name: 'Delete Role' },
 
-      // Permission mapping
-      { key: 'SYS_ROLE_ASSIGN_PERMISSIONS', name: 'Assign Permissions to Role' }
+      // ----- Role Management -----
+      { key: 'SYS_ROLE_ADD', name: { en: 'Add Role', fr: 'Ajouter un rôle', ar: 'إضافة دور' } },
+      { key: 'SYS_ROLE_VIEW', name: { en: 'View Roles', fr: 'Voir les rôles', ar: 'عرض الأدوار' } },
+      { key: 'SYS_ROLE_UPDATE', name: { en: 'Update Role', fr: 'Mettre à jour le rôle', ar: 'تحديث الدور' } },
+      { key: 'SYS_ROLE_DELETE', name: { en: 'Delete Role', fr: 'Supprimer le rôle', ar: 'حذف الدور' } },
+
+      // ----- Permission Mapping -----
+      { key: 'SYS_ROLE_ASSIGN_PERMISSIONS', name: { en: 'Assign Permissions to Role', fr: 'Attribuer des autorisations au rôle', ar: 'تعيين الصلاحيات للدور' } }
     ]
   },
 
   /**
    * ======================================================
    * SYSTEM ADMINS (ROOT USERS)
+   * Root-level admin user management
    * ======================================================
    */
   SYS_ADMINS: {
     key: 'SYS_ADMINS',
-    name: 'System Admins',
+    name: { en: 'System Admins', fr: 'Administrateurs système', ar: 'مدراء النظام' },
     actions: [
-      { key: 'SYS_ADMIN_ADD', name: 'Add System Admin' },
-      { key: 'SYS_ADMIN_VIEW', name: 'View System Admins' },
-      { key: 'SYS_ADMIN_UPDATE', name: 'Update System Admin' },
-      { key: 'SYS_ADMIN_DELETE', name: 'Delete System Admin' },
 
-      // Security operations
-      { key: 'SYS_ADMIN_RESET_PASSWORD', name: 'Reset Admin Password' },
-      { key: 'SYS_ADMIN_CHANGE_STATUS', name: 'Change Admin Status' },
-      { key: 'SYS_ADMIN_FORCE_LOGOUT', name: 'Force Logout Admin' }
+      // ----- Admin CRUD -----
+      { key: 'SYS_ADMIN_ADD', name: { en: 'Add System Admin', fr: 'Ajouter un administrateur', ar: 'إضافة مدير نظام' } },
+      { key: 'SYS_ADMIN_VIEW', name: { en: 'View System Admins', fr: 'Voir les administrateurs', ar: 'عرض مدراء النظام' } },
+      { key: 'SYS_ADMIN_UPDATE', name: { en: 'Update System Admin', fr: 'Mettre à jour l’administrateur', ar: 'تحديث مدير النظام' } },
+      { key: 'SYS_ADMIN_DELETE', name: { en: 'Delete System Admin', fr: 'Supprimer l’administrateur', ar: 'حذف مدير النظام' } },
+
+      // ----- Security Operations -----
+      { key: 'SYS_ADMIN_RESET_PASSWORD', name: { en: 'Reset Admin Password', fr: 'Réinitialiser le mot de passe', ar: 'إعادة تعيين كلمة المرور' } },
+      { key: 'SYS_ADMIN_CHANGE_STATUS', name: { en: 'Change Admin Status', fr: 'Changer le statut', ar: 'تغيير حالة المدير' } },
+      { key: 'SYS_ADMIN_FORCE_LOGOUT', name: { en: 'Force Logout Admin', fr: 'Forcer la déconnexion', ar: 'فرض تسجيل الخروج' } }
     ]
   },
 
-  /**
-   * ======================================================
-   * WHITELABEL AFFILIATES / TENANTS
-   * ======================================================
-   */
-  WL_AFFILIATES: {
-    key: 'WL_AFFILIATES',
-    name: 'WhiteLabel Affiliates',
-    actions: [
-      { key: 'WL_AFFILIATE_ADD', name: 'Create Affiliate' },
-      { key: 'WL_AFFILIATE_VIEW', name: 'View Affiliates' },
-      { key: 'WL_AFFILIATE_UPDATE', name: 'Update Affiliate' },
-      { key: 'WL_AFFILIATE_DELETE', name: 'Delete Affiliate' },
-
-      // Business lifecycle
-      { key: 'WL_AFFILIATE_ASSIGN_PLAN', name: 'Assign Subscription Plan' },
-      { key: 'WL_AFFILIATE_CHANGE_PLAN', name: 'Change Subscription Plan' },
-      { key: 'WL_AFFILIATE_SUSPEND', name: 'Suspend Affiliate' },
-      { key: 'WL_AFFILIATE_REACTIVATE', name: 'Reactivate Affiliate' }
-    ]
-  },
 
   /**
    * ======================================================
    * SUBSCRIPTION PLANS (SAAS PRODUCTS)
+   * Product & plan catalog
    * ======================================================
    */
   SUBSCRIPTION_PLANS: {
     key: 'SUBSCRIPTION_PLANS',
-    name: 'Subscription Plans',
+    name: { en: 'Subscription Plans', fr: 'Plans d’abonnement', ar: 'خطط الاشتراك' },
     actions: [
-      { key: 'SUB_PLAN_ADD', name: 'Create Plan' },
-      { key: 'SUB_PLAN_VIEW', name: 'View Plans' },
-      { key: 'SUB_PLAN_UPDATE', name: 'Update Plan' },
-      { key: 'SUB_PLAN_DELETE', name: 'Delete Plan' },
 
-      // Feature control
-      { key: 'SUB_PLAN_ASSIGN_FEATURES', name: 'Assign Plan Permissions' },
-      { key: 'SUB_PLAN_CLONE', name: 'Clone Subscription Plan' },
-      { key: 'SUB_PLAN_DISABLE', name: 'Disable Plan' }
+      // ----- Plan CRUD -----
+      { key: 'SUB_PLAN_ADD', name: { en: 'Create Plan', fr: 'Créer un plan', ar: 'إنشاء خطة' } },
+      { key: 'SUB_PLAN_VIEW', name: { en: 'View Plans', fr: 'Voir les plans', ar: 'عرض الخطط' } },
+      { key: 'SUB_PLAN_UPDATE', name: { en: 'Update Plan', fr: 'Mettre à jour le plan', ar: 'تحديث الخطة' } },
+      { key: 'SUB_PLAN_DELETE', name: { en: 'Delete Plan', fr: 'Supprimer le plan', ar: 'حذف الخطة' } },
+
+      // ----- Feature Control -----
+      { key: 'SUB_PLAN_ASSIGN_FEATURES', name: { en: 'Assign Plan Permissions', fr: 'Attribuer les autorisations', ar: 'تعيين صلاحيات الخطة' } },
+      { key: 'SUB_PLAN_CLONE', name: { en: 'Clone Subscription Plan', fr: 'Cloner le plan', ar: 'استنساخ الخطة' } },
+      { key: 'SUB_PLAN_DISABLE', name: { en: 'Disable Plan', fr: 'Désactiver le plan', ar: 'تعطيل الخطة' } }
     ]
   },
+/**
+ * ======================================================
+ * 🏢 AFFILIATES (WHITE LABEL PARTNER MANAGEMENT)
+ * 
+ * Root-level management of all WhiteLabel affiliates,
+ * including lifecycle control, compliance, billing,
+ * branding, monitoring, and legal operations.
+ * 
+ * Scope:
+ * - Affiliate creation, updates, suspension, termination
+ * - KYB/KYC compliance & verification workflows
+ * - Subscription plans & billing authority
+ * - Risk monitoring, audits & impersonation
+ * - Data export, GDPR & legal enforcement
+ * 
+ * Access Level:
+ * - ROOT Admins & authorized ROOT users only
+ * 
+ * ======================================================
+ */
 
-  /**
-   * ======================================================
-   * PLAN ASSIGNMENTS & BILLING CONTROL
-   * ======================================================
-   */
-  PLAN_ASSIGNMENTS: {
-    key: 'PLAN_ASSIGNMENTS',
-    name: 'Plan Assignments',
+AFFILIATES: {
+    key: 'AFFILIATES',
+    name: { 
+      en: 'WhiteLabel Affiliates', 
+      fr: 'Affiliés en marque blanche', 
+      ar: 'شركاء العلامة البيضاء' 
+    },
     actions: [
-      { key: 'PLAN_ASSIGN_TO_AFFILIATE', name: 'Assign Plan to Affiliate' },
-      { key: 'PLAN_CHANGE_FOR_AFFILIATE', name: 'Change Affiliate Plan' },
-      { key: 'PLAN_CANCEL_FOR_AFFILIATE', name: 'Cancel Affiliate Plan' },
-      { key: 'PLAN_VIEW_HISTORY', name: 'View Plan Assignment History' }
-    ]
-  },
+      // ----- Affiliate CRUD -----
+      { key: 'AFFILIATE_CREATE', name: { en: 'Create Affiliate', fr: 'Créer un affilié', ar: 'إنشاء شريك' } },
+      { key: 'AFFILIATE_VIEW', name: { en: 'View Affiliates', fr: 'Voir les affiliés', ar: 'عرض الشركاء' } },
+      { key: 'AFFILIATE_UPDATE', name: { en: 'Update Affiliate', fr: 'Mettre à jour l’affilié', ar: 'تحديث الشريك' } },
+      { key: 'AFFILIATE_DELETE', name: { en: 'Delete Affiliate', fr: 'Supprimer l’affilié', ar: 'حذف الشريك' } },
+      { key: 'AFFILIATE_RESTORE', name: { en: 'Restore Affiliate', fr: 'Restaurer l’affilié', ar: 'استعادة الشريك' } },
 
-  /**
-   * ======================================================
-   * SYSTEM SETTINGS (GLOBAL CONFIGURATION)
-   * ======================================================
-   */
-  SYS_SETTINGS: {
-    key: 'SYS_SETTINGS',
-    name: 'System Settings',
-    actions: [
-      { key: 'SYS_SETTINGS_VIEW', name: 'View System Settings' },
-      { key: 'SYS_SETTINGS_UPDATE', name: 'Update System Settings' },
+      // ----- Status Control -----
+      { key: 'AFFILIATE_SUSPEND', name: { en: 'Suspend Affiliate', fr: 'Suspendre l’affilié', ar: 'تعليق الشريك' } },
+      { key: 'AFFILIATE_REACTIVATE', name: { en: 'Reactivate Affiliate', fr: 'Réactiver l’affilié', ar: 'إعادة تفعيل الشريك' } },
+      { key: 'AFFILIATE_TERMINATE', name: { en: 'Terminate Affiliate', fr: 'Terminer l’affilié', ar: 'إنهاء الشريك' } },
 
-      // Contact & Support
-      { key: 'SYS_SETTINGS_CONTACT_UPDATE', name: 'Update Contact Settings' },
+      // ----- KYB / Compliance -----
+      { key: 'AFFILIATE_KYB_VIEW_ALL', name: { en: 'View All KYB Verification Requests', fr: 'Voir toutes les demandes KYB', ar: 'عرض جميع طلبات التحقق من KYB' } },
+      { key: 'AFFILIATE_KYB_VIEW', name: { en: 'View KYB Documents', fr: 'Voir les documents KYB', ar: 'عرض مستندات KYB' } },
+      { key: 'AFFILIATE_KYB_VERIFY', name: { en: 'Verify KYB Documents', fr: 'Vérifier les documents KYB', ar: 'التحقق من مستندات KYB' } },
+      { key: 'AFFILIATE_KYB_REJECT', name: { en: 'Reject KYB Documents', fr: 'Rejeter les documents KYB', ar: 'رفض مستندات KYB' } },
+      { key: 'AFFILIATE_KYB_SUSPEND', name: { en: 'Suspend Affiliate for KYB Non-Compliance', fr: 'Suspendre pour non-conformité KYB', ar: 'تعليق الشريك بسبب عدم الامتثال KYB' } },
+      { key: 'AFFILIATE_KYB_MARK_EXPIRED', name: { en: 'Mark KYB as Expired', fr: 'Marquer KYB comme expiré', ar: 'وضع علامة انتهاء صلاحية KYB' } },
+      { key: 'AFFILIATE_KYB_NOTIFY', name: { en: 'Notify Affiliate for KYB Status', fr: 'Notifier l’affilié du statut KYB', ar: 'إشعار الشريك بحالة KYB' } },
+      { key: 'AFFILIATE_MARK_COMPLIANT', name: { en: 'Mark Affiliate Compliant', fr: 'Marquer conforme', ar: 'تعيين كمتوافق' } },
+      { key: 'AFFILIATE_MARK_NON_COMPLIANT', name: { en: 'Mark Affiliate Non-Compliant', fr: 'Marquer non conforme', ar: 'تعيين كغير متوافق' } },
 
-      // Email / SMTP / Notifications
-      { key: 'SYS_SETTINGS_EMAIL_UPDATE', name: 'Update Email/SMTP Settings' },
+      // ----- Subscription & Billing -----
+      { key: 'AFFILIATE_ASSIGN_PLAN', name: { en: 'Assign Subscription Plan', fr: 'Attribuer un plan', ar: 'تعيين خطة الاشتراك' } },
+      { key: 'AFFILIATE_CHANGE_PLAN', name: { en: 'Change Subscription Plan', fr: 'Changer de plan', ar: 'تغيير خطة الاشتراك' } },
+      { key: 'AFFILIATE_VIEW_BILLING', name: { en: 'View Affiliate Billing', fr: 'Voir la facturation', ar: 'عرض الفواتير' } },
+      { key: 'AFFILIATE_ADJUST_BILLING', name: { en: 'Adjust Billing / Credits', fr: 'Ajuster la facturation', ar: 'تعديل الفوترة' } },
 
-      // Branding / WhiteLabel Defaults
-      { key: 'SYS_SETTINGS_BRANDING_UPDATE', name: 'Update System Branding' },
+      // ----- Whitelabel & Branding -----
+      { key: 'AFFILIATE_UPDATE_BRANDING', name: { en: 'Update Affiliate Branding', fr: 'Mettre à jour la marque', ar: 'تحديث العلامة التجارية' } },
+      { key: 'AFFILIATE_SET_DOMAIN', name: { en: 'Set Custom Domain', fr: 'Définir un domaine', ar: 'تعيين نطاق مخصص' } },
+      { key: 'AFFILIATE_SET_EMAIL_SMTP', name: { en: 'Set Email SMTP Configuration', fr: 'Configurer SMTP Email', ar: 'إعداد SMTP للبريد الإلكتروني' } },
 
-      // Security & Compliance
-      { key: 'SYS_SETTINGS_SECURITY_UPDATE', name: 'Update Security Settings' }
+      // ----- Impersonation & Support -----
+      { key: 'AFFILIATE_IMPERSONATE', name: { en: 'Login as Affiliate Admin', fr: 'Se connecter en tant qu’affilié', ar: 'الدخول كمسؤول شريك' } },
+      { key: 'AFFILIATE_FORCE_LOGOUT_ALL', name: { en: 'Force Logout All Affiliate Users', fr: 'Forcer la déconnexion', ar: 'فرض تسجيل خروج جميع المستخدمين' } },
+
+      // ----- Monitoring & Audit -----
+      { key: 'AFFILIATE_VIEW_AUDIT_LOGS', name: { en: 'View Affiliate Audit Logs', fr: 'Voir les journaux', ar: 'عرض سجلات التدقيق' } },
+      { key: 'AFFILIATE_VIEW_ACTIVITY', name: { en: 'View Affiliate Activity', fr: 'Voir l’activité', ar: 'عرض نشاط الشريك' } },
+      { key: 'AFFILIATE_VIEW_RISK_SCORE', name: { en: 'View Risk Score', fr: 'Voir le score de risque', ar: 'عرض درجة المخاطر' } },
+
+      // ----- Data Export & Legal -----
+      { key: 'AFFILIATE_EXPORT_DATA', name: { en: 'Export Affiliate Data', fr: 'Exporter les données', ar: 'تصدير البيانات' } },
+      { key: 'AFFILIATE_PURGE_DATA', name: { en: 'Purge Affiliate Data (Legal)', fr: 'Purger les données', ar: 'حذف البيانات نهائياً' } }
     ]
   },
 
   /**
    * ======================================================
    * AUDIT LOGS & COMPLIANCE
+   * Security & compliance audit system
    * ======================================================
    */
+
   SYS_AUDIT_LOGS: {
     key: 'SYS_AUDIT_LOGS',
-    name: 'Audit Logs',
+    name: { en: 'Audit Logs', fr: 'Journaux d’audit', ar: 'سجلات التدقيق' },
     actions: [
-      { key: 'SYS_AUDIT_VIEW', name: 'View Audit Logs' },
-      { key: 'SYS_AUDIT_EXPORT', name: 'Export Audit Logs' }
-    ]
-  },
-
-  /**
-   * ======================================================
-   * MODULE & ACTION HISTORY (INTERNAL / COMPLIANCE)
-   * For RootModuleHistory collection
-   * ======================================================
-   */
-  SYS_MODULE_HISTORY: {
-    key: 'SYS_MODULE_HISTORY',
-    name: 'System Module History',
-    actions: [
-      { key: 'MODULE_CREATED', name: 'Module Created' },
-      { key: 'MODULE_UPDATED', name: 'Module Updated' },
-      { key: 'MODULE_DISABLED', name: 'Module Disabled' },
-
-      { key: 'ACTION_ADDED', name: 'Action Added' },
-      { key: 'ACTION_UPDATED', name: 'Action Updated' },
-      { key: 'ACTION_DISABLED', name: 'Action Disabled' }
+      { key: 'SYS_AUDIT_VIEW', name: { en: 'View Audit Logs', fr: 'Voir les journaux', ar: 'عرض سجلات التدقيق' } },
+      { key: 'SYS_AUDIT_EXPORT', name: { en: 'Export Audit Logs', fr: 'Exporter les journaux', ar: 'تصدير سجلات التدقيق' } }
     ]
   }
 
