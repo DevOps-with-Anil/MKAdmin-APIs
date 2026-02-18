@@ -76,43 +76,99 @@
 
 
 
-const mongoose = require('mongoose');
+// const mongoose = require('mongoose');
+
+// // =========================================
+// // 🎭 Role & Permission Schema (Multilingual)
+// // =========================================
+// // Defines roles and their module/action
+// // level permissions for RBAC system with i18n.
+
+// // Nested schema for individual action permissions
+// const actionPermissionSchema = new mongoose.Schema(
+//   {
+//     // Unique action key inside a module (e.g. CREATE, UPDATE, DELETE)
+//     actionKey: { type: String, required: true },
+
+//     // Whether this action is allowed for the role
+//     allowed: { type: Boolean, default: false }
+//   },
+//   { _id: false }
+// );
+
+// // Nested schema for module-level permissions
+// const modulePermissionSchema = new mongoose.Schema(
+//   {
+//     // Unique module key (e.g. USERS, ROLES, MODULES)
+//     moduleKey: { type: String, required: true },
+
+//     // Whether this module is enabled for the role
+//     allowed: { type: Boolean, default: false },
+
+//     // List of action-level permissions under this module
+//     actions: [actionPermissionSchema]
+//   },
+//   { _id: false }
+// );
+
+// // Multilingual string sub-schema (reusable pattern)
+// const i18nStringSchema = new mongoose.Schema(
+//   {
+//     en: { type: String, required: true, trim: true },
+//     fr: { type: String, trim: true },
+//     ar: { type: String, trim: true }
+//   },
+//   { _id: false }
+// );
+
+// // Main Role schema
+// const roleSchema = new mongoose.Schema(
+//   {
+//     // Multilingual role name
+//     name: {
+//       type: i18nStringSchema,
+//       required: true
+//     },
+
+//     // Multilingual role description
+//     description: {
+//       type: i18nStringSchema,
+//       required: true
+//     },
+
+//     // Module and action permissions for this role (RBAC core)
+//     permissions: {
+//       type: [modulePermissionSchema],
+//       default: []
+//     },
+
+//     // Role active/inactive status flag
+//     status: {
+//       type: Boolean,
+//       default: true
+//     }
+//   },
+//   {
+//     timestamps: true
+//   }
+// );
+
+// // 🔍 Optional index for faster lookup by English name (common case)
+// roleSchema.index({ 'name.en': 1 }, { unique: true });
+
+// module.exports = mongoose.model('Role', roleSchema);
+
+
+
+const mongoose = require("mongoose");
+const { rootDB } = require("../config/db");
+
+const { Schema } = mongoose;
 
 // =========================================
-// 🎭 Role & Permission Schema (Multilingual)
+// 🌍 Multilingual String Schema
 // =========================================
-// Defines roles and their module/action
-// level permissions for RBAC system with i18n.
-
-// Nested schema for individual action permissions
-const actionPermissionSchema = new mongoose.Schema(
-  {
-    // Unique action key inside a module (e.g. CREATE, UPDATE, DELETE)
-    actionKey: { type: String, required: true },
-
-    // Whether this action is allowed for the role
-    allowed: { type: Boolean, default: false }
-  },
-  { _id: false }
-);
-
-// Nested schema for module-level permissions
-const modulePermissionSchema = new mongoose.Schema(
-  {
-    // Unique module key (e.g. USERS, ROLES, MODULES)
-    moduleKey: { type: String, required: true },
-
-    // Whether this module is enabled for the role
-    allowed: { type: Boolean, default: false },
-
-    // List of action-level permissions under this module
-    actions: [actionPermissionSchema]
-  },
-  { _id: false }
-);
-
-// Multilingual string sub-schema (reusable pattern)
-const i18nStringSchema = new mongoose.Schema(
+const i18nStringSchema = new Schema(
   {
     en: { type: String, required: true, trim: true },
     fr: { type: String, trim: true },
@@ -121,8 +177,57 @@ const i18nStringSchema = new mongoose.Schema(
   { _id: false }
 );
 
-// Main Role schema
-const roleSchema = new mongoose.Schema(
+// =========================================
+// 🔐 Action Permission Schema
+// =========================================
+const actionPermissionSchema = new Schema(
+  {
+    // Example: CREATE, UPDATE, DELETE
+    actionKey: {
+      type: String,
+      required: true,
+      uppercase: true,
+      trim: true
+    },
+
+    allowed: {
+      type: Boolean,
+      default: false
+    }
+  },
+  { _id: false }
+);
+
+// =========================================
+// 🧩 Module Permission Schema
+// =========================================
+const modulePermissionSchema = new Schema(
+  {
+    // Example: USERS, ROLES, MODULES
+    moduleKey: {
+      type: String,
+      required: true,
+      uppercase: true,
+      trim: true
+    },
+
+    allowed: {
+      type: Boolean,
+      default: false
+    },
+
+    actions: {
+      type: [actionPermissionSchema],
+      default: []
+    }
+  },
+  { _id: false }
+);
+
+// =========================================
+// 🎭 Role Schema
+// =========================================
+const roleSchema = new Schema(
   {
     // Multilingual role name
     name: {
@@ -130,19 +235,19 @@ const roleSchema = new mongoose.Schema(
       required: true
     },
 
-    // Multilingual role description
+    // Multilingual description
     description: {
       type: i18nStringSchema,
       required: true
     },
 
-    // Module and action permissions for this role (RBAC core)
+    // RBAC permissions
     permissions: {
       type: [modulePermissionSchema],
       default: []
     },
 
-    // Role active/inactive status flag
+    // Active/inactive
     status: {
       type: Boolean,
       default: true
@@ -153,7 +258,20 @@ const roleSchema = new mongoose.Schema(
   }
 );
 
-// 🔍 Optional index for faster lookup by English name (common case)
-roleSchema.index({ 'name.en': 1 }, { unique: true });
+// =========================================
+// ⚡ INDEXES
+// =========================================
 
-module.exports = mongoose.model('Role', roleSchema);
+// Unique role name (English)
+roleSchema.index({ "name.en": 1 }, { unique: true });
+
+// Faster permission lookup
+roleSchema.index({ "permissions.moduleKey": 1 });
+roleSchema.index({ "permissions.actions.actionKey": 1 });
+
+// =========================================
+// 🚀 SAFE EXPORT (NO OVERWRITE ERROR)
+// =========================================
+module.exports =
+  rootDB.models.Role ||
+  rootDB.model("Role", roleSchema);
