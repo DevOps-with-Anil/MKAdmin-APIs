@@ -1,94 +1,98 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
+const { auditLogDB } = require("../config/db");
+
+const { Schema } = mongoose;
 
 // =========================================
 // 🧾 Audit Log Schema
 // =========================================
-// Centralized audit trail for tracking all
-// critical system and admin activities.
-
-const auditSchema = new mongoose.Schema(
+const auditSchema = new Schema(
   {
-    // Reference to the user who performed the action
+    // User who performed action
     user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
+      type: Schema.Types.ObjectId,
+      ref: "User"
     },
 
-    // Denormalized user email for fast reporting
+    // Denormalized email (fast reporting)
     userEmail: {
-      type: String
+      type: String,
+      trim: true,
+      lowercase: true
     },
 
-    // High-level action performed (CREATE, UPDATE, DELETE, LOGIN, etc)
+    // Action type (CREATE, UPDATE, DELETE, LOGIN...)
     action: {
       type: String,
-      required: true
+      required: true,
+      uppercase: true,
+      trim: true
     },
 
-    // System module where the action occurred (USERS, ROLES, AUTH, etc)
+    // Module name (USERS, ROLES, AUTH...)
     module: {
       type: String,
-      required: true
+      required: true,
+      uppercase: true,
+      trim: true
     },
 
-    // ID of the affected record/entity
+    // Affected entity ID
     entityId: {
-      type: mongoose.Schema.Types.ObjectId
+      type: Schema.Types.ObjectId
     },
 
-    // Human-readable entity identifier (name, email, code, etc)
+    // Human readable entity label
     entityName: {
-      type: String
+      type: String,
+      trim: true
     },
 
-    // Snapshot of entity data before the change
-    before: mongoose.Schema.Types.Mixed,
+    // Data snapshot before update
+    before: Schema.Types.Mixed,
 
-    // Snapshot of entity data after the change
-    after: mongoose.Schema.Types.Mixed,
+    // Data snapshot after update
+    after: Schema.Types.Mixed,
 
-    // Source IP address of the request
-    ipAddress: {
-      type: String
-    },
+    // Request metadata
+    ipAddress: String,
+    userAgent: String,
 
-    // Raw User-Agent string from client
-    userAgent: {
-      type: String
-    },
-
-    // Parsed device information (browser, OS, device type)
+    // Parsed device info
     device: {
-      browser: String, // Browser name (Chrome, Firefox, etc)
-      os: String,      // Operating system (Windows, macOS, Android, etc)
-      device: String   // Device type (desktop, mobile, tablet)
+      browser: String,
+      os: String,
+      device: String
     },
 
-    // Execution status of the action (SUCCESS or FAILED)
+    // Result of action
     status: {
       type: String,
-      enum: ['SUCCESS', 'FAILED'],
-      default: 'SUCCESS'
+      enum: ["SUCCESS", "FAILED"],
+      default: "SUCCESS"
     },
 
-    // Optional human-readable audit message
+    // Optional message
     message: {
       type: String
     }
   },
   {
-    // Automatically manage createdAt and updatedAt timestamps
     timestamps: true
   }
 );
 
-// Index for fast filtering by module and action
+// =========================================
+// ⚡ INDEXES (Performance)
+// =========================================
 auditSchema.index({ module: 1, action: 1 });
-
-// Index for fast lookup by user
 auditSchema.index({ user: 1 });
-
-// Index for efficient sorting by newest records
 auditSchema.index({ createdAt: -1 });
+auditSchema.index({ status: 1 });
 
-module.exports = mongoose.model('AuditLog', auditSchema);
+// =========================================
+// 🚀 SAFE EXPORT (No Overwrite Error)
+// =========================================
+module.exports =
+  auditLogDB.models.AuditLog ||
+  auditLogDB.model("AuditLog", auditSchema);
