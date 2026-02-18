@@ -1,25 +1,30 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
+const { affiliateDB } = require("../config/db"); // IMPORTANT
+
 const {
   isValidEmail,
-  isValidPhone,
-  isValidName
-} = require('../utils/validator');
+  isValidPhone
+} = require("../utils/validator");
+
+const { Schema } = mongoose;
 
 // ===========================================
-// Multi-language schema (EN, FR, AR)
-const localizedNameSchema = new mongoose.Schema(
+// 🌍 Multi-language Schema
+// ===========================================
+const localizedNameSchema = new Schema(
   {
-    en: { type: String, required: true },
-    fr: { type: String, required: true },
-    ar: { type: String, required: true } // RTL
+    en: { type: String, required: true, trim: true },
+    fr: { type: String, required: true, trim: true },
+    ar: { type: String, required: true, trim: true }
   },
   { _id: false }
 );
 
 // ===========================================
 // 📱 Device Schema
-const deviceSchema = new mongoose.Schema(
+// ===========================================
+const deviceSchema = new Schema(
   {
     ipAddress: String,
     userAgent: String,
@@ -38,7 +43,8 @@ const deviceSchema = new mongoose.Schema(
 
 // ===========================================
 // 🕘 Login History Schema
-const loginHistorySchema = new mongoose.Schema(
+// ===========================================
+const loginHistorySchema = new Schema(
   {
     ipAddress: String,
     userAgent: String,
@@ -56,65 +62,83 @@ const loginHistorySchema = new mongoose.Schema(
 );
 
 // ===========================================
-// 👤 Affiliate Profile Schema
-const affiliateProfileSchema = new mongoose.Schema(
+// 👤 Affiliate Schema
+// ===========================================
+const affiliateProfileSchema = new Schema(
   {
-    email: { 
+    email: {
       type: String,
       required: true,
-      unique: true,
       lowercase: true,
       trim: true,
-      index: true,
       validate: {
         validator: isValidEmail,
-        message: 'Invalid email'
+        message: "Invalid email"
       }
     },
+
     phoneCode: { type: String, trim: true },
-    phoneNumber: { 
-      type: String, 
+
+    phoneNumber: {
+      type: String,
       trim: true,
       validate: {
         validator: isValidPhone,
-        message: 'Invalid phone'
+        message: "Invalid phone"
       }
     },
-    password: { type: String, required: true, select: true },
-    photo: { type: String },
+
+    password: {
+      type: String,
+      required: true,
+      select: true
+    },
+
+    photo: String,
 
     // Multi-language fields
     name: { type: localizedNameSchema, required: true },
-    companyName: { type: localizedNameSchema },
-    bio: { type: localizedNameSchema },
+    companyName: localizedNameSchema,
+    bio: localizedNameSchema,
 
     // Multi-language address
     address: {
-      street: { type: localizedNameSchema },
-      city: { type: localizedNameSchema },
-      state: { type: localizedNameSchema },
-      country: { type: localizedNameSchema },
+      street: localizedNameSchema,
+      city: localizedNameSchema,
+      state: localizedNameSchema,
+      country: localizedNameSchema,
       postalCode: String
     },
 
-    website: { type: String },
+    website: String,
 
-    // KYB verification status
-    kybVerified: { type: Boolean, default: false },
+    // KYB
+    kybVerified: {
+      type: Boolean,
+      default: false
+    },
 
-    // Account status
-    status: { type: String, enum: ['ACTIVE','INACTIVE','SUSPENDED'], default: 'ACTIVE' },
+    // Status
+    status: {
+      type: String,
+      enum: ["ACTIVE", "INACTIVE", "SUSPENDED"],
+      default: "ACTIVE"
+    },
 
     // Soft delete
-    isDeleted: { type: Boolean, default: false },
-    deletedAt: { type: Date },
+    isDeleted: {
+      type: Boolean,
+      default: false
+    },
 
-    // Last login
+    deletedAt: Date,
+
     lastLoginAt: Date,
 
-    // Device & session tracking
+    // Session tracking
     currentDevice: deviceSchema,
     loginHistory: [loginHistorySchema],
+
     tokens: [
       {
         token: String,
@@ -124,43 +148,59 @@ const affiliateProfileSchema = new mongoose.Schema(
       }
     ],
 
-    // Audit / ownership
+    // Root admin creator
     createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User' // Root who created this affiliate
+      type: Schema.Types.ObjectId,
+      ref: "User"
     }
   },
   { timestamps: true }
 );
 
 // ===========================================
-// 🔐 Password Hashing Middleware
-affiliateProfileSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
+// ⚡ INDEXES
+// ===========================================
+
+// Unique email only for non-deleted users
+affiliateProfileSchema.index(
+  { email: 1 },
+  { unique: true, partialFilterExpression: { isDeleted: false } }
+);
+
+affiliateProfileSchema.index({ status: 1 });
+affiliateProfileSchema.index({ createdAt: -1 });
+
+// ===========================================
+// 🔐 Password Hashing
+// ===========================================
+affiliateProfileSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
   this.password = await bcrypt.hash(this.password, 10);
   next();
 });
 
 // ===========================================
-// 🔑 Authentication Helpers
+// 🔑 Helpers
+// ===========================================
 affiliateProfileSchema.methods.comparePassword = function (enteredPassword) {
   return bcrypt.compare(enteredPassword, this.password);
 };
 
-// ===========================================
-// ❌ JSON Transform Helpers
 affiliateProfileSchema.methods.toJSON = function () {
   const obj = this.toObject();
   delete obj.password;
   return obj;
 };
 
-// ===========================================
-// Soft delete helper
-affiliateProfileSchema.methods.softDelete = async function() {
+affiliateProfileSchema.methods.softDelete = async function () {
   this.isDeleted = true;
   this.deletedAt = new Date();
   await this.save();
 };
 
-module.exports = mongoose.model('Affiliate', affiliateProfileSchema);
+// ===========================================
+// 🚀 SAFE EXPORT (NO OVERWRITE ERROR)
+// ===========================================
+module.exports =
+  affiliateDB.models.Affiliate ||
+  affiliateDB.model("Affiliate", affiliateProfileSchema);

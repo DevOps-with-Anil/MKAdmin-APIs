@@ -1,37 +1,69 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
+const { rootDB } = require("../config/db");
+
+const { Schema } = mongoose;
 
 // =========================================
-// 🌍 Multi-language Name Sub-Schema
+// 🌍 Multi-language Name Schema
 // =========================================
-const localizedNameSchema = new mongoose.Schema(
+const localizedNameSchema = new Schema(
   {
-    en: { type: String, required: true }, // English (default)
-    fr: { type: String, required: true }, // French
-    ar: { type: String, required: true }  // Arabic (RTL)
+    en: { type: String, required: true, trim: true },
+    fr: { type: String, required: true, trim: true },
+    ar: { type: String, required: true, trim: true }
   },
-  { _id: false } // No _id for name objects
+  { _id: false }
 );
 
 // =========================================
-// 🧩 Plan Module Action Schema
+// 🧩 Plan Action Schema
 // =========================================
-const planActionSchema = new mongoose.Schema(
+const planActionSchema = new Schema(
   {
-    actionKey: { type: String, required: true, uppercase: true },   // Action key from RootModule
-    actionName: { type: localizedNameSchema, required: true },      // Multi-language action name
-    allowed: { type: Boolean, default: false }                      // Is this action allowed in this plan
+    // Action key from RootModule
+    actionKey: {
+      type: String,
+      required: true,
+      uppercase: true,
+      trim: true
+    },
+
+    // Multi-language action name
+    actionName: {
+      type: localizedNameSchema,
+      required: true
+    },
+
+    // Permission flag
+    allowed: {
+      type: Boolean,
+      default: false
+    }
   },
-  { _id: true } // Enable _id for audit/logging
+  { _id: true }
 );
 
 // =========================================
 // 🧩 Plan Module Schema
 // =========================================
-const planModuleSchema = new mongoose.Schema(
+const planModuleSchema = new Schema(
   {
-    moduleKey: { type: String, required: true, uppercase: true },   // Module key from RootModule
-    moduleName: { type: localizedNameSchema, required: true },      // Multi-language module name
-    actions: [planActionSchema]                                     // Actions in this module for plan
+    moduleKey: {
+      type: String,
+      required: true,
+      uppercase: true,
+      trim: true
+    },
+
+    moduleName: {
+      type: localizedNameSchema,
+      required: true
+    },
+
+    actions: {
+      type: [planActionSchema],
+      default: []
+    }
   },
   { _id: true }
 );
@@ -39,33 +71,73 @@ const planModuleSchema = new mongoose.Schema(
 // =========================================
 // 🧩 Plan Schema
 // =========================================
-const planSchema = new mongoose.Schema(
+const planSchema = new Schema(
   {
-    // Multi-language plan name
-    name: { type: localizedNameSchema, required: true },
+    // Multi-language name
+    name: {
+      type: localizedNameSchema,
+      required: true
+    },
 
-    // Multi-language plan description
-    description: { type: localizedNameSchema },
+    // Multi-language description
+    description: {
+      type: localizedNameSchema
+    },
 
-    // Price of plan
-    price: { type: Number, default: 0 },
+    // Plan price
+    price: {
+      type: Number,
+      default: 0,
+      min: 0
+    },
 
-    // Currency (ISO 4217) e.g., USD, EUR, INR
-    currency: { type: String, default: 'USD', uppercase: true, trim: true },
+    // ISO currency code
+    currency: {
+      type: String,
+      default: "USD",
+      uppercase: true,
+      trim: true
+    },
 
-    // Duration of plan: monthly/yearly
-    duration: { type: String, enum: ['MONTHLY', 'YEARLY'], default: 'MONTHLY' },
+    // Billing duration
+    duration: {
+      type: String,
+      enum: ["MONTHLY", "YEARLY"],
+      default: "MONTHLY"
+    },
 
-    // Modules & actions allowed in this plan
-    modules: [planModuleSchema],
+    // Allowed modules & actions
+    modules: {
+      type: [planModuleSchema],
+      default: []
+    },
 
-    // Plan creator (Root admin)
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    // Root admin creator
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User"
+    },
 
-    // Active/Inactive plan
-    status: { type: String, enum: ['ACTIVE', 'INACTIVE'], default: 'ACTIVE' }
+    // Plan status
+    status: {
+      type: String,
+      enum: ["ACTIVE", "INACTIVE"],
+      default: "ACTIVE"
+    }
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model('Plan', planSchema);
+// =========================================
+// ⚡ INDEXES (Performance)
+// =========================================
+planSchema.index({ "name.en": 1 });
+planSchema.index({ status: 1 });
+planSchema.index({ "modules.moduleKey": 1 });
+
+// =========================================
+// 🚀 SAFE EXPORT (No Overwrite Errors)
+// =========================================
+module.exports =
+  rootDB.models.Plan ||
+  rootDB.model("Plan", planSchema);

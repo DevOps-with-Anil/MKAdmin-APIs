@@ -1,7 +1,7 @@
+require("dotenv").config();
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
-const connectDB = require('./config/db');
 
 const moduleRoutes = require('./routes/rootmodule.routes'); // Root system module routes
 const seedSuperAdmin = require('./script/seedDefaultValue'); // Seed default root admin + base data
@@ -12,7 +12,7 @@ const app = express();
 // ======================
 // 🔌 Database Connection
 // ======================
-connectDB(); // Initialize MongoDB connection
+require("./config/db");  // Initialize MongoDB connection
 
 // ======================
 // 🌱 Seed Default Data (Dev Only)
