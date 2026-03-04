@@ -25,6 +25,21 @@ exports.login = async (req, res) => {
     const { email, password } = req.body;
 
     // ========================================
+    // 0️⃣ Explicit Connection Check
+    // - Verify database is connected before query
+    // ========================================
+    const { rootDB } = require('../config/db');
+    if (rootDB.readyState !== 1) {
+      console.error('❌ Database not connected. State:', rootDB.readyState);
+      return responseFormatter.error(
+        req,
+        res,
+        503,
+        MSG.SERVER_DATABASE_UNAVAILABLE || 'Database connection unavailable'
+      );
+    }
+
+    // ========================================
     // 1️⃣ Fetch user by email (include password)
     // - Normalize email to avoid case/space issues
     // - Populate role for RBAC & permissions
@@ -43,6 +58,19 @@ exports.login = async (req, res) => {
         "PWD_403"
       );
     }
+
+    // ========================================
+    // 1.5️⃣ Fallback for missing role
+    // - Handle cases where role is null/undefined
+    // - Provide default role to prevent crashes
+    // ========================================
+    const defaultRole = {
+      _id: null,
+      name: 'UNASSIGNED',
+      permissions: []
+    };
+    
+    const userRole = user.role || defaultRole;
 
     // ========================================
     // 2️⃣ Validate account status
@@ -114,13 +142,14 @@ exports.login = async (req, res) => {
     // 6️⃣ Build JWT payload
     // - Includes role & permissions for RBAC
     // - Keep payload minimal but useful
+    // - Uses fallback role if missing
     // ========================================
     const tokenPayload = {
       _id: user._id,
       email: user.email,
-      roleId: user.role._id,
-      roleName: user.role.name,
-      permissions: user.role.permissions
+      roleId: userRole._id,
+      roleName: userRole.name,
+      permissions: userRole.permissions
     };
 
     // Generate signed JWT token
@@ -163,8 +192,8 @@ exports.login = async (req, res) => {
           name: user.name,
           email: user.email,
           role: {
-            _id: user.role._id,
-            name: user.role.name
+            _id: userRole._id,
+            name: userRole.name
           },
           status: user.status,
           lastLoginAt: user.lastLoginAt,
@@ -190,3 +219,4 @@ exports.login = async (req, res) => {
     );
   }
 };
+

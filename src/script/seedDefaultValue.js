@@ -96,7 +96,40 @@ module.exports = async function seedRootSystem() {
         message: "ROOT ADMIN role created by bootstrap"
       });
 
-      console.log("✅ ROOT ADMIN role created");
+    console.log("✅ ROOT ADMIN role created");
+    }
+
+    // ======================================================
+    // 3.5️⃣ CREATE MANAGER ROLE
+    // ======================================================
+    let managerRole = await RootRole.findOne({ "name.en": "MANAGER" });
+
+    if (!managerRole) {
+      managerRole = await RootRole.create({
+        name: {
+          en: "MANAGER",
+          fr: "GESTIONNAIRE",
+          ar: "مدير"
+        },
+        description: {
+          en: "Manager with limited system access",
+          fr: "Gestionnaire avec accès limité",
+          ar: "مدير مع وصول محدود"
+        },
+        permissions: [],
+        status: true
+      });
+
+      await AuditLog.create({
+        user: null,
+        action: "SYSTEM_ROLE_CREATED",
+        module: "ROLES",
+        entityId: managerRole._id,
+        entityName: managerRole.name.en,
+        message: "MANAGER role created by bootstrap"
+      });
+
+      console.log("✅ MANAGER role created");
     }
 
     // ======================================================
@@ -127,6 +160,39 @@ module.exports = async function seedRootSystem() {
       console.log("🎉 Super Admin user created");
     } else {
       console.log("ℹ️ Super Admin already exists");
+    }
+
+    // ======================================================
+    // 4.5️⃣ CREATE MANAGER USER
+    // ======================================================
+    const managerEmail = process.env.MANAGER_EMAIL || "manager@example.com";
+    const managerPassword = process.env.MANAGER_PASSWORD || "manager123";
+    const managerName = process.env.MANAGER_NAME || "Manager User";
+
+    const normalizedManagerEmail = managerEmail.toLowerCase().trim();
+    let existingManager = await User.findOne({ email: normalizedManagerEmail });
+
+    if (!existingManager) {
+      const managerUser = await User.create({
+        name: managerName.trim(),
+        email: normalizedManagerEmail,
+        password: managerPassword,
+        role: managerRole._id,
+        status: "ACTIVE"
+      });
+
+      await AuditLog.create({
+        user: null,
+        action: "SYSTEM_MANAGER_CREATED",
+        module: "USERS",
+        entityId: managerUser._id,
+        entityName: managerUser.email,
+        message: "Manager user created by bootstrap"
+      });
+
+      console.log("🎉 Manager user created");
+    } else {
+      console.log("ℹ️ Manager user already exists");
     }
 
     console.log("✅ Root System Bootstrap completed");

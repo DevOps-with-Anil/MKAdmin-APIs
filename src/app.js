@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const moduleRoutes = require('./routes/rootmodule.routes'); // Root system module routes
 const seedSuperAdmin = require('./script/seedDefaultValue'); // Seed default root admin + base data
 const languageMiddleware = require('./middleware/languageMiddleware'); // Multi-language middleware
+const { swaggerUi, specs } = require('./swagger'); // Swagger documentation
 
 const app = express();
 
@@ -45,6 +46,21 @@ app.use('/api/affilaite', require('./routes/affiliate.routes'));        // Affil
 app.get('/', (req, res) => {
   res.send('APIs are running...'); // Simple health/status endpoint
 });
+
+// ======================
+// 📚 Swagger Documentation
+// ======================
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
+  swaggerOptions: {
+    persistAuthorization: true,
+    displayRequestDuration: true,
+  },
+  customCss: `
+    .swagger-ui .topbar { display: none }
+    .swagger-ui .info { margin: 30px 0 }
+  `,
+  customSiteTitle: "MKAdmin APIs Documentation"
+}));
 
 
 // ======================
