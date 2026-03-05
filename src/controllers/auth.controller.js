@@ -193,7 +193,8 @@ exports.login = async (req, res) => {
           email: user.email,
           role: {
             _id: userRole._id,
-            name: userRole.name
+            name: userRole.name,
+            permissions: userRole.permissions
           },
           status: user.status,
           lastLoginAt: user.lastLoginAt,
