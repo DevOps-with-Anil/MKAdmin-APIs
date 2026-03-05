@@ -1,9 +1,11 @@
-const User = require("../models/User");
-const RootRole = require("../models/Role");
-const RootModule = require("../models/RootModule");
+const User = require("../models/platform/User");
+const RootRole = require("../models/rbac/SystemRole");
+const RootModule = require("../models/rbac/SystemModule");
 const AuditLog = require("../models/AuditLog");
 
-const SYSTEM_MODULES = require("../config/constants/defaultRootModules");
+const ROOT_SYSTEM_MODULES = require("../config/constants/defaultRootModules");
+const AFFILIATE_SYSTEM_MODULES = require("../config/constants/defaultAffiliateModules");
+const AffiliateModule = require("../models/rbac/AffiliateModule");
 
 // =========================================
 // 🌱 ROOT SYSTEM BOOTSTRAP
@@ -16,10 +18,12 @@ module.exports = async function seedRootSystem() {
     const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD;
     const superAdminName = process.env.SUPER_ADMIN_NAME || "ROOT ADMIN";
 
+
+
     // ======================================================
-    // 1️⃣ SEED SYSTEM MODULES
+    // 1️⃣ SEED ROOT SYSTEM MODULES
     // ======================================================
-    for (const mod of Object.values(SYSTEM_MODULES)) {
+    for (const mod of Object.values(ROOT_SYSTEM_MODULES)) {
       const existingModule = await RootModule.findOne({ key: mod.key.trim() });
 
       if (!existingModule) {
@@ -46,15 +50,55 @@ module.exports = async function seedRootSystem() {
         await AuditLog.create({
           user: null,
           action: "SYSTEM_MODULE_CREATED",
-          module: "SYSTEM_MODULES",
+          module: mod.key,
           entityId: createdModule._id,
           entityName: mod.name.en,
-          message: `System module created: ${mod.key}`
+          message: `Default System module created`
         });
 
-        console.log(`✅ Module created: ${mod.key}`);
+        console.log(`✅ Root Module created: ${mod.key}`);
       }
-    }
+    };
+
+    // ======================================================
+    // 1️⃣ SEED AFFILIATE SYSTEM MODULES
+    // ======================================================
+    for (const mod of Object.values(AFFILIATE_SYSTEM_MODULES)) {
+      const existingModule = await AffiliateModule.findOne({ key: mod.key.trim() });
+
+      if (!existingModule) {
+        const createdModule = await AffiliateModule.create({
+          key: mod.key.trim(),
+
+          moduleName: {
+            en: mod.name.en.trim(),
+            fr: mod.name.fr.trim(),
+            ar: mod.name.ar.trim()
+          },
+
+          actions: mod.actions.map((a) => ({
+            key: a.key.trim(),
+            actionName: {
+              en: a.name.en.trim(),
+              fr: a.name.fr.trim(),
+              ar: a.name.ar.trim()
+            },
+            isActive: true
+          }))
+        });
+
+        await AuditLog.create({
+          user: null,
+          action: "SYSTEM_MODULE_CREATED",
+          module: mod.key,
+          entityId: createdModule._id,
+          entityName: mod.name.en,
+          message: `Default System module created`
+        });
+
+        console.log(`✅ Affilate Module created: ${mod.key}`);
+      }
+    };
 
     // ======================================================
     // 2️⃣ VALIDATE SUPER ADMIN ENV
@@ -89,7 +133,7 @@ module.exports = async function seedRootSystem() {
 
       await AuditLog.create({
         user: null,
-        action: "SYSTEM_ROLE_CREATED",
+        action: "ROOT_ROLE_CREATED",
         module: "ROLES",
         entityId: superRole._id,
         entityName: superRole.name.en,
@@ -117,7 +161,7 @@ module.exports = async function seedRootSystem() {
 
       await AuditLog.create({
         user: null,
-        action: "SYSTEM_SUPER_ADMIN_CREATED",
+        action: "SYSTEM_ROOT_ADMIN_CREATED",
         module: "USERS",
         entityId: superAdminUser._id,
         entityName: superAdminUser.email,

@@ -1,11 +1,11 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
-const { affiliateDB } = require("../config/db"); // IMPORTANT
+const { affiliateDB } = require("../../config/db"); // IMPORTANT
 
 const {
   isValidEmail,
   isValidPhone
-} = require("../utils/validator");
+} = require("../../utils/validator");
 
 const { Schema } = mongoose;
 
@@ -151,7 +151,7 @@ const affiliateProfileSchema = new Schema(
     // Root admin creator
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: "User"
+      ref: "SYS_User"
     }
   },
   { timestamps: true }

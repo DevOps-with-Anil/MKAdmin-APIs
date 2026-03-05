@@ -1,12 +1,12 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
-const { rootDB } = require("../config/db");
+const { rootDB } = require("../../config/db");
 
 const {
   isValidEmail,
   isValidPhone,
   isValidName
-} = require("../utils/validator");
+} = require("../../utils/validator");
 
 const { Schema } = mongoose;
 
@@ -96,7 +96,7 @@ const userSchema = new Schema(
 
     role: {
       type: Schema.Types.ObjectId,
-      ref: "Role",
+      ref: "SYS_Role",
       required: true
     },
 
@@ -124,7 +124,7 @@ const userSchema = new Schema(
 
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: "User"
+      ref: "SYS_User"
     }
   },
   { timestamps: true }
@@ -156,5 +156,5 @@ userSchema.methods.toJSON = function () {
 // EXPORT MODEL (SAFE)
 // =========================================
 module.exports =
-  rootDB.models.User ||
-  rootDB.model("User", userSchema);
+  rootDB.models.SYS_User ||
+  rootDB.model("SYS_User", userSchema);

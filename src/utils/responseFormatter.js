@@ -34,9 +34,6 @@ exports.error = (req, res, status, messageKey, errCode) => {
   // Auto-map errorCode from MSG key
   let errorCode = errCode || 'USR_500';
 
-    console.log(req.t(messageKey) + " tttttttttttttt ")
-
-
   return res.status(status).json({
     success: false,
     status,

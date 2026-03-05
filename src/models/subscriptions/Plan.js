@@ -1,19 +1,21 @@
 const mongoose = require("mongoose");
-const { rootDB } = require("../config/db");
+const { rootDB } = require("../../config/db");
 
 const { Schema } = mongoose;
 
 // =========================================
 // 🌍 Multi-language Name Schema
 // =========================================
-const localizedNameSchema = new Schema(
-  {
-    en: { type: String, required: true, trim: true },
-    fr: { type: String, required: true, trim: true },
-    ar: { type: String, required: true, trim: true }
-  },
-  { _id: false }
-);
+// const localizedNameSchema = new Schema(
+//   {
+//     en: { type: String, required: true, trim: true },
+//     fr: { type: String, required: true, trim: true },
+//     ar: { type: String, required: true, trim: true }
+//   },
+//   { _id: false }
+// );
+
+const localizedNameSchema = new Schema({}, { _id: false, strict: false });
 
 // =========================================
 // 🧩 Plan Action Schema
@@ -139,5 +141,5 @@ planSchema.index({ "modules.moduleKey": 1 });
 // 🚀 SAFE EXPORT (No Overwrite Errors)
 // =========================================
 module.exports =
-  rootDB.models.Plan ||
-  rootDB.model("Plan", planSchema);
+  rootDB.models.Subscription ||
+  rootDB.model("Subscription", planSchema);
