@@ -1,7 +1,8 @@
 const router = require('express').Router();
-const authMiddleware = require('../middleware/auth');
-const ctrl = require('../controllers/role.controller');
-const { checkPermission } = require('../middleware/permissionMiddleware');
+const authMiddleware = require('../../middleware/auth');
+const ctrl = require('../../controllers/rbac/systemrole.controller');
+const { checkPermission } = require('../../middleware/permissionMiddleware');
+const { userLimiter } = require('../../config/rateLimit'); // ✅ Rate limiter
 
 /**
  * =========================================
@@ -10,7 +11,7 @@ const { checkPermission } = require('../middleware/permissionMiddleware');
  * Module Key: SYS_ROLES
  */
 
-// Apply authentication middleware to all role routes
+// Apply auth globally (Good practice)
 router.use(authMiddleware);
 
 /**
@@ -19,46 +20,34 @@ router.use(authMiddleware);
  * -----------------------------------------
  */
 
-/**
- * @route   POST /api/roles
- * @desc    Create a new role
- */
+// Create Role
 router.post(
   '/',
-  authMiddleware,
+  userLimiter(), // ✅ Rate Limit
   checkPermission('SYS_ROLES', 'SYS_ROLE_ADD'),
   ctrl.createRole
 );
 
-/**
- * @route   GET /api/roles
- * @desc    Get list of all roles
- */
+// List Roles
 router.get(
   '/',
-  authMiddleware,
+  userLimiter(), // ✅ Rate Limit
   checkPermission('SYS_ROLES', 'SYS_ROLE_VIEW'),
   ctrl.listRoles
 );
 
-/**
- * @route   PUT /api/roles/:id
- * @desc    Update role details
- */
+// Update Role
 router.put(
   '/:id',
-  authMiddleware,
+  userLimiter(), // ✅ Rate Limit
   checkPermission('SYS_ROLES', 'SYS_ROLE_UPDATE'),
   ctrl.updateRole
 );
 
-/**
- * @route   PATCH /api/roles/:id/status
- * @desc    Update role active/inactive status
- */
+// Update Role Status
 router.patch(
   '/:id/status',
-  authMiddleware,
+  userLimiter(), // ✅ Rate Limit
   checkPermission('SYS_ROLES', 'SYS_ROLE_UPDATE'),
   ctrl.updateRoleStatus
 );
@@ -69,13 +58,10 @@ router.patch(
  * -----------------------------------------
  */
 
-/**
- * @route   PATCH /api/roles/:id/permissions
- * @desc    Assign module & action permissions to a role
- */
+// Assign Permissions
 router.patch(
   '/:id/permissions',
-  authMiddleware,
+  userLimiter(), // ✅ Rate Limit
   checkPermission('SYS_ROLES', 'SYS_ROLE_ASSIGN_PERMISSIONS'),
   ctrl.assignPermissions
 );

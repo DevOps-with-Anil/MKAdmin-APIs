@@ -1,23 +1,30 @@
 {
-
-  
-  "AUTH.INVALID_CREDENTIALS": "Email ou mot de passe invalide.",
-  "AUTH.ACCOUNT_INACTIVE": "Le compte n'est pas actif.",
-  "AUTH.LOGIN_SUCCESS": "Connexion réussie.",
+  "AUTH.LOGIN_SUCCESS": "Connexion réussie",
   "AUTH.LOGIN_FAILED": "Échec de la connexion. Veuillez réessayer.",
 
+  "AUTH.INVALID_CREDENTIALS": "Email ou mot de passe invalide",
+
+  "AUTH.TOKEN_MISSING": "Le jeton d'authentification est manquant",
+  "AUTH.TOKEN_INVALID": "Le jeton d'authentification est invalide",
+  "AUTH.TOKEN_EXPIRED": "Le jeton d'authentification a expiré",
+
+  "AUTH.ACCOUNT_INACTIVE": "Votre compte est inactif. Veuillez contacter le support.",
+  "AUTH.ACCOUNT_LOCKED": "Votre compte est verrouillé. Veuillez contacter le support.",
+
+  "AUTH.LOGOUT_SUCCESS": "Déconnexion réussie",
+  "AUTH.LOGOUT_ALL_SUCCESS": "Déconnexion de tous les appareils réussie",
 
   "USER.PROFILE_FETCHED": "Profil utilisateur récupéré avec succès",
   "SERVER_ERROR": "Erreur du serveur",
   "USER_NOT_FOUND": "Utilisateur non trouvé",
 
-
+  "MODULE.KEY_REQUIRED": "La clé et le nom du module sont requis.",
   "MODULE.EXISTS": "La clé du module existe déjà.",
   "MODULE.CREATED": "Module créé avec succès.",
   "MODULE.CREATE_FAILED": "Échec de la création du module.",
   "MODULE.LIST_FETCHED": "Liste des modules récupérée avec succès.",
   "MODULE.LIST_FAILED": "Échec de la récupération de la liste des modules.",
-  "MODULE.NOT_FOUND": "Module introuvable.",
+  "MODULE.NOT_FOUND": "Module non trouvé.",
   "MODULE.FETCHED": "Module récupéré avec succès.",
   "MODULE.UPDATED": "Module mis à jour avec succès.",
   "MODULE.UPDATE_FAILED": "Échec de la mise à jour du module.",
@@ -25,9 +32,10 @@
   "MODULE.DELETE_FAILED": "Échec de la suppression du module.",
   "MODULE.STATUS_UPDATED": "Statut du module mis à jour avec succès.",
   "MODULE.STATUS_UPDATE_FAILED": "Échec de la mise à jour du statut du module.",
-  "MODULE.INACTIVE": "Impossible d'effectuer une action sur un module inactif.",
+  "MODULE.INACTIVE": "Impossible d'effectuer l'action sur un module inactif.",
   "MODULE.NOTHING_TO_UPDATE": "Rien à mettre à jour.",
 
+  "ACTION.KEY_REQUIRED": "La clé de l'action est requise.",
   "ACTION.EXISTS": "La clé de l'action existe déjà dans ce module.",
   "ACTION.NAME_EXISTS": "Le nom de l'action existe déjà dans ce module.",
   "ACTION.ADDED": "Action ajoutée avec succès.",
@@ -37,7 +45,7 @@
   "ACTION.DELETED": "Action supprimée avec succès.",
   "ACTION.DELETE_FAILED": "Échec de la suppression de l'action.",
   "ACTION.DUPLICATE_KEY": "Clés d'action en double trouvées.",
-
+  "ACTION.NOT_FOUND": "Action non trouvée.",
 
   "USER.CREATED": "Utilisateur créé avec succès.",
   "USER.UPDATED": "Utilisateur mis à jour avec succès.",
@@ -61,36 +69,62 @@
   "VALIDATION.EMAIL_REQUIRED": "L'adresse email est requise.",
   "VALIDATION.PASSWORD_REQUIRED": "Le mot de passe est requis.",
   "VALIDATION.ROLE_REQUIRED": "Le rôle est requis.",
-  "VALIDATION.PHONE_CODE_REQUIRED": "Le code pays est requis.",
+  "VALIDATION.PHONE_CODE_REQUIRED": "L'indicatif du pays est requis.",
   "VALIDATION.PHONE_REQUIRED": "Le numéro de mobile est requis.",
   "VALIDATION.INVALID_EMAIL": "Veuillez entrer une adresse email valide.",
   "VALIDATION.INVALID_PHONE": "Veuillez entrer un numéro de mobile valide.",
-  "VALIDATION.INVALID_PASSWORD": "Le mot de passe doit inclure des majuscules, minuscules, chiffres et caractères spéciaux.",
+  "VALIDATION.INVALID_PASSWORD": "Le mot de passe doit inclure une majuscule, une minuscule, un chiffre et un caractère spécial.",
 
-
-  
   "ROLE.NAME_REQUIRED": "Le nom du rôle est requis.",
   "ROLE.EXISTS": "Le rôle existe déjà.",
   "ROLE.CREATED": "Rôle créé avec succès.",
   "ROLE.CREATE_FAILED": "Échec de la création du rôle.",
   "ROLE.LIST_FETCHED": "Rôles récupérés avec succès.",
   "ROLE.LIST_FAILED": "Échec de la récupération des rôles.",
-  "ROLE.NOT_FOUND": "Rôle introuvable.",
+  "ROLE.NOT_FOUND": "Rôle non trouvé.",
   "ROLE.UPDATED": "Rôle mis à jour avec succès.",
   "ROLE.UPDATE_FAILED": "Échec de la mise à jour du rôle.",
   "ROLE.STATUS_REQUIRED": "Le statut du rôle est requis.",
   "ROLE.STATUS_UPDATED": "Statut du rôle mis à jour avec succès.",
   "ROLE.STATUS_UPDATE_FAILED": "Échec de la mise à jour du statut du rôle.",
   "MODULES.ARRAY_REQUIRED": "Le tableau des modules est requis.",
-  "MODULE.KEY_REQUIRED": "La clé du module est requise.",
   "MODULE.INVALID_KEY": "Clé de module invalide.",
   "ACTIONS.ARRAY_REQUIRED": "Le tableau des actions est requis.",
-  "ACTION.KEY_REQUIRED": "La clé de l'action est requise.",
   "ACTION.INVALID_KEY": "Clé d'action invalide.",
   "ROLE.CANNOT_MODIFY_SUPER_ADMIN": "Impossible de modifier le rôle SUPER_ADMIN.",
-  "PERMISSIONS.UPDATED": "Autorisations mises à jour avec succès.",
-  "PERMISSIONS.ASSIGN_FAILED": "Échec de l'attribution des autorisations."
+  "PERMISSIONS.UPDATED": "Permissions mises à jour avec succès.",
+  "PERMISSIONS.ASSIGN_FAILED": "Échec de l'attribution des permissions.",
 
+  "PLAN.NAME_REQUIRED": "Le nom du plan est requis dans toutes les langues",
+  "PLAN.CREATED": "Plan créé avec succès",
+  "PLAN.CREATE_FAILED": "Échec de la création du plan",
+  "PLAN.LIST_FETCHED": "Liste des plans récupérée avec succès",
+  "PLAN.LIST_FAILED": "Échec de la récupération de la liste des plans",
+  "PLAN.NOT_FOUND": "Plan non trouvé",
+  "PLAN.FETCHED": "Plan récupéré avec succès",
+  "PLAN.FETCH_FAILED": "Échec de la récupération du plan",
+  "PLAN.UPDATED": "Plan mis à jour avec succès",
+  "PLAN.UPDATE_FAILED": "Échec de la mise à jour du plan",
+  "PLAN.DELETED": "Plan supprimé avec succès",
+  "PLAN.DELETE_FAILED": "Échec de la suppression du plan",
 
+  "PERMISSION.MODULES_ARRAY_REQUIRED": "Le tableau des modules est requis",
+  "PERMISSION.MODULES_ASSIGNED": "Modules et actions attribués avec succès",
+  "PERMISSION.MODULES_ASSIGN_FAILED": "Échec de l'attribution des modules et des actions",
+  "PERMISSION.INVALID_MODULE_KEY": "Clé de module invalide : {moduleKey}",
+  "PERMISSION.INVALID_ACTION_KEY": "Clé d'action invalide : {actionKey}",
 
-}
+  "AFFILIATE.CREATED": "Affilié créé avec succès.",
+  "AFFILIATE.CREATE_FAILED": "Échec de la création de l'affilié.",
+  "AFFILIATE.FETCHED": "Détails de l'affilié récupérés avec succès.",
+  "AFFILIATE.FETCH_FAILED": "Échec de la récupération des détails de l'affilié.",
+  "AFFILIATE.UPDATED": "Affilié mis à jour avec succès.",
+  "AFFILIATE.UPDATE_FAILED": "Échec de la mise à jour de l'affilié.",
+  "AFFILIATE.SOFT_DELETED": "Affilié supprimé (désactivé) avec succès.",
+  "AFFILIATE.DELETE_FAILED": "Échec de la suppression de l'affilié.",
+  "AFFILIATE.NOT_FOUND": "Affilié non trouvé.",
+  "AFFILIATE.LIST_FETCHED": "Liste des affiliés récupérée avec succès.",
+  "AFFILIATE.LIST_FETCH_FAILED": "Échec de la récupération de la liste des affiliés.",
+  "AFFILIATE.RESTORED": "Affilié restauré avec succès.",
+  "AFFILIATE.RESTORE_FAILED": "Échec de la restauration de l'affilié."
+} 

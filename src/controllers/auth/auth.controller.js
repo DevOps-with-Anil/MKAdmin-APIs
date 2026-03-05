@@ -5,14 +5,56 @@
  */
 
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const User = require('../../models/platform/User');
 const UAParser = require('ua-parser-js');
-const responseFormatter = require('../utils/responseFormatter');
-const MSG = require('../config/constants/messageKeys');
-const { JWT_SECRET } = require('../config/env');
-const CODES = require('../config/constants/errorCodes');
+const responseFormatter = require('../../utils/responseFormatter');
+const MSG = require('../../config/constants/messageKeys');
+const { JWT_SECRET } = require('../../config/env');
+const CODES = require('../../config/constants/errorCodes');
 
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '8h';
+
+const { SUPPORTED_LANGS, DEFAULT_LANG } = require('../../utils/i18n');
+
+/**
+ * ============================================================
+ * 🌍 Helper: Validate localized object dynamically
+ * ============================================================
+ */
+function validateLocalizedField(field, fieldName) {
+  for (const lang of SUPPORTED_LANGS) {
+    if (!field?.[lang]) {
+      return `${fieldName} required for language: ${lang}`;
+    }
+  }
+  return null;
+}
+
+/**
+ * ============================================================
+ * 🌍 Helper: Localize module output dynamically
+ * ============================================================
+ */
+function localizeModule(module, lang) {
+  const obj = module.toObject();
+
+  obj.moduleName =
+    obj.moduleName?.[lang] || obj.moduleName?.[DEFAULT_LANG];
+
+  obj.description =
+    obj.description?.[lang] || obj.description?.[DEFAULT_LANG];
+
+  if (Array.isArray(obj.actions)) {
+    obj.actions = obj.actions.map(action => ({
+      ...action,
+      actionName:
+        action.actionName?.[lang] ||
+        action.actionName?.[DEFAULT_LANG]
+    }));
+  }
+
+  return obj;
+}
 
 
 /**
@@ -20,8 +62,9 @@ const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '8h';
  * @desc    Authenticate user and issue JWT token
  * @access  Public
  */
-exports.login = async (req, res) => {
+exports.rootlogin = async (req, res) => {
   try {
+    const lang = req.lang || DEFAULT_LANG;
     const { email, password } = req.body;
 
     // ========================================
@@ -119,7 +162,7 @@ exports.login = async (req, res) => {
       _id: user._id,
       email: user.email,
       roleId: user.role._id,
-      roleName: user.role.name,
+      name: user.role.name?.[lang] || user.role.name?.[DEFAULT_LANG],
       permissions: user.role.permissions
     };
 
@@ -142,7 +185,7 @@ exports.login = async (req, res) => {
     });
 
     // Keep only last 10 active tokens
-    user.tokens = user.tokens.slice(0, 10);
+    user.tokens = user.tokens.slice(0, 1);
 
     // Persist all changes
     await user.save();
@@ -164,7 +207,8 @@ exports.login = async (req, res) => {
           email: user.email,
           role: {
             _id: user.role._id,
-            name: user.role.name
+            name: user.role.name?.[lang] || user.role.name?.[DEFAULT_LANG],
+            permissions: user.role.permissions
           },
           status: user.status,
           lastLoginAt: user.lastLoginAt,

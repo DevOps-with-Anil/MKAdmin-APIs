@@ -1,4 +1,4 @@
-const Role = require('../models/Role');
+const Role = require('../models/rbac/SystemRole');
 
 const SUPER_ADMIN_ROLE_NAME = 'SUPER ADMIN';
 

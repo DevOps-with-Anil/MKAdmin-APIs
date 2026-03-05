@@ -1,110 +1,34 @@
-// const Role = require('../models/Role');
 
-// // =========================================
-// // 🔐 Permission Check Middleware (RBAC)
-// // =========================================
-// // Validates whether the logged-in user
-// // has access to a specific module/action.
-// //
-// // Usage:
-// // checkPermission('MODULE_KEY', 'ACTION_KEY')
+const Role = require('../models/rbac/SystemRole');
+const { hasPermission } = require('../utils/rbac');
 
-// const checkPermission = (moduleKey, actionKey) => {
-//   return async (req, res, next) => {
-
-//     // Debug log for permission checks
-//     console.log('🔐 Check Permission:', moduleKey, actionKey);
-
-//     try {
-//       // Extract authenticated user from request
-//       const user = req.user;
-
-//       // Block if user or role is missing
-//       if (!user || !user.role) {
-//         return res.status(401).json({ success: false, message: 'Unauthorized' });
-//       }
-
-//       // Load full role with permissions
-//       const role = await Role.findById(user.role);
-
-//       // Block if role does not exist
-//       if (!role) {
-//         return res.status(403).json({ success: false, message: 'Role not found' });
-//       }
-
-//       // System role or ROOT ADMIN bypass (full access)
-//       if (role.isSystemRole === true || role.name === 'ROOT ADMIN') {
-//         return next();
-//       }
-
-//       // Check module and action permissions
-//       const hasPermission = role.permissions.some(p => 
-//         // Match module key or wildcard
-//         (p.moduleKey === moduleKey || p.moduleKey === '*') &&
-//         p.allowed === true &&
-//         // Match action key or wildcard
-//         p.actions?.some(a => 
-//           (a.actionKey === actionKey || a.actionKey === '*') &&
-//           a.allowed === true
-//         )
-//       );
-
-//       // Block if permission not granted
-//       if (!hasPermission) {
-//         return res.status(403).json({ success: false, message: 'Permission denied' });
-//       }
-
-//       // Permission granted, continue
-//       next();
-
-//     } catch (err) {
-//       // Log unexpected middleware errors
-//       console.error('Permission middleware error:', err);
-
-//       // Return generic server error
-//       return res.status(500).json({ success: false, message: 'Internal server error' });
-//     }
-//   };
-// };
-
-// module.exports = { checkPermission };
-
-const Role = require('../models/Role');
-
+/**
+ * RBAC Middleware Factory
+ */
 const checkPermission = (moduleKey, actionKey) => {
   return async (req, res, next) => {
-    console.log('🔐 Check Permission:', moduleKey, actionKey);
-
     try {
       const user = req.user;
 
       if (!user || !user.role) {
-        return res.status(401).json({ success: false, message: 'Unauthorized' });
+        return res.status(401).json({
+          success: false,
+          message: 'Unauthorized'
+        });
       }
 
       const role = await Role.findById(user.role);
 
       if (!role) {
-        return res.status(403).json({ success: false, message: 'Role not found' });
+        return res.status(403).json({
+          success: false,
+          message: 'Role not found'
+        });
       }
 
-      // 🌍 i18n-safe system role bypass
-      const roleNameEn = role.name?.en || '';
+      const allowed = hasPermission(role, moduleKey, actionKey);
 
-      if (role.isSystemRole === true || roleNameEn === 'ROOT ADMIN') {
-        return next();
-      }
-
-      const hasPermission = role.permissions.some(p =>
-        (p.moduleKey === moduleKey || p.moduleKey === '*') &&
-        p.allowed === true &&
-        p.actions?.some(a =>
-          (a.actionKey === actionKey || a.actionKey === '*') &&
-          a.allowed === true
-        )
-      );
-
-      if (!hasPermission) {
+      if (!allowed) {
         return res.status(403).json({
           success: false,
           message: 'Permission denied'
@@ -113,8 +37,8 @@ const checkPermission = (moduleKey, actionKey) => {
 
       next();
 
-    } catch (err) {
-      console.error('Permission middleware error:', err);
+    } catch (error) {
+      console.error('RBAC Middleware Error:', error);
       return res.status(500).json({
         success: false,
         message: 'Internal server error'

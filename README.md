@@ -68,15 +68,15 @@ backend/
 ├── src/
 │   ├── config/                # DB & environment configs
 │   ├── controllers/           # Business logic (modules, roles, users)
+│   └── i18n/                 # Express app initialization
 │   ├── middlewares/           # Auth & permission middleware
 │   ├── models/                # MongoDB models: Module, Role, User
 │   ├── routes/                # API routes for modules, roles, users
+│   └── script/                 # Express app initialization
 │   ├── services/              # Complex operations and helpers
 │   ├── utils/                 # Logger, validator, response formatter
-│   └── app.js                 # Express app initialization
-│
-├── seeders/                   # Seed initial modules, roles, super admin
-├── tests/                     # Unit & integration tests
+│   └── tests/
+├── app.js                 # Express app initialization
 ├── package.json
 ├── .env
 └── README.md

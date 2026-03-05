@@ -4,8 +4,49 @@
  *              Returns safe user data for frontend consumption.
  */
 
-const responseFormatter = require('../utils/responseFormatter');
-const MSG = require('../config/constants/messageKeys');
+const responseFormatter = require('../../utils/responseFormatter');
+const MSG = require('../../config/constants/messageKeys');
+const { SUPPORTED_LANGS, DEFAULT_LANG } = require('../../utils/i18n');
+
+/**
+ * ============================================================
+ * 🌍 Helper: Validate localized object dynamically
+ * ============================================================
+ */
+function validateLocalizedField(field, fieldName) {
+  for (const lang of SUPPORTED_LANGS) {
+    if (!field?.[lang]) {
+      return `${fieldName} required for language: ${lang}`;
+    }
+  }
+  return null;
+}
+
+/**
+ * ============================================================
+ * 🌍 Helper: Localize module output dynamically
+ * ============================================================
+ */
+function localizeModule(module, lang) {
+  const obj = module.toObject();
+
+  obj.moduleName =
+    obj.moduleName?.[lang] || obj.moduleName?.[DEFAULT_LANG];
+
+  obj.description =
+    obj.description?.[lang] || obj.description?.[DEFAULT_LANG];
+
+  if (Array.isArray(obj.actions)) {
+    obj.actions = obj.actions.map(action => ({
+      ...action,
+      actionName:
+        action.actionName?.[lang] ||
+        action.actionName?.[DEFAULT_LANG]
+    }));
+  }
+
+  return obj;
+}
 
 
 /**
@@ -19,6 +60,7 @@ exports.getMyProfile = async (req, res) => {
     // 1️⃣ Extract authenticated user
     // - req.user is injected by auth middleware
     // ========================================
+    const lang = req.lang || DEFAULT_LANG;
     const user = req.user;
 
     // Safety check (should not happen if auth middleware works correctly)
@@ -47,8 +89,8 @@ exports.getMyProfile = async (req, res) => {
       role: user.role
         ? {
             id: user.role._id,
-            name: user.role.name,
-            permissions: user.role.permissions
+            name: user.role.name?.[lang] || user.role.name?.[DEFAULT_LANG]            
+            // permissions: user.role.permissions
           }
         : null,
 

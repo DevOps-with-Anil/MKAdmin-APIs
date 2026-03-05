@@ -1,8 +1,8 @@
-const AffiliateProfile = require('../models/Affiliate');
-const MSG = require('../config/constants/messageKeys'); // message keys
-const CODES = require('../config/constants/errorCodes'); // error codes
-const { success, error } = require('../utils/responseFormatter');
-const auditLogger = require('../utils/auditLogger'); // Audit logging utility
+const AffiliateProfile = require('../../models/tenants/Affiliate');
+const MSG = require('../../config/constants/messageKeys'); // message keys
+const CODES = require('../../config/constants/errorCodes'); // error codes
+const { success, error } = require('../../utils/responseFormatter');
+const auditLogger = require('../../utils/auditLogger'); // Audit logging utility
 
 // ===========================================
 // Create a new affiliate
