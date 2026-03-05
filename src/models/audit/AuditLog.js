@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const { auditLogDB } = require("../config/db");
+const { auditLogDB } = require("../../config/db");
 
 const { Schema } = mongoose;
 

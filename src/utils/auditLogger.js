@@ -1,4 +1,4 @@
-const AuditLog = require('../models/AuditLog');
+const AuditLog = require('../models/audit/AuditLog');
 
 module.exports = async function auditLogger({
   req,                // Express request object (for IP, headers, device info)
