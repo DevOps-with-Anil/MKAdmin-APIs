@@ -9,7 +9,7 @@ const {
 } = require("../../utils/validator");
 
 const { Schema } = mongoose;
-
+ 
 // =========================================
 // 📱 Device Schema
 // =========================================
