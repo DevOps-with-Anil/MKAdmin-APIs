@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const auth = require('../middleware/auth');
-const { getMyProfile } = require('../controllers/adminProfile.controller');
+const { getMyProfile, updateMyProfile } = require('../controllers/adminProfile.controller');
 
 /**
  * =========================================
@@ -16,5 +16,6 @@ const { getMyProfile } = require('../controllers/adminProfile.controller');
  * @access  Private (Super Admin)
  */
 router.get('/me', auth, getMyProfile);
+router.post('/me', auth, updateMyProfile);
 
 module.exports = router;

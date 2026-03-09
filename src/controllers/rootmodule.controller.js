@@ -131,31 +131,35 @@ const createModule = async (req, res) => {
  */
 const listModules = async (req, res) => {
   try {
+    // Prefer query params for GET requests; keep body as fallback for compatibility.
+    const source = Object.keys(req.query || {}).length ? req.query : req.body;
     const {
       page = 1,
       limit = 20,
       search = '',
       status = '',
       moduleKey = ''
-    } = req.body;                                                  // Extract filters
+    } = source;                                                    // Extract filters
 
     const query = {};                                             // MongoDB query builder
 
     if (search) {
       query.$or = [
-        { modulename: { $regex: search, $options: 'i' } },        // Search by name
+        { 'moduleName.en': { $regex: search, $options: 'i' } },   // Search by English name
+        { 'moduleName.fr': { $regex: search, $options: 'i' } },   // Search by French name
+        { 'moduleName.ar': { $regex: search, $options: 'i' } },   // Search by Arabic name
         { key: { $regex: search, $options: 'i' } }                // Search by key
       ];
     }
 
     if (status) query.isActive = status.toLowerCase() === 'active'; // Status filter
-    if (moduleKey) query.key = moduleKey.toLowerCase();             // Key filter
+    if (moduleKey) query.key = moduleKey.toUpperCase();             // Key filter
 
     const skip = (Number(page) - 1) * Number(limit);              // Pagination offset
 
     const [modules, total] = await Promise.all([
       RootModule.find(query)
-        .sort({ createdAt: 1 })                                   // Oldest first
+        .sort({ createdAt: -1 })                                  // Newest first
         .skip(skip)                                               // Pagination skip
         .limit(Number(limit)),                                    // Page size
       RootModule.countDocuments(query)                            // Total count
@@ -203,10 +207,9 @@ const getModule = async (req, res) => {
  */
 const updateModule = async (req, res) => {
   try {
+    const { moduleName, modulename, isActive } = req.body;         // Extract update fields
 
-    const { modulename, isActive } = req.body;                     // Extract update fields
-
-    if (modulename === undefined && isActive === undefined) {
+    if (moduleName === undefined && modulename === undefined && isActive === undefined) {
       return responseFormatter.error(req, res, 400, MSG.NOTHING_TO_UPDATE); // No updates provided
     }
 
@@ -215,7 +218,20 @@ const updateModule = async (req, res) => {
 
     const before = module.toObject();                              // Snapshot before update
 
-    if (modulename !== undefined) module.modulename = modulename.trim(); // Update name
+    if (moduleName !== undefined && typeof moduleName === 'object') {
+      module.moduleName = {
+        en: moduleName.en?.trim() || module.moduleName?.en || '',
+        fr: moduleName.fr?.trim() || module.moduleName?.fr || '',
+        ar: moduleName.ar?.trim() || module.moduleName?.ar || ''
+      };
+    } else if (modulename !== undefined) {
+      // Backward compatibility with old payload shape.
+      module.moduleName = {
+        en: String(modulename).trim(),
+        fr: module.moduleName?.fr || '',
+        ar: module.moduleName?.ar || ''
+      };
+    }
 
     if (isActive !== undefined) {
       module.isActive = !!isActive;                                // Update status
@@ -230,7 +246,7 @@ const updateModule = async (req, res) => {
       action: 'UPDATE_MODULE',
       module: 'ROOT_MODULES',
       entityId: module._id,
-      entityName: module.modulename,
+      entityName: module.moduleName?.en || module.key,
       before,
       after: module,
       message: req.t(MSG.MODULE_UPDATED)
@@ -254,7 +270,9 @@ const deleteModule = async (req, res) => {
 
     const before = module.toObject();                              // Snapshot before delete
 
-    await RootModule.findByIdAndDelete(req.params.id);             // Hard delete module
+    module.isActive = false;                                       // Soft delete module
+    await module.save();
+    await disableModuleInAllRoles(module.key);
 
     await auditLogger?.({
       req,
@@ -262,9 +280,9 @@ const deleteModule = async (req, res) => {
       action: 'DELETE_MODULE',
       module: 'ROOT_MODULES',
       entityId: module._id,
-      entityName: module.modulename,
+      entityName: module.moduleName?.en || module.key,
       before,
-      after: null,
+      after: module,
       message: req.t(MSG.MODULE_DELETED)
     });
 

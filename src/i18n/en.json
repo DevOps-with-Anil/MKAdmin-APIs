@@ -28,6 +28,8 @@
   "MODULE.CREATE_FAILED": "Failed to create module.",
   "MODULE.LIST_FETCHED": "Module list fetched successfully.",
   "MODULE.LIST_FAILED": "Failed to fetch module list.",
+  "AUDIT_LOG.LIST_FETCHED": "Audit log list fetched successfully.",
+  "AUDIT_LOG.LIST_FAILED": "Failed to fetch audit log list.",
   "MODULE.NOT_FOUND": "Module not found.",
   "MODULE.FETCHED": "Module fetched successfully.",
   "MODULE.UPDATED": "Module updated successfully.",

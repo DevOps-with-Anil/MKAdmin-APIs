@@ -6,6 +6,7 @@
 
 const responseFormatter = require('../utils/responseFormatter');
 const MSG = require('../config/constants/messageKeys');
+const User = require('../models/User');
 
 
 /**
@@ -102,5 +103,64 @@ exports.getMyProfile = async (req, res) => {
       500,
       MSG.SERVER_ERROR
     );
+  }
+};
+
+/**
+ * @route   POST /api/profile/me
+ * @desc    Update logged-in user basic profile fields (name, email)
+ * @access  Private (JWT Protected)
+ */
+exports.updateMyProfile = async (req, res) => {
+  try {
+    const userId = req.user?._id;
+    if (!userId) {
+      return responseFormatter.error(req, res, 404, MSG.USER_NOT_FOUND);
+    }
+
+    const { name, email } = req.body || {};
+    if (!name && !email) {
+      return responseFormatter.error(req, res, 400, MSG.NOTHING_TO_UPDATE);
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return responseFormatter.error(req, res, 404, MSG.USER_NOT_FOUND);
+    }
+
+    if (typeof name === 'string' && name.trim()) {
+      user.name = name.trim();
+    }
+
+    if (typeof email === 'string' && email.trim()) {
+      const normalizedEmail = email.trim().toLowerCase();
+      const duplicate = await User.findOne({
+        email: normalizedEmail,
+        _id: { $ne: userId },
+      });
+
+      if (duplicate) {
+        return responseFormatter.error(req, res, 400, MSG.USER_EMAIL_EXISTS);
+      }
+      user.email = normalizedEmail;
+    }
+
+    await user.save();
+
+    return responseFormatter.success(
+      req,
+      res,
+      MSG.USER_UPDATED,
+      {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+      {},
+      200
+    );
+  } catch (error) {
+    console.error('Update profile error:', error);
+    return responseFormatter.error(req, res, 500, MSG.USER_UPDATE_FAILED);
   }
 };

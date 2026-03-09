@@ -39,6 +39,7 @@ app.use('/api/roles', require('./routes/role.routes'));              // Role & p
 app.use('/api/systemusers', require('./routes/user.routes'));        // System user management
 app.use('/api/plans', require('./routes/plan.routes'));        // Sbscription Plans management for affiliates
 app.use('/api/affilaite', require('./routes/affiliate.routes'));        // Affiliates management
+app.use('/api/audit-logs', require('./routes/auditlog.routes')); // Activity/Audit logs
 
 // ======================
 // 🏠 Health Check Route

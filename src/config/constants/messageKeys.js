@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file Message Keys
  * @description Centralized message key constants for authentication,
  *              users, modules, roles, actions, validation, and system errors.
@@ -8,7 +8,7 @@
 module.exports = {
 
   // ========================================
-  // 🔐 AUTHENTICATION
+  // ðŸ” AUTHENTICATION
   // ========================================
   AUTH_LOGIN_SUCCESS: 'AUTH.LOGIN_SUCCESS',
   AUTH_LOGIN_FAILED: 'AUTH.LOGIN_FAILED',
@@ -27,7 +27,7 @@ module.exports = {
 
 
   // ========================================
-  // 🔑 PASSWORD & SECURITY
+  // ðŸ”‘ PASSWORD & SECURITY
   // ========================================
   PASSWORD_TOO_WEAK: 'PASSWORD.TOO_WEAK',
   PASSWORD_REQUIRED: 'PASSWORD.REQUIRED',
@@ -37,7 +37,7 @@ module.exports = {
 
 
   // ========================================
-  // ✅ VALIDATION
+  // âœ… VALIDATION
   // ========================================
   VALIDATION_NAME_REQUIRED: 'VALIDATION.NAME_REQUIRED',
   VALIDATION_EMAIL_REQUIRED: 'VALIDATION.EMAIL_REQUIRED',
@@ -52,7 +52,7 @@ module.exports = {
   VALIDATION_INVALID_PASSWORD: 'VALIDATION.INVALID_PASSWORD',
 
    // ========================================
-  // 👤 USER PROFILE & ACCOUNT
+  // ðŸ‘¤ USER PROFILE & ACCOUNT
   // ========================================
   USER_PROFILE_FETCHED: 'USER.PROFILE_FETCHED',
   USER_NOT_FOUND: 'USER.NOT_FOUND',
@@ -73,7 +73,7 @@ module.exports = {
 
 
   // ========================================
-  // 📦 MODULE MANAGEMENT
+  // ðŸ“¦ MODULE MANAGEMENT
   // ========================================
   MODULE_KEY_REQUIRED: 'MODULE.KEY_REQUIRED',
   MODULE_EXISTS: 'MODULE.EXISTS',
@@ -101,7 +101,7 @@ module.exports = {
 
 
   // ========================================
-  // ⚙️ ACTION MANAGEMENT
+  // âš™ï¸ ACTION MANAGEMENT
   // ========================================
   ACTION_KEY_REQUIRED: 'ACTION.KEY_REQUIRED',
   ACTION_EXISTS: 'ACTION.EXISTS',
@@ -124,7 +124,7 @@ module.exports = {
 
 
   // ========================================
-  // 🛡️ ROLE & PERMISSION MANAGEMENT
+  // ðŸ›¡ï¸ ROLE & PERMISSION MANAGEMENT
   // ========================================
   ROLE_NAME_REQUIRED: 'ROLE.NAME_REQUIRED',
   ROLE_EXISTS: 'ROLE.EXISTS',
@@ -153,7 +153,7 @@ module.exports = {
 
 
   // ========================================
-  // 🛡️ PLANs MANAGEMENT
+  // ðŸ›¡ï¸ PLANs MANAGEMENT
   // ========================================
 
   PLAN_NAME_REQUIRED: 'PLAN.NAME_REQUIRED',
@@ -170,7 +170,7 @@ module.exports = {
   PLAN_DELETE_FAILED: 'PLAN.DELETE_FAILED',
 
   // ========================================
-  // 🛡️ PLANs PERMISSION MANAGEMENT
+  // ðŸ›¡ï¸ PLANs PERMISSION MANAGEMENT
   // ========================================  
   
   MODULES_ARRAY_REQUIRED: 'PERMISSION.MODULES_ARRAY_REQUIRED',
@@ -180,7 +180,7 @@ module.exports = {
   INVALID_ACTION_KEY: 'PERMISSION.INVALID_ACTION_KEY',
 
   // ========================================
-  // 🛡️ AFFILIATE MANAGEMENT
+  // ðŸ›¡ï¸ AFFILIATE MANAGEMENT
   // ========================================  
   
   AFFILIATE_CREATED: 'AFFILIATE.CREATED',
@@ -198,8 +198,15 @@ module.exports = {
   AFFILIATE_RESTORE_FAILED: 'AFFILIATE.RESTORE_FAILED',
 
   // ========================================
-  // 🖥️ SYSTEM & SERVER
+  // ðŸ–¥ï¸ SYSTEM & SERVER
   // ========================================
+  // ========================================
+  // AUDIT LOG MANAGEMENT
+  // ========================================
+  AUDIT_LOG_LIST_FETCHED: 'AUDIT_LOG.LIST_FETCHED',
+  AUDIT_LOG_LIST_FAILED: 'AUDIT_LOG.LIST_FAILED',
+
   SERVER_ERROR: 'SERVER.ERROR'
 
 };
+

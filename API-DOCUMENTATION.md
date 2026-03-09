@@ -576,9 +576,24 @@ Authorization: Bearer <token>
 
 ---
 
-## 8. Health Check
+## 8. Audit Logs Routes (`/api/audit-logs`)
 
-### 8.1 Server Status
+### 8.1 List Activity Logs
+- **Endpoint:** `GET /api/audit-logs`
+- **Description:** Get current activity/audit logs with pagination and filters
+- **Access:** Private (Requires `SYS_AUDIT_LOGS` - `SYS_AUDIT_VIEW` permission)
+- **Headers:** `Authorization: Bearer <token>`
+- **Query Parameters (optional):** `page`, `limit`, `search`, `module`, `action`, `status`, `userId`, `dateFrom`, `dateTo`
+- **Example:**
+```http
+GET /api/audit-logs?page=1&limit=20&search=role&status=SUCCESS
+```
+
+---
+
+## 9. Health Check
+
+### 9.1 Server Status
 - **Endpoint:** `GET /`
 - **Description:** Simple health/status endpoint
 - **Access:** Public
@@ -640,4 +655,5 @@ All error responses follow this format:
 | AFFILIATES | AFFILIATE_VIEW | View affiliates |
 | AFFILIATES | AFFILIATE_UPDATE | Update affiliate |
 | AFFILIATES | AFFILIATE_DELETE | Delete affiliate |
+| SYS_AUDIT_LOGS | SYS_AUDIT_VIEW | View activity logs |
 
