@@ -43,6 +43,16 @@ router.post(
 );
 
 /**
+ * Delete System Admin
+ */
+router.delete(
+  '/:id',
+  authMiddleware,
+  checkPermission('SYS_ADMINS', 'SYS_ADMIN_DELETE'),
+  userController.deleteUser
+);
+
+/**
  * 🔑 Reset System Admin Password
  */
 router.post(

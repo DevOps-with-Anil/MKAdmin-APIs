@@ -181,6 +181,39 @@ const options = {
             status: { type: "string", enum: ["ACTIVE", "INACTIVE", "SUSPENDED"] }
           }
         },
+        CreateCmsRequest: {
+          type: "object",
+          required: ["title", "content"],
+          properties: {
+            type: { type: "string", enum: ["PAGE", "ARTICLE", "POST", "BANNER", "OTHER"] },
+            title: {
+              type: "object",
+              properties: {
+                en: { type: "string" },
+                fr: { type: "string" },
+                ar: { type: "string" }
+              }
+            },
+            content: {
+              type: "object",
+              properties: {
+                en: { type: "string" },
+                fr: { type: "string" },
+                ar: { type: "string" }
+              }
+            },
+            slug: { type: "string" },
+            status: { type: "string", enum: ["DRAFT", "PUBLISHED", "ARCHIVED"] },
+            tags: {
+              type: "array",
+              items: { type: "string" }
+            },
+            meta: {
+              type: "object",
+              additionalProperties: true
+            }
+          }
+        },
         
         // Common Schemas
         PaginationRequest: {
@@ -289,6 +322,49 @@ const options = {
                 "application/json": {
                   schema: {
                     $ref: "#/components/schemas/SuccessResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ,
+        post: {
+          summary: "Update current user profile",
+          description: "Updates the authenticated user's basic profile fields",
+          tags: ["Profile"],
+          security: [{ bearerAuth: [] }],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    name: { type: "string", example: "John Doe" },
+                    email: { type: "string", format: "email", example: "john@example.com" }
+                  }
+                }
+              }
+            }
+          },
+          responses: {
+            "200": {
+              description: "Profile updated successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    $ref: "#/components/schemas/SuccessResponse"
+                  }
+                }
+              }
+            },
+            "400": {
+              description: "Invalid request data",
+              content: {
+                "application/json": {
+                  schema: {
+                    $ref: "#/components/schemas/ErrorResponse"
                   }
                 }
               }
@@ -1100,6 +1176,138 @@ const options = {
           responses: {
             "201": {
               description: "Affiliate deleted successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    $ref: "#/components/schemas/SuccessResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/cms": {
+        get: {
+          summary: "List CMS entries",
+          description: "Get CMS entries visible to the authenticated admin hierarchy",
+          tags: ["CMS"],
+          security: [{ bearerAuth: [] }],
+          responses: {
+            "200": {
+              description: "CMS entries fetched successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    $ref: "#/components/schemas/SuccessResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        post: {
+          summary: "Create CMS entry",
+          description: "Create a CMS entry scoped to the authenticated admin ownership tree",
+          tags: ["CMS"],
+          security: [{ bearerAuth: [] }],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/CreateCmsRequest"
+                }
+              }
+            }
+          },
+          responses: {
+            "201": {
+              description: "CMS entry created successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    $ref: "#/components/schemas/SuccessResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/api/cms/{id}": {
+        get: {
+          summary: "Get CMS entry by ID",
+          description: "Get a single CMS entry within the caller's ownership scope",
+          tags: ["CMS"],
+          security: [{ bearerAuth: [] }],
+          parameters: [{
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" }
+          }],
+          responses: {
+            "200": {
+              description: "CMS entry fetched successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    $ref: "#/components/schemas/SuccessResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        put: {
+          summary: "Update CMS entry",
+          description: "Update a CMS entry within the caller's ownership scope",
+          tags: ["CMS"],
+          security: [{ bearerAuth: [] }],
+          parameters: [{
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" }
+          }],
+          requestBody: {
+            required: true,
+            content: {
+              "application/json": {
+                schema: {
+                  $ref: "#/components/schemas/CreateCmsRequest"
+                }
+              }
+            }
+          },
+          responses: {
+            "200": {
+              description: "CMS entry updated successfully",
+              content: {
+                "application/json": {
+                  schema: {
+                    $ref: "#/components/schemas/SuccessResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        delete: {
+          summary: "Delete CMS entry",
+          description: "Soft delete a CMS entry within the caller's ownership scope",
+          tags: ["CMS"],
+          security: [{ bearerAuth: [] }],
+          parameters: [{
+            name: "id",
+            in: "path",
+            required: true,
+            schema: { type: "string" }
+          }],
+          responses: {
+            "200": {
+              description: "CMS entry deleted successfully",
               content: {
                 "application/json": {
                   schema: {

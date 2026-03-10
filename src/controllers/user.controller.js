@@ -390,7 +390,8 @@ exports.createUser = async (req, res) => {
  */
 exports.getUserList = async (req, res) => {
   try {
-    const { page = 1, limit = 10, search, status, roleId, country } = req.body;
+    const source = req.method === 'GET' ? req.query : req.body;
+    const { page = 1, limit = 10, search, status, roleId, country } = source;
 
     // ========================================
     // 1️⃣ Build dynamic query filters
@@ -440,6 +441,47 @@ exports.getUserList = async (req, res) => {
   } catch (err) {
     console.error('Get user list error:', err);
     return responseFormatter.error(req, res, 500, MSG.USER_LIST_FAILED, CODES.USR_500);
+  }
+};
+
+
+/**
+ * @route   DELETE /api/systemusers/:id
+ * @desc    Delete a system user
+ * @access  Admin / System
+ */
+exports.deleteUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).populate('role', 'name');
+
+    if (!user) {
+      return responseFormatter.error(req, res, 404, MSG.USER_NOT_FOUND, CODES.USER_NOT_FOUND);
+    }
+
+    await auditLogger?.({
+      req,
+      user: req.user,
+      action: 'DELETE_USER',
+      module: 'USERS',
+      entityId: user._id,
+      entityName: user.email,
+      before: user.toObject ? user.toObject() : user,
+      message: 'User deleted'
+    });
+
+    await User.deleteOne({ _id: user._id });
+
+    return responseFormatter.success(
+      req,
+      res,
+      MSG.USER_DELETED,
+      { _id: user._id },
+      null,
+      200
+    );
+  } catch (err) {
+    console.error('Delete user error:', err);
+    return responseFormatter.error(req, res, 500, MSG.USER_DELETE_FAILED, CODES.USER_DELETE_FAILED);
   }
 };
 
