@@ -8,20 +8,44 @@ const { Schema } = mongoose;
 // =========================================
 const auditSchema = new Schema(
   {
-    // User who performed action
-    user: {
-      type: Schema.Types.ObjectId,
-      ref: "User"
+    // =========================================
+    // USER INFORMATION
+    // =========================================
+    userId: {
+      type: Schema.Types.ObjectId
     },
 
-    // Denormalized email (fast reporting)
+    userType: {
+      type: String,
+      enum: ["ROOT", "TENANT"],
+      required: true
+    },
+
+    userModel: {
+      type: String,
+      enum: ["SYS_User", "Tenant_Admin"]
+    },
+
     userEmail: {
       type: String,
       trim: true,
       lowercase: true
     },
 
-    // Action type (CREATE, UPDATE, DELETE, LOGIN...)
+    userRole: {
+      type: String,
+      trim: true,
+      uppercase: true
+    },
+
+    tenantId: {
+      type: Schema.Types.ObjectId,
+      ref: "Tenant"
+    },
+
+    // =========================================
+    // ACTION INFORMATION
+    // =========================================
     action: {
       type: String,
       required: true,
@@ -29,7 +53,6 @@ const auditSchema = new Schema(
       trim: true
     },
 
-    // Module name (USERS, ROLES, AUTH...)
     module: {
       type: String,
       required: true,
@@ -37,42 +60,49 @@ const auditSchema = new Schema(
       trim: true
     },
 
-    // Affected entity ID
     entityId: {
       type: Schema.Types.ObjectId
     },
 
-    // Human readable entity label
     entityName: {
       type: String,
       trim: true
     },
 
-    // Data snapshot before update
+    // =========================================
+    // DATA SNAPSHOTS
+    // =========================================
     before: Schema.Types.Mixed,
 
-    // Data snapshot after update
     after: Schema.Types.Mixed,
 
-    // Request metadata
+    // =========================================
+    // EXTRA METADATA
+    // =========================================
+    meta: Schema.Types.Mixed,
+
+    // =========================================
+    // REQUEST METADATA
+    // =========================================
     ipAddress: String,
+
     userAgent: String,
 
-    // Parsed device info
     device: {
       browser: String,
       os: String,
       device: String
     },
 
-    // Result of action
+    // =========================================
+    // RESULT
+    // =========================================
     status: {
       type: String,
       enum: ["SUCCESS", "FAILED"],
       default: "SUCCESS"
     },
 
-    // Optional message
     message: {
       type: String
     }
@@ -86,12 +116,14 @@ const auditSchema = new Schema(
 // ⚡ INDEXES (Performance)
 // =========================================
 auditSchema.index({ module: 1, action: 1 });
-auditSchema.index({ user: 1 });
+auditSchema.index({ userId: 1 });
+auditSchema.index({ tenantId: 1 });
+auditSchema.index({ userType: 1 });
 auditSchema.index({ createdAt: -1 });
 auditSchema.index({ status: 1 });
 
 // =========================================
-// 🚀 SAFE EXPORT (No Overwrite Error)
+// 🚀 SAFE EXPORT
 // =========================================
 module.exports =
   auditLogDB.models.AuditLog ||

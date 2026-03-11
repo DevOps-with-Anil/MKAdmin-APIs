@@ -117,7 +117,7 @@ const planSchema = new Schema(
     // Root admin creator
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: "User"
+      ref: "SYS_User"
     },
 
     // Plan status

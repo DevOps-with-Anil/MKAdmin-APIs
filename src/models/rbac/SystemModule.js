@@ -73,7 +73,7 @@ const moduleSchema = new Schema(
 
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: "User"
+      ref: "SYS_User"
     }
   },
   { timestamps: true }

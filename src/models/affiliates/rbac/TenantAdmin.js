@@ -1,15 +1,15 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
-const { rootDB } = require("../../config/db");
+const { affiliateDB } = require("../../../config/db");
 
 const {
   isValidEmail,
   isValidPhone,
   isValidName
-} = require("../../utils/validator");
+} = require("../../../utils/validator");
 
 const { Schema } = mongoose;
- 
+
 // =========================================
 // 📱 Device Schema
 // =========================================
@@ -25,16 +25,13 @@ const deviceSchema = new Schema(
       region: String,
       city: String
     },
-    lastUsedAt: {
-      type: Date,
-      default: Date.now
-    }
+    lastUsedAt: { type: Date, default: Date.now }
   },
   { _id: false }
 );
 
 // =========================================
-// 🕘 Login History
+// 🕘 Login History Schema
 // =========================================
 const loginHistorySchema = new Schema(
   {
@@ -48,19 +45,23 @@ const loginHistorySchema = new Schema(
       region: String,
       city: String
     },
-    loggedInAt: {
-      type: Date,
-      default: Date.now
-    }
+    loggedInAt: { type: Date, default: Date.now }
   },
   { _id: false }
 );
 
 // =========================================
-// 👤 User Schema
+// 👤 Tenant Admin Schema
 // =========================================
-const userSchema = new Schema(
+const tenantAdminSchema = new Schema(
   {
+    // Tenant Reference
+    tenantId: {
+      type: Schema.Types.ObjectId,
+      ref: "Tenant",
+      required: true
+    },
+
     name: {
       type: String,
       required: true,
@@ -71,10 +72,8 @@ const userSchema = new Schema(
     email: {
       type: String,
       required: true,
-      unique: true,
       lowercase: true,
       trim: true,
-      index: true,
       validate: { validator: isValidEmail, message: "Invalid email" }
     },
 
@@ -83,24 +82,26 @@ const userSchema = new Schema(
     phoneNumber: {
       type: String,
       trim: true,
-      validate: { validator: isValidPhone, message: "Invalid phone" }
+      validate: { validator: isValidPhone, message: "Invalid phone number" }
     },
 
-    photo: String,
-
-    password: {
+    userType: {
       type: String,
-      required: true,
-      select: true
-    },
-
-    role: {
-      type: Schema.Types.ObjectId,
-      ref: "SYS_Role",
+      enum: ["ROOT", "TENANT"],
+      default: "TENANT",
       required: true
     },
 
-    allowedCountries: [{ type: String, uppercase: true, trim: true }],
+    photo: { type: String },
+
+    password: { type: String, required: true, select: true },
+
+    // Role Reference
+    role: { type: Schema.Types.ObjectId, ref: "Tenant_Role", required: true },
+
+    allowedCountries: [
+      { type: String, uppercase: true, trim: true }
+    ],
 
     status: {
       type: String,
@@ -110,9 +111,13 @@ const userSchema = new Schema(
 
     lastLoginAt: Date,
 
+    // Device Tracking
     currentDevice: deviceSchema,
+
+    // Login History
     loginHistory: [loginHistorySchema],
 
+    // Auth Tokens
     tokens: [
       {
         token: String,
@@ -122,39 +127,56 @@ const userSchema = new Schema(
       }
     ],
 
-    createdBy: {
-      type: Schema.Types.ObjectId,
-      ref: "SYS_User"
-    }
+    // Audit Fields
+    createdByType: { type: String, enum: ["ROOT", "TENANT"], required: true },
+    createdBy: { type: Schema.Types.ObjectId, refPath: "createdByType", required: true }
   },
   { timestamps: true }
 );
 
 // =========================================
-// PASSWORD HASH
+// 🔹 INDEXES
 // =========================================
-userSchema.pre("save", async function (next) {
+// Unique email per tenant
+tenantAdminSchema.index({ tenantId: 1, email: 1 }, { unique: true });
+
+// Unique phoneNumber per tenant
+tenantAdminSchema.index({ tenantId: 1, phoneNumber: 1 }, { unique: true });
+
+// Optional: compound indexes for queries
+tenantAdminSchema.index({ tenantId: 1, userType: 1 });
+tenantAdminSchema.index({ role: 1 });
+
+// =========================================
+// 🔹 PASSWORD HASHING
+// =========================================
+tenantAdminSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
-  this.password = await bcrypt.hash(this.password, 10);
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
   next();
 });
 
 // =========================================
-// HELPERS
+// 🔹 PASSWORD COMPARE METHOD
 // =========================================
-userSchema.methods.comparePassword = function (enteredPassword) {
+tenantAdminSchema.methods.comparePassword = function (enteredPassword) {
   return bcrypt.compare(enteredPassword, this.password);
 };
 
-userSchema.methods.toJSON = function () {
+// =========================================
+// 🔹 REMOVE SENSITIVE DATA
+// =========================================
+tenantAdminSchema.methods.toJSON = function () {
   const obj = this.toObject();
   delete obj.password;
+  delete obj.tokens;
   return obj;
 };
 
 // =========================================
-// EXPORT MODEL (SAFE)
+// 🔹 EXPORT MODEL
 // =========================================
 module.exports =
-  rootDB.models.SYS_User ||
-  rootDB.model("SYS_User", userSchema);
+  affiliateDB.models.Tenant_Admin ||
+  affiliateDB.model("Tenant_Admin", tenantAdminSchema);

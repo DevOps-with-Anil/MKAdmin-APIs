@@ -4,6 +4,8 @@ const planController = require('../../controllers/subscriptions/plan.controller'
 const authMiddleware = require('../../middleware/auth');
 const { checkPermission } = require('../../middleware/permissionMiddleware');
 const { userLimiter } = require('../../config/rateLimit');
+const validateUser = require('../../middleware/validateUser');
+
 
 /**
  * ===============================
@@ -12,13 +14,14 @@ const { userLimiter } = require('../../config/rateLimit');
  */
 
 router.use(authMiddleware); // ✅ Apply auth once globally
+router.use(validateUser);
+router.use(userLimiter());
 
 // ================= PLAN CRUD =================
 
 // 🔥 Create Plan (Strict Security - Write Operation)
 router.post(
   '/',
-  userLimiter(),
   checkPermission('SUBSCRIPTION_PLANS', 'SUB_PLAN_ADD'),
   planController.createPlan
 );
@@ -26,7 +29,6 @@ router.post(
 // 👁 List Plans (Relaxed Limit - Read Operation)
 router.get(
   '/',
-  userLimiter(),
   checkPermission('SUBSCRIPTION_PLANS', 'SUB_PLAN_VIEW'),
   planController.listPlans
 );
@@ -34,7 +36,6 @@ router.get(
 // 👁 Get Single Plan
 router.get(
   '/:id',
-  userLimiter(),
   checkPermission('SUBSCRIPTION_PLANS', 'SUB_PLAN_VIEW'),
   planController.getPlan
 );
@@ -42,7 +43,6 @@ router.get(
 // ✏ Update Plan (Moderate Security)
 router.put(
   '/:id',
-  userLimiter(),
   checkPermission('SUBSCRIPTION_PLANS', 'SUB_PLAN_UPDATE'),
   planController.updatePlan
 );
@@ -50,7 +50,6 @@ router.put(
 // ❌ Delete Plan (Strict Security)
 router.delete(
   '/:id',
-  userLimiter(),
   checkPermission('SUBSCRIPTION_PLANS', 'SUB_PLAN_DELETE'),
   planController.deletePlan
 );
@@ -58,7 +57,6 @@ router.delete(
 // 🔧 Assign Modules (Sensitive Operation)
 router.post(
   '/:id/modules',
-  userLimiter(),
   checkPermission('SUBSCRIPTION_PLANS', 'SUB_PLAN_ASSIGN_FEATURES'),
   planController.assignModules
 );

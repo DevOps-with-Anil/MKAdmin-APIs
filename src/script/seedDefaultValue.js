@@ -1,11 +1,12 @@
-const User = require("../models/platform/User");
+const User = require("../models/rbac/RootAdmin");
 const RootRole = require("../models/rbac/SystemRole");
 const RootModule = require("../models/rbac/SystemModule");
 const AuditLog = require("../models/audit/AuditLog");
 
 const ROOT_SYSTEM_MODULES = require("../config/constants/defaultRootModules");
-const AFFILIATE_SYSTEM_MODULES = require("../config/constants/defaultAffiliateModules");
-const AffiliateModule = require("../models/rbac/AffiliateModule");
+const AFFILIATE_SYSTEM_MODULES = require("../config/constants/defaultTenantModules");
+
+const AffiliateModule = require("../models/rbac/TenantModule");
 
 // =========================================
 // 🌱 ROOT SYSTEM BOOTSTRAP
@@ -18,8 +19,6 @@ module.exports = async function seedRootSystem() {
     const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD;
     const superAdminName = process.env.SUPER_ADMIN_NAME || "ROOT ADMIN";
 
-
-
     // ======================================================
     // 1️⃣ SEED ROOT SYSTEM MODULES
     // ======================================================
@@ -29,13 +28,11 @@ module.exports = async function seedRootSystem() {
       if (!existingModule) {
         const createdModule = await RootModule.create({
           key: mod.key.trim(),
-
           moduleName: {
             en: mod.name.en.trim(),
             fr: mod.name.fr.trim(),
             ar: mod.name.ar.trim()
           },
-
           actions: mod.actions.map((a) => ({
             key: a.key.trim(),
             actionName: {
@@ -48,34 +45,36 @@ module.exports = async function seedRootSystem() {
         });
 
         await AuditLog.create({
-          user: null,
+          userId: null,
+          userType: "ROOT",
           action: "SYSTEM_MODULE_CREATED",
           module: mod.key,
           entityId: createdModule._id,
           entityName: mod.name.en,
-          message: `Default System module created`
+          message: "Default system module created by bootstrap",
+          status: "SUCCESS"
         });
 
         console.log(`✅ Root Module created: ${mod.key}`);
       }
-    };
+    }
 
     // ======================================================
-    // 1️⃣ SEED AFFILIATE SYSTEM MODULES
+    // 2️⃣ SEED AFFILIATE SYSTEM MODULES
     // ======================================================
     for (const mod of Object.values(AFFILIATE_SYSTEM_MODULES)) {
-      const existingModule = await AffiliateModule.findOne({ key: mod.key.trim() });
+      const existingModule = await AffiliateModule.findOne({
+        key: mod.key.trim()
+      });
 
       if (!existingModule) {
         const createdModule = await AffiliateModule.create({
           key: mod.key.trim(),
-
           moduleName: {
             en: mod.name.en.trim(),
             fr: mod.name.fr.trim(),
             ar: mod.name.ar.trim()
           },
-
           actions: mod.actions.map((a) => ({
             key: a.key.trim(),
             actionName: {
@@ -88,20 +87,22 @@ module.exports = async function seedRootSystem() {
         });
 
         await AuditLog.create({
-          user: null,
-          action: "SYSTEM_MODULE_CREATED",
+          userId: null,
+          userType: "ROOT",
+          action: "TENANT_MODULE_CREATED",
           module: mod.key,
           entityId: createdModule._id,
           entityName: mod.name.en,
-          message: `Default System module created`
+          message: "Default affiliate module created by bootstrap",
+          status: "SUCCESS"
         });
 
-        console.log(`✅ Affilate Module created: ${mod.key}`);
+        console.log(`✅ Affiliate Module created: ${mod.key}`);
       }
-    };
+    }
 
     // ======================================================
-    // 2️⃣ VALIDATE SUPER ADMIN ENV
+    // 3️⃣ VALIDATE SUPER ADMIN ENV
     // ======================================================
     if (!superAdminEmail || !superAdminPassword) {
       console.warn(
@@ -111,7 +112,7 @@ module.exports = async function seedRootSystem() {
     }
 
     // ======================================================
-    // 3️⃣ CREATE ROOT ROLE
+    // 4️⃣ CREATE ROOT ROLE
     // ======================================================
     let superRole = await RootRole.findOne({ "name.en": "ROOT ADMIN" });
 
@@ -132,19 +133,21 @@ module.exports = async function seedRootSystem() {
       });
 
       await AuditLog.create({
-        user: null,
+        userId: null,
+        userType: "ROOT",
         action: "ROOT_ROLE_CREATED",
         module: "ROLES",
         entityId: superRole._id,
         entityName: superRole.name.en,
-        message: "ROOT ADMIN role created by bootstrap"
+        message: "Root admin role created by bootstrap",
+        status: "SUCCESS"
       });
 
       console.log("✅ ROOT ADMIN role created");
     }
 
     // ======================================================
-    // 4️⃣ CREATE SUPER ADMIN USER
+    // 5️⃣ CREATE SUPER ADMIN USER
     // ======================================================
     const normalizedEmail = superAdminEmail.toLowerCase().trim();
 
@@ -160,12 +163,14 @@ module.exports = async function seedRootSystem() {
       });
 
       await AuditLog.create({
-        user: null,
+        userId: null,
+        userType: "ROOT",
         action: "SYSTEM_ROOT_ADMIN_CREATED",
         module: "USERS",
         entityId: superAdminUser._id,
         entityName: superAdminUser.email,
-        message: "Super Admin created by bootstrap"
+        message: "Super admin created by bootstrap",
+        status: "SUCCESS"
       });
 
       console.log("🎉 Super Admin user created");

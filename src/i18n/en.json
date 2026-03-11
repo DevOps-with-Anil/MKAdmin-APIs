@@ -1,26 +1,5 @@
 {
 
-  "AUTH.LOGIN_SUCCESS": "Login successful",
-  "AUTH.LOGIN_FAILED": "Login failed. Please try again.",
-
-  "AUTH.INVALID_CREDENTIALS": "Invalid email or password",
-
-  "AUTH.TOKEN_MISSING": "Authentication token is missing",
-  "AUTH.TOKEN_INVALID": "Authentication token is invalid",
-  "AUTH.TOKEN_EXPIRED": "Authentication token has expired",
-
-  "AUTH.ACCOUNT_INACTIVE": "Your account is inactive. Please contact support.",
-  "AUTH.ACCOUNT_LOCKED": "Your account is locked. Please contact support.",
-
-  "AUTH.LOGOUT_SUCCESS": "Logged out successfully",
-  "AUTH.LOGOUT_ALL_SUCCESS": "Logged out from all devices successfully",
-  
-
-
-  "USER.PROFILE_FETCHED": "User profile fetched successfully",
-  "SERVER_ERROR": "Server error",
-  "USER_NOT_FOUND": "User not found",
-
 
   "MODULE.KEY_REQUIRED": "Module key and name are required.",
   "MODULE.EXISTS": "Module key already exists.",
@@ -51,6 +30,26 @@
   "ACTION.DUPLICATE_KEY": "Duplicate action keys found.",
   "ACTION.NOT_FOUND":"Action not found.",
 
+  "ROLE.NAME_REQUIRED": "Role name is required.",
+  "ROLE.EXISTS": "Role already exists.",
+  "ROLE.CREATED": "Role created successfully.",
+  "ROLE.CREATE_FAILED": "Failed to create role.",
+  "ROLE.LIST_FETCHED": "Roles fetched successfully.",
+  "ROLE.LIST_FAILED": "Failed to fetch roles.",
+  "ROLE.NOT_FOUND": "Role not found.",
+  "ROLE.UPDATED": "Role updated successfully.",
+  "ROLE.UPDATE_FAILED": "Failed to update role.",
+  "ROLE.STATUS_REQUIRED": "Role status is required.",
+  "ROLE.STATUS_UPDATED": "Role status updated successfully.",
+  "ROLE.STATUS_UPDATE_FAILED": "Failed to update role status.",
+  "ROLE.DELETED":"Role deleted successfully.",
+  "MODULES.ARRAY_REQUIRED": "Modules array is required.",
+  "MODULE.INVALID_KEY": "Invalid module key.",
+  "ACTIONS.ARRAY_REQUIRED": "Actions array is required.",
+  "ACTION.INVALID_KEY": "Invalid action key.",
+  "ROLE.CANNOT_MODIFY_SUPER_ADMIN": "Cannot modify SUPER_ADMIN role.",
+  "PERMISSIONS.UPDATED": "Permissions updated successfully.",
+  "PERMISSIONS.ASSIGN_FAILED": "Failed to assign permissions.",
 
 
   "USER.CREATED": "User created successfully.",
@@ -64,6 +63,22 @@
   "USER.CREATE_FAILED": "Failed to create user.",
   "USER.UPDATE_FAILED": "Failed to update user.",
   "USER.LIST_FAILED": "Failed to fetch users.",
+
+  "AUTH.LOGIN_SUCCESS": "Login successful",
+  "AUTH.LOGIN_FAILED": "Login failed. Please try again.",
+  "AUTH.INVALID_CREDENTIALS": "Invalid email or password",
+  "AUTH.TOKEN_MISSING": "Authentication token is missing",
+  "AUTH.TOKEN_INVALID": "Authentication token is invalid",
+  "AUTH.TOKEN_EXPIRED": "Authentication token has expired",
+  "AUTH.ACCOUNT_INACTIVE": "Your account is inactive. Please contact support.",
+  "AUTH.ACCOUNT_LOCKED": "Your account is locked. Please contact support.",
+  "AUTH.LOGOUT_SUCCESS": "Logged out successfully",
+  "AUTH.LOGOUT_ALL_SUCCESS": "Logged out from all devices successfully",
+  
+  "USER.PROFILE_FETCHED": "User profile fetched successfully",
+  "SERVER_ERROR": "Server error",
+  "USER_NOT_FOUND": "User not found",
+
 
   "PASSWORD.TOO_WEAK": "Password must be at least 8 characters long.",
   "PASSWORD.REQUIRED": "Password is required.",
@@ -81,31 +96,11 @@
   "VALIDATION.INVALID_PHONE": "Please enter a valid mobile number.",
   "VALIDATION.INVALID_PASSWORD": "Password must include uppercase, lowercase, number, and special character.",
   
-  
-  "ROLE.NAME_REQUIRED": "Role name is required.",
-  "ROLE.EXISTS": "Role already exists.",
-  "ROLE.CREATED": "Role created successfully.",
-  "ROLE.CREATE_FAILED": "Failed to create role.",
-  "ROLE.LIST_FETCHED": "Roles fetched successfully.",
-  "ROLE.LIST_FAILED": "Failed to fetch roles.",
-  "ROLE.NOT_FOUND": "Role not found.",
-  "ROLE.UPDATED": "Role updated successfully.",
-  "ROLE.UPDATE_FAILED": "Failed to update role.",
-  "ROLE.STATUS_REQUIRED": "Role status is required.",
-  "ROLE.STATUS_UPDATED": "Role status updated successfully.",
-  "ROLE.STATUS_UPDATE_FAILED": "Failed to update role status.",
-  "MODULES.ARRAY_REQUIRED": "Modules array is required.",
-  "MODULE.INVALID_KEY": "Invalid module key.",
-  "ACTIONS.ARRAY_REQUIRED": "Actions array is required.",
-  "ACTION.INVALID_KEY": "Invalid action key.",
-  "ROLE.CANNOT_MODIFY_SUPER_ADMIN": "Cannot modify SUPER_ADMIN role.",
-  "PERMISSIONS.UPDATED": "Permissions updated successfully.",
-  "PERMISSIONS.ASSIGN_FAILED": "Failed to assign permissions.",
-
 
   "PLAN.NAME_REQUIRED": "Plan name is required in all languages",
   "PLAN.CREATED": "Plan created successfully",
   "PLAN.CREATE_FAILED": "Failed to create plan",
+  "PLAN.ALREADY_EXISTS": "Plan already exists",
   "PLAN.LIST_FETCHED": "Plan list fetched successfully",
   "PLAN.LIST_FAILED": "Failed to fetch plan list",
   "PLAN.NOT_FOUND": "Plan not found",
@@ -122,20 +117,40 @@
   "PERMISSION.INVALID_MODULE_KEY": "Invalid module key: {moduleKey}",
   "PERMISSION.INVALID_ACTION_KEY": "Invalid action key: {actionKey}",
 
-  
-  "AFFILIATE.CREATED": "Affiliate has been successfully created.",
-  "AFFILIATE.CREATE_FAILED": "Failed to create affiliate.",
-  "AFFILIATE.FETCHED": "Affiliate details fetched successfully.",
-  "AFFILIATE.FETCH_FAILED": "Failed to fetch affiliate details.",
-  "AFFILIATE.UPDATED": "Affiliate has been successfully updated.",
-  "AFFILIATE.UPDATE_FAILED": "Failed to update affiliate.",
-  "AFFILIATE.SOFT_DELETED": "Affiliate has been soft deleted.",
-  "AFFILIATE.DELETE_FAILED": "Failed to delete affiliate.",
-  "AFFILIATE.NOT_FOUND": "Affiliate not found.",
-  "AFFILIATE.LIST_FETCHED": "Affiliate list fetched successfully.",
-  "AFFILIATE.LIST_FETCH_FAILED": "Failed to fetch affiliate list.",
-  "AFFILIATE.RESTORED": "Affiliate has been restored successfully.",
-  "AFFILIATE.RESTORE_FAILED": "Failed to restore affiliate."
+ 
+  "TENANT.CREATED": "Tenant has been successfully created.",
+  "TENANT.CREATE_FAILED": "Failed to create tenant.",
+  "TENANT.ALREADY_EXISTS": "Tenant with this email already exists.",
+  "TENANT.FETCHED": "Tenant details fetched successfully.",
+  "TENANT.FETCH_FAILED": "Failed to fetch tenant details.",
+  "TENANT.UPDATED": "Tenant has been successfully updated.",
+  "TENANT.UPDATE_FAILED": "Failed to update tenant.",
+  "TENANT.SOFT_DELETED": "Tenant has been soft deleted.",
+  "TENANT.DELETE_FAILED": "Failed to delete tenant.",
+  "TENANT.NOT_FOUND": "Tenant not found.",
+  "TENANT.LIST_FETCHED": "Tenant list fetched successfully.",
+  "TENANT.LIST_FETCH_FAILED": "Failed to fetch tenant list.",
+  "TENANT.RESTORED": "Tenant has been restored successfully.",
+  "TENANT.RESTORE_FAILED": "Failed to restore tenant.",
 
+
+
+  "PLAN.NOT_ACTIVE": "Plan is not active.",
+
+  "SUBSCRIPTION.ASSIGNED": "Plan assigned successfully.",
+  "SUBSCRIPTION.ASSIGN_FAILED": "Failed to assign subscription.",
+  "SUBSCRIPTION.ACTIVE_EXISTS": "Tenant already has an active subscription.",
+
+  "SUBSCRIPTION.UPDATED": "Tenant plan updated successfully.",
+  "SUBSCRIPTION.UPDATE_FAILED": "Failed to update tenant plan.",
+
+  "SUBSCRIPTION.NOT_FOUND": "Active subscription not found.",
+  "SUBSCRIPTION.ACTIVE_FETCHED": "Active subscription fetched successfully.",
+
+  "SUBSCRIPTION.CANCELLED": "Subscription cancelled successfully.",
+  "SUBSCRIPTION.CANCEL_FAILED": "Failed to cancel subscription.",
+
+  "SUBSCRIPTION.HISTORY_FETCHED": "Subscription history fetched successfully.",
+  "SUBSCRIPTION.HISTORY_FAILED": "Failed to fetch subscription history."
 
 }

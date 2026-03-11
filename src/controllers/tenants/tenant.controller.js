@@ -1,0 +1,1065 @@
+// const Tenant = require('../../models/tenants/Tenant');
+// const Plan = require('../../models/subscriptions/Plan');
+// const TenantRole = require('../../models/affiliates/rbac/TenantRole');
+// const MSG = require('../../config/constants/messageKeys');
+// const CODES = require('../../config/constants/errorCodes');
+// const { success, error } = require('../../utils/responseFormatter');
+// const auditLogger = require('../../utils/auditLogger');
+
+// const { SUPPORTED_LANGS, DEFAULT_LANG } = require('../../utils/i18n');
+
+// /**
+//  * ============================================================
+//  * 🌍 Helper: Validate localized object dynamically
+//  * ============================================================
+//  */
+// function validateLocalizedTenantField(field, fieldName) {
+//   for (const lang of SUPPORTED_LANGS) {
+//     if (!field?.[lang]) {
+//       return `${fieldName} is required for language: ${lang}`;
+//     }
+//   }
+//   return null;
+// }
+// /**
+//  * ============================================================
+//  * 🌍 Helper: Localize module output dynamically
+//  * ============================================================
+//  */
+// function localizeTenant(tenant, lang = "en") {
+//   if (!tenant) return null;
+
+//   const obj = tenant.toObject ? tenant.toObject() : tenant;
+
+//   // Localize top-level multilingual fields
+//   obj.companyName =
+//     obj.companyName?.[lang] || obj.companyName?.[DEFAULT_LANG] || "";
+//   obj.description =
+//     obj.description?.[lang] || obj.description?.[DEFAULT_LANG] || "";
+
+//   // Localize subscription plan name & description if populated
+//   // if (obj.subscriptionPlanId?.name) {
+//   //   obj.subscriptionPlanId.name =
+//   //     obj.subscriptionPlanId.name?.[lang] ||
+//   //     obj.subscriptionPlanId.name?.[DEFAULT_LANG] ||
+//   //     "";
+//   //   obj.subscriptionPlanId.description =
+//   //     obj.subscriptionPlanId.description?.[lang] ||
+//   //     obj.subscriptionPlanId.description?.[DEFAULT_LANG] ||
+//   //     "";
+//   // }
+
+//   // You can extend to localize other nested fields like address landmarks if needed
+
+//   return obj;
+// }
+
+
+// /**
+//  * ===========================================
+//  * CREATE TENANT
+//  * ===========================================
+//  */
+// exports.createTenant = async (req, res) => {
+//   try {
+
+//     const lang = req.lang || DEFAULT_LANG;
+
+//     const {
+//       contact_email,
+//       phoneCode,
+//       contact_phoneNumber,
+//       logo,
+//       companyName,
+//       description,
+//       website,
+//       address,
+//       adminPanelUrl,
+//       apiDomains
+//     } = req.body;
+
+//     /**
+//      * =====================================
+//      * Basic Validation
+//      * =====================================
+//      */
+
+//     if (!contact_email || !adminPanelUrl) {
+//       return error(
+//         req,
+//         res,
+//         400,
+//         "Email and Admin Panel URL are required",
+//         "REQUIRED_FIELDS_MISSING"
+//       );
+//     }
+
+//     /**
+//      * =====================================
+//      * Normalize Email
+//      * =====================================
+//      */
+
+//     const normalizedEmail = contact_email.toLowerCase().trim();
+
+//     /**
+//      * =====================================
+//      * Check Duplicate Tenant
+//      * =====================================
+//      */
+
+//     const existingTenant = await Tenant.findOne({
+//       contact_email: normalizedEmail,
+//       isDeleted: false
+//     });
+
+//     if (existingTenant) {
+//       return error(
+//         req,
+//         res,
+//         409,
+//         MSG.TENANT_ALREADY_EXISTS
+//       );
+//     }
+
+//     /**
+//      * =====================================
+//      * Normalize Multi-language Fields
+//      * =====================================
+//      */
+
+//     const normalizedCompanyName = {};
+//     const normalizedDescription = {};
+
+//     for (const langKey of SUPPORTED_LANGS) {
+//       normalizedCompanyName[langKey] =
+//         companyName?.[langKey]?.trim() || "";
+
+//       normalizedDescription[langKey] =
+//         description?.[langKey]?.trim() || "";
+//     }
+
+//     /**
+//      * =====================================
+//      * Create Tenant
+//      * =====================================
+//      */
+
+//     const tenant = await Tenant.create({
+
+//       contact_email: normalizedEmail,
+
+//       phoneCode: phoneCode || null,
+//       contact_phoneNumber: contact_phoneNumber || null,
+//       logo: logo || null,
+
+//       companyName: normalizedCompanyName,
+//       description: normalizedDescription,
+
+//       website: website || null,
+
+//       address: address || {},
+
+//       adminPanelUrl,
+//       apiDomains: Array.isArray(apiDomains) ? apiDomains : [],
+
+//       /**
+//        * System Controlled Fields
+//        */
+
+//       subscriptionPlanId: null,
+//       assignedModules: [],
+//       subscriptionStatus: "PENDING",
+
+//       kybStatus: "PENDING",
+
+//       status: "ACTIVE",
+
+//       createdBy: req.user._id
+//     });
+
+//     /**
+//      * =====================================
+//      * Audit Log
+//      * =====================================
+//      */
+
+//     await auditLogger?.({
+//       req,
+//       user: req.user,
+//       action: "TENANT_CREATE",
+//       module: "TENANTS",
+//       entityId: tenant._id,
+//       entityName: tenant.companyName?.en || tenant.contact_email,
+//       after: tenant,
+//       message: req.t(MSG.TENANT_CREATED)
+//     });
+
+//     /**
+//      * =====================================
+//      * Success Response
+//      * =====================================
+//      */
+
+//     return success(
+//       req,
+//       res,
+//       MSG.TENANT_CREATED,
+//       localizeTenant(tenant, lang),
+//       null,
+//       201
+//     );
+
+//   } catch (err) {
+
+//     console.error("Create Tenant Error:", err);
+
+//     if (err.code === 11000) {
+//       return error(
+//         req,
+//         res,
+//         409,
+//         MSG.TENANT_ALREADY_EXISTS
+//       );
+//     }
+
+//     return error(
+//       req,
+//       res,
+//       500,
+//       MSG.TENANT_CREATE_FAILED
+//     );
+//   }
+// };
+
+// /**
+//  * ===========================================
+//  * GET TENANT BY ID
+//  * ===========================================
+//  */
+// exports.getTenantById = async (req, res) => {
+//   try {
+//     const lang = req.lang || "en";
+
+//     const tenant = await Tenant.findOne({
+//       _id: req.params.id,
+//       isDeleted: false
+//     });
+
+//     if (!tenant) {
+//       return error(req, res, 404, MSG.TENANT_NOT_FOUND, CODES.USR_404);
+//     }
+
+//     const localizedTenant = localizeTenant(tenant, lang);
+
+//     await auditLogger?.({
+//       req,
+//       user: req.user,
+//       action: "TENANT_VIEW",
+//       module: "TENANTS",
+//       entityId: tenant._id,
+//       entityName: localizedTenant.companyName || tenant.contact_email,
+//       after: localizedTenant,
+//       message: req.t(MSG.TENANT_FETCHED)
+//     });
+
+//     return success(req, res, MSG.TENANT_FETCHED, localizedTenant, null, 200);
+
+//   } catch (err) {
+//     console.error("getTenantById error:", err);
+//     return error(req, res, 500, MSG.TENANT_FETCH_FAILED, CODES.USR_500);
+//   }
+// };
+
+
+// /**
+//  * ===========================================
+//  * UPDATE TENANT
+//  * ===========================================
+//  */
+
+// exports.updateTenant = async (req, res) => {
+//   try {
+
+//     const lang = req.lang || "en";
+
+//     const tenant = await Tenant.findOne({
+//       _id: req.params.id,
+//       isDeleted: false
+//     });
+
+//     if (!tenant) {
+//       return error(req, res, 404, MSG.TENANT_NOT_FOUND);
+//     }
+
+//     const payload = req.body;
+
+//     /**
+//      * --------------------------------
+//      * EMAIL
+//      * --------------------------------
+//      */
+
+//     if (payload.contact_email) {
+
+//       const normalizedEmail = payload.contact_email.toLowerCase().trim();
+
+//       const existing = await Tenant.findOne({
+//         contact_email: normalizedEmail,
+//         _id: { $ne: tenant._id },
+//         isDeleted: false
+//       });
+
+//       if (existing) {
+//         return error(
+//           req,
+//           res,
+//           409,
+//           req.t(MSG.TENANT_ALREADY_EXISTS),
+//           "TENANT_DUPLICATE_EMAIL"
+//         );
+//       }
+
+//       tenant.contact_email = normalizedEmail;
+//     }
+
+//     /**
+//      * --------------------------------
+//      * PHONE & LOGO
+//      * --------------------------------
+//      */
+
+//     if (payload.phoneCode) tenant.phoneCode = payload.phoneCode;
+
+//     if (payload.contact_phoneNumber)
+//       tenant.contact_phoneNumber = payload.contact_phoneNumber;
+
+//     if (payload.logo) tenant.logo = payload.logo;
+
+//     /**
+//      * --------------------------------
+//      * ADDRESS
+//      * --------------------------------
+//      */
+
+//     if (payload.address) {
+//       tenant.address = {
+//         ...tenant.address?.toObject?.(),
+//         ...payload.address
+//       };
+//     }
+
+//     /**
+//      * --------------------------------
+//      * MULTILINGUAL FIELDS (SAFE MERGE)
+//      * --------------------------------
+//      */
+//     const normalizedCompanyName = {};
+//     const normalizedDescription = {};
+
+//     for (const langKey of SUPPORTED_LANGS) {
+//       normalizedCompanyName[langKey] =
+//         payload.companyName?.[langKey]?.trim() || "";
+
+//       normalizedDescription[langKey] =
+//         payload.description?.[langKey]?.trim() || "";
+//     }
+
+//     tenant.companyName = normalizedCompanyName;
+//     tenant.description = normalizedDescription
+
+//     /**
+//      * --------------------------------
+//      * WEBSITE & ADMIN URL
+//      * --------------------------------
+//      */
+
+//     if (payload.website) tenant.website = payload.website;
+
+//     if (payload.adminPanelUrl)
+//       tenant.adminPanelUrl = payload.adminPanelUrl;
+
+//     /**
+//      * --------------------------------
+//      * API DOMAINS
+//      * --------------------------------
+//      */
+
+//     if (Array.isArray(payload.apiDomains)) {
+//       tenant.apiDomains = payload.apiDomains;
+//     }
+
+//     /**
+//      * --------------------------------
+//      * SAVE
+//      * --------------------------------
+//      */
+
+//     await tenant.save();
+
+//     const localizedTenant = localizeTenant(tenant, lang);
+
+//     /**
+//      * --------------------------------
+//      * AUDIT LOG
+//      * --------------------------------
+//      */
+
+//     await auditLogger?.({
+//       req,
+//       user: req.user,
+//       action: "TENANT_UPDATE",
+//       module: "TENANTS",
+//       entityId: tenant._id,
+//       entityName: localizedTenant.companyName || tenant.contact_email,
+//       after: localizedTenant,
+//       message: req.t(MSG.TENANT_UPDATED)
+//     });
+
+//     return success(
+//       req,
+//       res,
+//       MSG.TENANT_UPDATED,
+//       localizedTenant,
+//       null,
+//       200
+//     );
+
+//   } catch (err) {
+
+//     console.error("updateTenant error:", err);
+
+//     if (err.code === 11000) {
+//       return error(
+//         req,
+//         res,
+//         409,
+//         req.t(MSG.TENANT_ALREADY_EXISTS),
+//         "TENANT_DUPLICATE_EMAIL"
+//       );
+//     }
+
+//     return error(
+//       req,
+//       res,
+//       500,
+//       MSG.TENANT_UPDATE_FAILED
+//     );
+//   }
+// };
+
+// /**
+//  * ===========================================
+//  * SOFT DELETE TENANT
+//  * ===========================================
+//  */
+// exports.softDeleteTenant = async (req, res) => {
+//   try {
+
+//     const tenant = await Tenant.findOne({
+//       _id: req.params.id,
+//       isDeleted: false
+//     });
+
+//     if (!tenant) {
+//       return error(req, res, 404, MSG.TENANT_NOT_FOUND, CODES.USR_404);
+//     }
+
+//     tenant.isDeleted = true;
+//     tenant.deletedAt = new Date();
+
+//     await tenant.save();
+
+//     await auditLogger?.({
+//       req,
+//       user: req.user,
+//       action: "TENANT_DELETE",
+//       module: "TENANTS",
+//       entityId: tenant._id,
+//       entityName: tenant.name?.en || tenant.email,
+//       after: tenant,
+//       message: req.t(MSG.TENANT_SOFT_DELETED)
+//     });
+
+//     return success(req, res, MSG.TENANT_SOFT_DELETED, null, null, 200);
+
+//   } catch (err) {
+//     return error(req, res, 500, MSG.TENANT_DELETE_FAILED, CODES.USR_500);
+//   }
+// };
+
+
+// /**
+//  * ===========================================
+//  * LIST TENANTS
+//  * ===========================================
+//  */
+// exports.listTenants = async (req, res) => {
+//   try {
+
+//     const lang = req.lang || "en";
+
+//     const { page = 1, limit = 20, search = "", status = "" } = req.body;
+
+//     const query = { isDeleted: false };
+
+//     if (search) {
+//       query["name.en"] = { $regex: search, $options: "i" };
+//     }
+
+//     if (status) {
+//       query.status = status.toUpperCase();
+//     }
+
+//     const skip = (Number(page) - 1) * Number(limit);
+
+//     const [tenants, total] = await Promise.all([
+//       Tenant.find(query)
+//         .sort({ createdAt: -1 })
+//         .skip(skip)
+//         .limit(Number(limit)),
+
+//       Tenant.countDocuments(query)
+//     ]);
+
+//     /**
+//   * =====================================
+//   * Localize Response
+//   * =====================================
+//   */
+
+//     const localizedTenants = tenants.map(t => localizeTenant(t, lang));
+//     const meta = {
+//       page: Number(page),
+//       limit: Number(limit),
+//       search,
+//       status,
+//       total,
+//       totalPages: Math.ceil(total / Number(limit))
+//     };
+
+//     return success(req, res, MSG.TENANT_LIST_FETCHED, localizedTenants, meta, 200);
+
+//   } catch (err) {
+//     return error(req, res, 500, MSG.TENANT_LIST_FETCH_FAILED, CODES.USR_500);
+//   }
+// };
+
+
+// exports.assignPlanToTenant = async (req, res) => {
+//   try {
+
+//     const { tenantId, planId } = req.body;
+
+//     /**
+//      * --------------------------------
+//      * Validate Inputs
+//      * --------------------------------
+//      */
+
+//     if (!tenantId || !planId) {
+//       return error(
+//         req,
+//         res,
+//         400,
+//         "Tenant ID and Plan ID are required",
+//         "TENANT_PLAN_REQUIRED"
+//       );
+//     }
+
+//     /**
+//      * --------------------------------
+//      * Find Tenant
+//      * --------------------------------
+//      */
+
+//     const tenant = await Tenant.findOne({
+//       _id: tenantId,
+//       isDeleted: false
+//     });
+
+//     if (!tenant) {
+//       return error(req, res, 404, "Tenant not found", "TENANT_NOT_FOUND");
+//     }
+
+//     if (tenant.status !== "ACTIVE") {
+//       return error(
+//         req,
+//         res,
+//         400,
+//         "Tenant is not active",
+//         "TENANT_NOT_ACTIVE"
+//       );
+//     }
+
+//     /**
+//      * --------------------------------
+//      * Find Plan
+//      * --------------------------------
+//      */
+
+//     const plan = await Plan.findOne({
+//       _id: planId,
+//       // isDeleted: false
+//     });
+
+//     if (!plan) {
+//       return error(req, res, 404, "Plan not found", "PLAN_NOT_FOUND");
+//     }
+
+//     if (plan.status !== "ACTIVE") {
+//       return error(req, res, 400, "Plan is not active", "PLAN_NOT_ACTIVE");
+//     }
+
+//     /**
+//      * --------------------------------
+//      * Calculate Subscription Dates
+//      * --------------------------------
+//      */
+
+//     const startDate = new Date();
+
+//     const expiryDate = new Date();
+
+//     expiryDate.setDate(expiryDate.getDate() + (plan.durationDays || 30));
+
+//     /**
+//      * --------------------------------
+//      * Copy Plan Modules → Tenant Modules
+//      * --------------------------------
+//      */
+
+//     const tenantModules = plan.modules.map((module) => ({
+//       moduleKey: module.moduleKey,
+//       moduleName: module.moduleName,
+
+//       actions: module.actions.map((action) => ({
+//         actionKey: action.actionKey,
+//         actionName: action.actionName,
+//         allowed: action.allowed
+//       }))
+//     }));
+
+//     /**
+//      * --------------------------------
+//      * Assign Plan
+//      * --------------------------------
+//      */
+
+//     tenant.subscriptionPlanId = plan._id;
+
+//     tenant.subscriptionStatus = "ACTIVE";
+
+//     tenant.subscriptionStartDate = startDate;
+
+//     tenant.subscriptionExpiryDate = expiryDate;
+
+//     tenant.assignedModules = tenantModules;
+
+    
+
+//     await tenant.save();
+
+//     /**
+//      * --------------------------------
+//      * Audit Log
+//      * --------------------------------
+//      */
+
+//     await auditLogger?.({
+//       req,
+//       user: req.user,
+//       action: "TENANT_PLAN_ASSIGNED",
+//       module: "TENANTS",
+//       entityId: tenant._id,
+//       entityName: tenant.companyName?.en || tenant.contact_email,
+//       message: `Plan ${plan.name?.en || plan._id} assigned`
+//     });
+
+//     return success(
+//       req,
+//       res,
+//       "Plan assigned successfully",
+//       tenant,
+//       null,
+//       200
+//     );
+
+//   } catch (err) {
+
+//     console.error("assignPlanToTenant error:", err);
+
+//     return error(
+//       req,
+//       res,
+//       500,
+//       "Failed to assign plan",
+//       "PLAN_ASSIGN_FAILED"
+//     );
+//   }
+// };
+
+const User = require("../../models/rbac/RootAdmin");
+const Tenant = require('../../models/tenants/Tenant');
+const TenantSubscription = require('../../models/subscriptions/TenantSubscription');
+const Plan = require('../../models/subscriptions/Plan');
+
+const MSG = require('../../config/constants/messageKeys');
+const CODES = require('../../config/constants/errorCodes');
+const responseFormatter = require("../../utils/responseFormatter");
+const auditLogger = require('../../utils/auditLogger');
+const { SUPPORTED_LANGS, DEFAULT_LANG } = require('../../utils/i18n');
+
+// ============================================================
+// 🌍 Localize Tenant
+// ============================================================
+function localizeTenant(tenant, lang = DEFAULT_LANG) {
+  if (!tenant) return null;
+
+  const obj = tenant.toObject ? tenant.toObject() : tenant;
+
+  obj.companyName =
+    obj.companyName?.[lang] || obj.companyName?.[DEFAULT_LANG] || "";
+  obj.description =
+    obj.description?.[lang] || obj.description?.[DEFAULT_LANG] || "";
+
+  return obj;
+}
+
+// ============================================================
+// Helper to fetch user globally
+// ============================================================
+async function validateUser(req, res) {
+  if (!req.user?._id) {
+    responseFormatter.error(req, res, 401, MSG.AUTH_TOKEN_INVALID, CODES.USR_401);
+    return null;
+  }
+
+  const user = await User.findById(req.user._id);
+  if (!user) {
+    responseFormatter.error(req, res, 404, MSG.USER_NOT_FOUND, CODES.USR_404);
+    return null;
+  }
+
+  return user;
+}
+
+// ============================================================
+// CREATE TENANT
+// ============================================================
+exports.createTenant = async (req, res) => {
+  try {
+    const user = await validateUser(req, res);
+    if (!user) return;
+
+    const lang = req.lang || DEFAULT_LANG;
+    const {
+      contact_email,
+      phoneCode,
+      contact_phoneNumber,
+      logo,
+      companyName,
+      description,
+      website,
+      address,
+      adminPanelUrl,
+      apiDomains
+    } = req.body;
+
+    if (!contact_email || !adminPanelUrl) {
+      return responseFormatter.error(
+        req,
+        res,
+        400,
+        "Email and Admin Panel URL are required",
+        "REQUIRED_FIELDS_MISSING"
+      );
+    }
+
+    const normalizedEmail = contact_email.toLowerCase().trim();
+    const existingTenant = await Tenant.findOne({ contact_email: normalizedEmail, isDeleted: false });
+    if (existingTenant) {
+      return responseFormatter.error(req, res, 409, MSG.TENANT_ALREADY_EXISTS, CODES.USR_409);
+    }
+
+    // Normalize multilingual fields
+    const normalizedCompanyName = {};
+    const normalizedDescription = {};
+    for (const langKey of SUPPORTED_LANGS) {
+      normalizedCompanyName[langKey] = companyName?.[langKey]?.trim() || "";
+      normalizedDescription[langKey] = description?.[langKey]?.trim() || "";
+    }
+
+    const tenant = await Tenant.create({
+      contact_email: normalizedEmail,
+      phoneCode: phoneCode || null,
+      contact_phoneNumber: contact_phoneNumber || null,
+      logo: logo || null,
+      companyName: normalizedCompanyName,
+      description: normalizedDescription,
+      website: website || null,
+      address: address || {},
+      adminPanelUrl,
+      apiDomains: Array.isArray(apiDomains) ? apiDomains : [],
+      kybStatus: "PENDING",
+      currentSubscriptionId: null,
+      status: "ACTIVE",
+      createdBy: user._id
+    });
+
+    await auditLogger?.({
+      req,
+      user,
+      action: "TENANT_CREATE",
+      module: "TENANTS",
+      entityId: tenant._id,
+      entityName: tenant.companyName?.en || tenant.contact_email,
+      after: tenant,
+      message: req.t(MSG.TENANT_CREATED)
+    });
+
+    return responseFormatter.success(req, res, MSG.TENANT_CREATED, localizeTenant(tenant, lang), null, 201);
+
+  } catch (err) {
+    console.error("Create Tenant Error:", err);
+    if (err.code === 11000) {
+      return responseFormatter.error(req, res, 409, MSG.TENANT_ALREADY_EXISTS, CODES.USR_409);
+    }
+    return responseFormatter.error(req, res, 500, MSG.TENANT_CREATE_FAILED, CODES.USR_500);
+  }
+};
+
+// ============================================================
+// GET TENANT BY ID
+// ============================================================
+exports.getTenantById = async (req, res) => {
+  try {
+    const user = await validateUser(req, res);
+    if (!user) return;
+
+    const lang = req.lang || DEFAULT_LANG;
+
+    const tenant = await Tenant.findOne({ _id: req.params.id, isDeleted: false })
+      .populate({ path: "currentSubscriptionId", select: "planId startDate expiryDate status" });
+
+    if (!tenant) {
+      return responseFormatter.error(req, res, 404, MSG.TENANT_NOT_FOUND, CODES.USR_404);
+    }
+
+    const localizedTenant = localizeTenant(tenant, lang);
+
+    await auditLogger?.({
+      req,
+      user,
+      action: "TENANT_VIEW",
+      module: "TENANTS",
+      entityId: tenant._id,
+      entityName: localizedTenant.companyName || tenant.contact_email,
+      after: localizedTenant,
+      message: req.t(MSG.TENANT_FETCHED)
+    });
+
+    return responseFormatter.success(req, res, MSG.TENANT_FETCHED, localizedTenant, null, 200);
+
+  } catch (err) {
+    console.error("getTenantById error:", err);
+    return responseFormatter.error(req, res, 500, MSG.TENANT_FETCH_FAILED, CODES.USR_500);
+  }
+};
+
+// ============================================================
+// UPDATE TENANT
+// ============================================================
+exports.updateTenant = async (req, res) => {
+  try {
+    const user = await validateUser(req, res);
+    if (!user) return;
+
+    const lang = req.lang || DEFAULT_LANG;
+
+    const tenant = await Tenant.findOne({ _id: req.params.id, isDeleted: false });
+    if (!tenant) return responseFormatter.error(req, res, 404, MSG.TENANT_NOT_FOUND, CODES.USR_404);
+
+    const payload = req.body;
+
+    if (payload.contact_email) {
+      const normalizedEmail = payload.contact_email.toLowerCase().trim();
+      const existing = await Tenant.findOne({ contact_email: normalizedEmail, _id: { $ne: tenant._id }, isDeleted: false });
+      if (existing) return responseFormatter.error(req, res, 409, MSG.TENANT_ALREADY_EXISTS, CODES.USR_409);
+
+      tenant.contact_email = normalizedEmail;
+    }
+
+    if (payload.phoneCode) tenant.phoneCode = payload.phoneCode;
+    if (payload.contact_phoneNumber) tenant.contact_phoneNumber = payload.contact_phoneNumber;
+    if (payload.logo) tenant.logo = payload.logo;
+    if (payload.address) tenant.address = { ...tenant.address?.toObject?.(), ...payload.address };
+
+    // Multilingual fields
+    const normalizedCompanyName = {};
+    const normalizedDescription = {};
+    for (const langKey of SUPPORTED_LANGS) {
+      normalizedCompanyName[langKey] = payload.companyName?.[langKey]?.trim() || "";
+      normalizedDescription[langKey] = payload.description?.[langKey]?.trim() || "";
+    }
+    tenant.companyName = normalizedCompanyName;
+    tenant.description = normalizedDescription;
+
+    if (payload.website) tenant.website = payload.website;
+    if (payload.adminPanelUrl) tenant.adminPanelUrl = payload.adminPanelUrl;
+    if (Array.isArray(payload.apiDomains)) tenant.apiDomains = payload.apiDomains;
+
+    await tenant.save();
+
+    const localizedTenant = localizeTenant(tenant, lang);
+
+    await auditLogger?.({
+      req,
+      user,
+      action: "TENANT_UPDATE",
+      module: "TENANTS",
+      entityId: tenant._id,
+      entityName: localizedTenant.companyName || tenant.contact_email,
+      after: localizedTenant,
+      message: req.t(MSG.TENANT_UPDATED)
+    });
+
+    return responseFormatter.success(req, res, MSG.TENANT_UPDATED, localizedTenant, null, 201);
+
+  } catch (err) {
+    console.error("updateTenant error:", err);
+    return responseFormatter.error(req, res, 500, MSG.TENANT_UPDATE_FAILED, CODES.USR_500);
+  }
+};
+
+// ============================================================
+// SOFT DELETE TENANT
+// ============================================================
+exports.softDeleteTenant = async (req, res) => {
+  try {
+    const user = await validateUser(req, res);
+    if (!user) return;
+
+    const tenant = await Tenant.findOne({ _id: req.params.id, isDeleted: false });
+    if (!tenant) return responseFormatter.error(req, res, 404, MSG.TENANT_NOT_FOUND, CODES.USR_404);
+
+    tenant.isDeleted = true;
+    tenant.deletedAt = new Date();
+
+    await tenant.save();
+
+    await auditLogger?.({
+      req,
+      user,
+      action: "TENANT_DELETE",
+      module: "TENANTS",
+      entityId: tenant._id,
+      entityName: tenant.companyName?.en || tenant.contact_email,
+      message: req.t(MSG.TENANT_SOFT_DELETED)
+    });
+
+    return responseFormatter.success(req, res, MSG.TENANT_SOFT_DELETED, null, null, 200);
+
+  } catch (err) {
+    console.error("softDeleteTenant error:", err);
+    return responseFormatter.error(req, res, 500, MSG.TENANT_DELETE_FAILED, CODES.USR_500);
+  }
+};
+
+// ============================================================
+// LIST TENANTS
+// ============================================================
+exports.listTenants = async (req, res) => {
+  try {
+    const user = await validateUser(req, res);
+    if (!user) return;
+
+    const lang = req.lang || DEFAULT_LANG;
+    const { page = 1, limit = 20, search = "", status = "" } = req.body;
+
+    const query = { isDeleted: false };
+    if (search) query["companyName.en"] = { $regex: search, $options: "i" };
+    if (status) query.status = status.toUpperCase();
+
+    const skip = (Number(page) - 1) * Number(limit);
+    const [tenants, total] = await Promise.all([
+      Tenant.find(query)
+        .populate({ path: "currentSubscriptionId", select: "planId startDate expiryDate status" })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(Number(limit)),
+      Tenant.countDocuments(query)
+    ]);
+
+    const localizedTenants = tenants.map(t => localizeTenant(t, lang));
+    const meta = { page: Number(page), limit: Number(limit), total, totalPages: Math.ceil(total / Number(limit)) };
+
+    return responseFormatter.success(req, res, MSG.TENANT_LIST_FETCHED, localizedTenants, meta, 200);
+
+  } catch (err) {
+    console.error("listTenants error:", err);
+    return responseFormatter.error(req, res, 500, MSG.TENANT_LIST_FETCH_FAILED, CODES.USR_500);
+  }
+};
+
+// ============================================================
+// ASSIGN PLAN TO TENANT
+// ============================================================
+exports.assignPlanToTenant = async (req, res) => {
+  try {
+    const user = await validateUser(req, res);
+    if (!user) return;
+
+    const { tenantId, planId } = req.body;
+    if (!tenantId || !planId) return responseFormatter.error(req, res, 400, "Tenant ID and Plan ID are required");
+
+    const tenant = await Tenant.findOne({ _id: tenantId, isDeleted: false });
+    if (!tenant) return responseFormatter.error(req, res, 404, "Tenant not found");
+
+    const plan = await Plan.findById(planId);
+    if (!plan) return responseFormatter.error(req, res, 404, "Plan not found");
+    if (plan.status !== "ACTIVE") return responseFormatter.error(req, res, 400, "Plan not active");
+
+    const startDate = new Date();
+    const expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + (plan.durationDays || 30));
+
+    const modules = plan.modules.map(module => ({
+      moduleKey: module.moduleKey,
+      moduleName: module.moduleName,
+      actions: module.actions.map(action => ({
+        actionKey: action.actionKey,
+        actionName: action.actionName,
+        allowed: action.allowed
+      }))
+    }));
+
+    const subscription = await TenantSubscription.create({
+      tenantId: tenant._id,
+      planId: plan._id,
+      startDate,
+      expiryDate,
+      modules,
+      status: "ACTIVE"
+    });
+
+    tenant.currentSubscriptionId = subscription._id;
+    await tenant.save();
+
+    await auditLogger?.({
+      req,
+      user,
+      action: "TENANT_PLAN_ASSIGNED",
+      module: "TENANTS",
+      entityId: tenant._id,
+      entityName: tenant.companyName?.en || tenant.contact_email,
+      message: `Plan ${plan.name?.en || plan._id} assigned`
+    });
+
+    return responseFormatter.success(req, res, "Plan assigned successfully", subscription, null, 200);
+
+  } catch (err) {
+    console.error("assignPlanToTenant error:", err);
+    return responseFormatter.error(req, res, 500, "Failed to assign plan", CODES.USR_500);
+  }
+};

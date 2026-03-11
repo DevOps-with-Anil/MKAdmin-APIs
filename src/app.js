@@ -23,12 +23,17 @@ app.use(languageMiddleware);
 
 // Routes (Rate limiter applied inside route files)
 app.use('/api/auth', require('./routes/auth/auth.routes'));
-app.use('/api/systemmodules', require('./routes/rbac/systemmodule.routes'));
-app.use('/api/roles', require('./routes/rbac/systemrole.routes'));
-app.use('/api/systemusers', require('./routes/platform/user.routes'));
-app.use('/api/profile', require('./routes/platform/adminProfile.routes'));
-app.use('/api/plans', require('./routes/subscriptions/plan.routes'));
-app.use('/api/affiliate', require('./routes/tenants/affiliate.routes'));
+app.use('/api/systemmodule', require('./routes/rbac/systemmodule.routes'));
+app.use('/api/tenantmodule', require('./routes/rbac/tenantmodule.routes'));
+app.use('/api/role', require('./routes/rbac/systemrole.routes'));
+app.use('/api/rootadmin', require('./routes/rbac/rootadmin.routes'));
+app.use('/api/plan', require('./routes/subscriptions/plan.routes'));
+app.use('/api/affiliate', require('./routes/tenants/tenants.routes'));
+
+app.use('/api/tenantrole', require('./routes/affiliates/rbac/tenantrole.routes'));
+app.use('/api/tenantadmin', require('./routes/affiliates/rbac/tenantadmin.routes'));
+
+app.use('/api/tenant-subscriptions', require('./routes/subscriptions/tenantsubscription.route'))
 
 // Health Check
 app.get('/', (req, res) => res.send('APIs are running...'));
