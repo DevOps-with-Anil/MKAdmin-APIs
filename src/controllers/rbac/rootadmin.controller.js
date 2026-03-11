@@ -4,7 +4,7 @@
  * ==========================================================
  */
 
-const User = require('../../models/platform/User');
+const User = require('../../models/rbac/RootAdmin');
 const Role = require('../../models/rbac/SystemRole');
 const auditLogger = require('../../utils/auditLogger');
 const responseFormatter = require('../../utils/responseFormatter');
@@ -113,8 +113,6 @@ exports.createUser = async (req, res) => {
       createdBy: req.user._id
     });
 
-    const populatedUser = await user.populate('role', 'name');
-
     // ===== Audit =====
     await auditLogger?.({
       req,
@@ -132,11 +130,11 @@ exports.createUser = async (req, res) => {
       req,
       res,
       MSG.USER_CREATED,
-      localizeUser(populatedUser, lang),
+      localizeUser(user, lang),
       null,
       201
     );
-    
+
 
   } catch (err) {
     console.error('Create user error:', err);
@@ -263,7 +261,7 @@ exports.updateUser = async (req, res) => {
       MSG.USER_UPDATED,
       localizeUser(populatedUser, lang),
       null,
-      200
+      201
     );
 
   } catch (err) {
@@ -323,57 +321,5 @@ exports.adminResetUserPassword = async (req, res) => {
   }
 };
 
-/**
- * ==========================================================
- * 🔹 Change My Password
- * ==========================================================
- */
-exports.changeMyPassword = async (req, res) => {
-  try {
-    const { currentPassword, newPassword } = req.body;
 
-    if (!currentPassword || !newPassword)
-      return responseFormatter.error(req, res, 400, MSG.PASSWORD_REQUIRED, CODES.USR_400);
 
-    const user = await User.findById(req.user._id).select('+password');
-
-    if (!user)
-      return responseFormatter.error(req, res, 404, MSG.USER_NOT_FOUND, CODES.USR_404);
-
-    const isMatch = await user.comparePassword(currentPassword);
-    if (!isMatch)
-      return responseFormatter.error(req, res, 401, MSG.PASSWORD_CURRENT_INVALID, CODES.USR_401);
-
-    if (!isValidPassword(newPassword))
-      return responseFormatter.error(req, res, 400, MSG.PASSWORD_TOO_WEAK, CODES.USR_400);
-
-    user.password = newPassword;
-    user.tokens = [];
-    await user.save();
-
-    await auditLogger?.({
-      req,
-      user: req.user,
-      action: 'CHANGE_PASSWORD',
-      module: 'AUTH',
-      entityId: user._id,
-      entityName: user.email,
-      before: null,
-      after: null,
-      message: req.t(MSG.USER_PASSWORD_CHANGED)
-    });
-
-    return responseFormatter.success(
-      req,
-      res,
-      MSG.USER_PASSWORD_CHANGED,
-      null,
-      null,
-      200
-    );
-
-  } catch (err) {
-    console.error('Change password error:', err);
-    return responseFormatter.error(req, res, 500, MSG.PASSWORD_CHANGE_FAILED, CODES.USR_500);
-  }
-};

@@ -1,12 +1,17 @@
 const express = require('express');
 const router = express.Router();
 
-const userController = require('../../controllers/platform/user.controller');
+const userController = require('../../controllers/rbac/rootadmin.controller');
 const authMiddleware = require('../../middleware/auth');
 const { checkPermission } = require('../../middleware/permissionMiddleware');
 const { userLimiter } = require('../../config/rateLimit');
 
-router.use(authMiddleware);
+const validateUser = require('../../middleware/validateUser');
+
+
+router.use(authMiddleware); 
+router.use(validateUser);
+router.use(userLimiter());
 
 /**
  * =========================================
@@ -20,7 +25,6 @@ router.use(authMiddleware);
  */
 router.post(
   '/',
-  userLimiter(),
   checkPermission('SYS_ADMINS', 'SYS_ADMIN_ADD'),
   userController.createUser
 );
@@ -31,7 +35,6 @@ router.post(
  */
 router.get(
   '/',
-  userLimiter(),
   checkPermission('SYS_ADMINS', 'SYS_ADMIN_VIEW'),
   userController.getUserList
 );
@@ -42,7 +45,6 @@ router.get(
  */
 router.put(
   '/:id',
-  userLimiter(),
   checkPermission('SYS_ADMINS', 'SYS_ADMIN_UPDATE'),
   userController.updateUser
 );
@@ -53,7 +55,6 @@ router.put(
  */
 // router.delete(
 //   '/:id',
-//   userLimiter(),
 //   checkPermission('SYS_ADMINS', 'SYS_ADMIN_DELETE'),
 //   userController.deleteUser
 // );
@@ -64,20 +65,9 @@ router.put(
  */
 router.post(
   '/:id/reset-password',
-  userLimiter(),
   checkPermission('SYS_ADMINS', 'SYS_ADMIN_RESET_PASSWORD'),
   userController.adminResetUserPassword
 );
 
-/**
- * Change My Own Password
- * No module permission required
- * Only authentication required
- */
-router.post(
-  '/me/change-password',
-  userLimiter(),
-  userController.changeMyPassword
-);
 
 module.exports = router;

@@ -45,7 +45,8 @@
 
 const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require('../config/env');
-const User = require('../models/platform/User');
+const User = require('../models/rbac/RootAdmin');
+const UserAdmin = require('../models/affiliates/rbac/TenantAdmin');
 const responseFormatter = require('../utils/responseFormatter');
 const MSG = require('../config/constants/messageKeys');
 
@@ -92,8 +93,22 @@ module.exports = async (req, res, next) => {
     // 3️⃣ Load full user + role from database
     // - Always trust DB over token snapshot
     // ========================================
-    const user = await User.findById(decoded._id)
-      .populate('role');
+
+    let user;
+
+    if (decoded.roleType === 'ROOT') {
+      // Fetch from the ROOT collection
+      user = await User.findById(decoded._id)
+        .populate('role'); // populate role if needed
+    } else if (decoded.roleType === 'TENANT') {
+      // Fetch from the Tenant collection
+      user = await UserAdmin.findById(decoded._id)
+        .populate('role');
+    } else {
+      // Default: fetch from normal User collection
+      // user = await User.findById(decoded._id)
+      //   .populate('role');
+    }
 
     if (!user) {
       return responseFormatter.error(

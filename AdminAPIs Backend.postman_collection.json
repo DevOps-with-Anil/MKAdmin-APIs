@@ -1,78 +1,2711 @@
 {
   "info": {
     "_postman_id": "0a4de6f8-7b34-4425-8ba7-6b13c5bfbefe",
-    "name": "AdminAPIs Backend",
+    "name": "MK Project",
     "description": "Postman collection for AdminAPIs Backend APIs",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "47063594"
   },
   "item": [
     {
-      "name": "Super Admin Login",
-      "request": {
-        "method": "POST",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": "{\n    \"email\": \"admin@example.com\",\n    \"password\": \"Admin@12345\"\n}"
-        },
-        "url": {
-          "raw": "http://{{baseurl}}auth/login",
-          "protocol": "http",
-          "host": [
-            "{{baseurl}}auth"
-          ],
-          "path": [
-            "login"
-          ]
-        }
-      },
-      "response": []
-    },
-    {
-      "name": "Admin Profile",
-      "protocolProfileBehavior": {
-        "disableBodyPruning": true
-      },
-      "request": {
-        "auth": {
-          "type": "bearer",
-          "bearer": [
+      "name": "Root",
+      "item": [
+        {
+          "name": "Modules & Actions",
+          "item": [
             {
-              "key": "token",
-              "value": "{{token}}",
-              "type": "string"
+              "name": "Root",
+              "item": [
+                {
+                  "name": "Add Root Modules&Actions",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept-Language",
+                        "value": "en",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"key\": \"DEMO\",\n  \"moduleName\": {\n    \"en\": \"Demo-EN\",\n    \"fr\": \"Démo - FR\",\n    \"ar\": \"تجريب-AR\",\n    \"hi\": \"dssas\"\n  },\n  \"actions\": [\n    {\n      \"key\": \"CREATEDEMO\",\n      \"actionName\": {\n        \"en\": \"Add Module\",\n        \"fr\": \"Ajouter un module\",\n        \"ar\": \"إضافة وحدة\"\n      }\n    },\n    {\n      \"key\": \"UPDATE\",\n      \"actionName\": {\n        \"en\": \"Update Module\",\n        \"fr\": \"Mettre à jour le module\",\n        \"ar\": \"تحديث الوحدة\"\n      }\n    },\n    {\n      \"key\": \"DELETE\",\n      \"actionName\": {\n        \"en\": \"Delete Module\",\n        \"fr\": \"Supprimer le module\",\n        \"ar\": \"حذف الوحدة\",\n        \"hi\": \"sfkjsadfsf\"\n      }\n    }\n  ]\n}\n"
+                    },
+                    "url": {
+                      "raw": "http://{{baseurl}}systemmodule/add",
+                      "protocol": "http",
+                      "host": [
+                        "{{baseurl}}systemmodule"
+                      ],
+                      "path": [
+                        "add"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Get All Modules",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept-Language",
+                        "value": "en",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"page\": 1,\n  \"limit\": 20,\n  \"search\": \"\",\n  \"status\": \"\",\n  \"roleId\": \"\",\n  \"country\": \"\"\n}"
+                    },
+                    "url": {
+                      "raw": "http://{{baseurl}}systemmodule/",
+                      "protocol": "http",
+                      "host": [
+                        "{{baseurl}}systemmodule"
+                      ],
+                      "path": [
+                        ""
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Get Modules by ID",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept-Language",
+                        "value": "en",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": ""
+                    },
+                    "url": {
+                      "raw": "http://{{baseurl}}systemmodule/69ad58e0567ccddefb74d3be",
+                      "protocol": "http",
+                      "host": [
+                        "{{baseurl}}systemmodule"
+                      ],
+                      "path": [
+                        "69ad58e0567ccddefb74d3be"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Update Module",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept-Language",
+                        "value": "en",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"moduleName\": {\n    \"en\": \"Updated-EN Name\",\n    \"fr\": \"Update Name-FR\",\n    \"ar\": \"Updated name -ar\"\n  },\n  \"isActive\": true\n}\n"
+                    },
+                    "url": {
+                      "raw": "http://{{baseurl}}systemmodule/69ad5db9567ccddefb74d4ce",
+                      "protocol": "http",
+                      "host": [
+                        "{{baseurl}}systemmodule"
+                      ],
+                      "path": [
+                        "69ad5db9567ccddefb74d4ce"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Update Module Status",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \n  \"isActive\" : true\n}"
+                    },
+                    "url": {
+                      "raw": "http://{{baseurl}}systemmodule/69ad5db9567ccddefb74d4ce",
+                      "protocol": "http",
+                      "host": [
+                        "{{baseurl}}systemmodule"
+                      ],
+                      "path": [
+                        "69ad5db9567ccddefb74d4ce"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Delete Module",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \n  \"isActive\" : true\n}"
+                    },
+                    "url": {
+                      "raw": "http://{{baseurl}}systemmodule/69ad5db9567ccddefb74d4ce",
+                      "protocol": "http",
+                      "host": [
+                        "{{baseurl}}systemmodule"
+                      ],
+                      "path": [
+                        "69ad5db9567ccddefb74d4ce"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Add Action",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept-Language",
+                        "value": "en",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"key\": \"DEMO\",\n  \"actionName\": {\n    \"en\": \"View System User\",\n    \"fr\": \"Voir les utilisateurs système\",\n    \"ar\": \"عرض مستخدمي النظام\"\n  }\n}\n"
+                    },
+                    "url": {
+                      "raw": "http://{{baseurl}}systemmodule/69ad5f23567ccddefb74d723/actions",
+                      "protocol": "http",
+                      "host": [
+                        "{{baseurl}}systemmodule"
+                      ],
+                      "path": [
+                        "69ad5f23567ccddefb74d723",
+                        "actions"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Update Action",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"actionKey\": \"CREATE\",\n  \"newKey\": \"SYS_USER_ADD11\",\n  \"newActionName\": {\n    \"en\": \"Add System User11\",\n    \"fr\": \"Ajouter un utilisateur système 11\",\n    \"ar\": \"إضافة مستخدم النظام 11\"\n  },\n  \"isActive\": true\n}\n"
+                    },
+                    "url": {
+                      "raw": "http://{{baseurl}}systemmodule/698c6f56671dcf188a1396cd/actions",
+                      "protocol": "http",
+                      "host": [
+                        "{{baseurl}}systemmodule"
+                      ],
+                      "path": [
+                        "698c6f56671dcf188a1396cd",
+                        "actions"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Delete Action",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept-Language",
+                        "value": "en",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"actionKey\": \"TEST\"\n}"
+                    },
+                    "url": {
+                      "raw": "http://{{baseurl}}systemmodule/698c6f56671dcf188a1396cd/actions/",
+                      "protocol": "http",
+                      "host": [
+                        "{{baseurl}}systemmodule"
+                      ],
+                      "path": [
+                        "698c6f56671dcf188a1396cd",
+                        "actions",
+                        ""
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "Affiliate",
+              "item": [
+                {
+                  "name": "Add Root Modules&Actions",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept-Language",
+                        "value": "en",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"key\": \"DEMO5\",\n  \"moduleName\": {\n    \"en\": \"Demo4\",\n    \"fr\": \"Démo4\",\n    \"ar\": \"تجريب\"\n  },\n  \"actions\": [\n    {\n      \"key\": \"CREATE\",\n      \"actionName\": {\n        \"en\": \"Add Module\",\n        \"fr\": \"Ajouter un module\",\n        \"ar\": \"إضافة وحدة\"\n      }\n    },\n    {\n      \"key\": \"UPDATE\",\n      \"actionName\": {\n        \"en\": \"Update Module\",\n        \"fr\": \"Mettre à jour le module\",\n        \"ar\": \"تحديث الوحدة\"\n      }\n    },\n    {\n      \"key\": \"DELETE\",\n      \"actionName\": {\n        \"en\": \"Delete Module\",\n        \"fr\": \"Supprimer le module\",\n        \"ar\": \"حذف الوحدة\"\n      }\n    }\n  ]\n}\n"
+                    },
+                    "url": {
+                      "raw": "http://{{baseurl}}tenantmodules/add",
+                      "protocol": "http",
+                      "host": [
+                        "{{baseurl}}tenantmodules"
+                      ],
+                      "path": [
+                        "add"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Get All Modules",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept-Language",
+                        "value": "en",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"page\": 1,\n  \"limit\": 20,\n  \"search\": \"\",\n  \"status\": \"\",\n  \"roleId\": \"\",\n  \"country\": \"\"\n}"
+                    },
+                    "url": {
+                      "raw": "http://{{baseurl}}tenantmodule/",
+                      "protocol": "http",
+                      "host": [
+                        "{{baseurl}}tenantmodule"
+                      ],
+                      "path": [
+                        ""
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Get Modules by ID",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": ""
+                    },
+                    "url": {
+                      "raw": "http://{{baseurl}}tenantmodules/698c481a1e544437cda237ea",
+                      "protocol": "http",
+                      "host": [
+                        "{{baseurl}}tenantmodules"
+                      ],
+                      "path": [
+                        "698c481a1e544437cda237ea"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Update Module",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"moduleName\": {\n    \"en\": \"SYSTEM USERS1\",\n    \"fr\": \"UTILISATEURS SYSTÈME 1\",\n    \"ar\": \"مستخدمي النظام 1\"\n  },\n  \"isActive\": false\n}\n"
+                    },
+                    "url": {
+                      "raw": "http://{{baseurl}}tenantmodules/698c481a1e544437cda237ea",
+                      "protocol": "http",
+                      "host": [
+                        "{{baseurl}}tenantmodules"
+                      ],
+                      "path": [
+                        "698c481a1e544437cda237ea"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Add Action",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"key\": \"TEST\",\n  \"actionName\": {\n    \"en\": \"View System User\",\n    \"fr\": \"Voir les utilisateurs système\",\n    \"ar\": \"عرض مستخدمي النظام\"\n  }\n}\n"
+                    },
+                    "url": {
+                      "raw": "http://{{baseurl}}tenantmodules/698c6f56671dcf188a1396cd/actions",
+                      "protocol": "http",
+                      "host": [
+                        "{{baseurl}}tenantmodules"
+                      ],
+                      "path": [
+                        "698c6f56671dcf188a1396cd",
+                        "actions"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Update Action",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"actionKey\": \"CREATE\",\n  \"newKey\": \"SYS_USER_ADD11\",\n  \"newActionName\": {\n    \"en\": \"Add System User11\",\n    \"fr\": \"Ajouter un utilisateur système 11\",\n    \"ar\": \"إضافة مستخدم النظام 11\"\n  },\n  \"isActive\": true\n}\n"
+                    },
+                    "url": {
+                      "raw": "http://{{baseurl}}tenantmodules/698c6f56671dcf188a1396cd/actions",
+                      "protocol": "http",
+                      "host": [
+                        "{{baseurl}}tenantmodules"
+                      ],
+                      "path": [
+                        "698c6f56671dcf188a1396cd",
+                        "actions"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Delete Action",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept-Language",
+                        "value": "en",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"actionKey\": \"TEST\"\n}"
+                    },
+                    "url": {
+                      "raw": "http://{{baseurl}}tenantmodules/698c6f56671dcf188a1396cd/actions/",
+                      "protocol": "http",
+                      "host": [
+                        "{{baseurl}}tenantmodules"
+                      ],
+                      "path": [
+                        "698c6f56671dcf188a1396cd",
+                        "actions",
+                        ""
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Update Module Status",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \n  \"isActive\" : false\n}"
+                    },
+                    "url": {
+                      "raw": "http://{{baseurl}}tenantmodules/698c481a1e544437cda237ea",
+                      "protocol": "http",
+                      "host": [
+                        "{{baseurl}}tenantmodules"
+                      ],
+                      "path": [
+                        "698c481a1e544437cda237ea"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Delete Module",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \n  \"isActive\" : true\n}"
+                    },
+                    "url": {
+                      "raw": "http://{{baseurl}}tenantmodules/698c481a1e544437cda237ea",
+                      "protocol": "http",
+                      "host": [
+                        "{{baseurl}}tenantmodules"
+                      ],
+                      "path": [
+                        "698c481a1e544437cda237ea"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
             }
           ]
         },
-        "method": "GET",
-        "header": [
-          {
-            "key": "Content-Type",
-            "value": "application/json"
-          }
-        ],
-        "body": {
-          "mode": "raw",
-          "raw": ""
+        {
+          "name": "Roles",
+          "item": [
+            {
+              "name": "Add Role",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "accept-language",
+                    "value": "en",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n\"name\": {\n\"en\": \"Admina\",\n\"fr\": \"Administrateur\",\n\"ar\": \"المسؤول الأعلى\",\n\"ch\": \"fffsfs\"\n},\n\"description\": {\n\"en\": \"System Super Administrator with full platform access\",\n\"fr\": \"Super administrateur du système avec accès complet à la plateforme\",\n\"ar\": \"مسؤول النظام الأعلى مع صلاحية كاملة على المنصة\",\n\"ch\": \"fffsfs\"\n}\n}\n"
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}role",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}role"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get All Roles",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept-Language",
+                    "value": "en",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"page\": 1,\n  \"limit\": 5,\n  \"search\": \"\",\n  \"status\": \"\",\n//   \"roleId\": \"\",\n  \"country\": \"\"\n}"
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}role",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}role"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Role",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept-Language",
+                    "value": "ar",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": {\n    \"en\": \"fhfhfdh 1111dfggdfgdfdf1\",\n    \"fr\": \"Super sdasdfdfgdfgfdgfdggsada\",\n    \"ar\":  \"aa11sdaggda1111a\"\n  },\n  \"description\": {\n    \"en\": \"Sysfdfdgfdgtem Super Ad11111min2\",\n    \"fr\": \"Super administrat111111eur du système\",\n    \"ar\": \"sa1111sa\"\n  },\n   \"status\": false\n}\n"
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}role/69aeb3017f6f90d177d8559b",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}role"
+                  ],
+                  "path": [
+                    "69aeb3017f6f90d177d8559b"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Role Status",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept-Language",
+                    "value": "en",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": true\n}"
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}role/69aea58277dd7b322716fd47/status",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}role"
+                  ],
+                  "path": [
+                    "69aea58277dd7b322716fd47",
+                    "status"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Role",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept-Language",
+                    "value": "en",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": true\n}"
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}role/69aeb672cca30a7820398c9f",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}role"
+                  ],
+                  "path": [
+                    "69aeb672cca30a7820398c9f"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Updated Permissions",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n\"modules\": [\n{\n\"moduleKey\": \"SYS_ROLES\",\n\"allowed\": true,\n\"actions\": [\n{ \"actionKey\": \"SYS_ROLE_ADD\", \"allowed\": true },\n{ \"actionKey\": \"SYS_ROLE_UPDATE\", \"allowed\": true },\n{ \"actionKey\": \"SYS_ROLE_DELETE\", \"allowed\": true },\n{ \"actionKey\": \"SYS_ROLE_ASSIGN_PERMISSIONS\", \"allowed\": true }\n]\n},\n{\n\"moduleKey\": \"SYS_ADMINS\",\n\"allowed\": true,\n\"actions\": [\n{ \"actionKey\": \"SYS_ADMIN_ADD\", \"allowed\": true },\n{ \"actionKey\": \"SYS_ADMIN_UPDATE\", \"allowed\": true },\n{ \"actionKey\": \"SYS_ADMIN_DELETE\", \"allowed\": true },\n{ \"actionKey\": \"SYS_ADMIN_RESET_PASSWORD\", \"allowed\": true },\n{ \"actionKey\": \"SYS_ADMIN_CHANGE_STATUS\", \"allowed\": true }\n]\n},\n{\n\"moduleKey\": \"SUBSCRIPTION_PLANS\",\n\"allowed\": true,\n\"actions\": [\n{ \"actionKey\": \"SUB_PLAN_ADD\", \"allowed\": true },\n{ \"actionKey\": \"SUB_PLAN_UPDATE\", \"allowed\": true },\n{ \"actionKey\": \"SUB_PLAN_DELETE\", \"allowed\": true },\n{ \"actionKey\": \"SUB_PLAN_ASSIGN_FEATURES\", \"allowed\": true },\n{ \"actionKey\": \"SUB_PLAN_DISABLE\", \"allowed\": true }\n]\n}\n]\n}\n"
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}role/69aec790de8f208df75f8691/permissions",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}role"
+                  ],
+                  "path": [
+                    "69aec790de8f208df75f8691",
+                    "permissions"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
         },
-        "url": {
-          "raw": "http://{{baseurl}}profile/me",
-          "protocol": "http",
-          "host": [
-            "{{baseurl}}profile"
-          ],
-          "path": [
-            "me"
+        {
+          "name": "System Users",
+          "item": [
+            {
+              "name": "Add User",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "accept-language",
+                    "value": "en",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Anil Singh\",\n  \"email\": \"anil.impetrosys@gmail.com\",\n  \"password\": \"Strong@123\",\n  \"phoneCode\": \"+91\",\n  \"phoneNumber\": \"88656888888\",\n  \"role\": \"69aef64cd081e834c7224651\",\n  \"allowedCountries\": [\"IN\", \"US\"],\n  \"status\": \"INACTIVE\"\n\n   \n\n}"
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}rootadmin",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}rootadmin"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get All Users",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept-Language",
+                    "value": "en",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"page\": 1,\n  \"limit\": 20,\n  \"search\": \"\",\n  \"status\": \"\",\n  \"roleId\": \"\",\n  \"country\": \"\"\n}"
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}rootadmin",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}rootadmin"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update User",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n//   \"name\": \"Emmanuel Bamba\",\n//   \"email\": \"\",\n//   \"phoneNumber\": \"\",\n//   \"role\": \"\",\n // \"allowedCountries\": [\"IN\"],\n  \"status\": \"ACTIVE\"\n}"
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}rootadmin/69aef6e5d081e834c7224678",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}rootadmin"
+                  ],
+                  "path": [
+                    "69aef6e5d081e834c7224678"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Reset-Password",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"newPassword\": \"Root@12345\"\n}\n"
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}rootadmin/69aef6e5d081e834c7224678/reset-password",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}rootadmin"
+                  ],
+                  "path": [
+                    "69aef6e5d081e834c7224678",
+                    "reset-password"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Tenants",
+          "item": [
+            {
+              "name": "Add Tenant",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Accept-Language",
+                    "value": "en",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "// {\n//   \"contact_email\": \"admin@techbazaar.com\",\n//   \"phoneCode\": \"+91\",\n//   \"contact_phoneNumber\": \"9876543210\",\n//   \"logo\": \"https://cdn.company.com/logos/techbazaar.png\",\n//   \"companyName\": {\n//     \"en\": \"TechBazaar\",\n//     \"fr\": \"Bazar Tech\",\n//     \"ar\": \"بازار التقنية\"\n//   },\n//   \"description\": {\n//     \"en\": \"Online marketplace for electronics and gadgets.\",\n//     \"fr\": \"Marché en ligne pour les appareils électroniques et gadgets.\",\n//     \"ar\": \"سوق إلكتروني للأجهزة الإلكترونية والأدوات التقنية.\"\n//   },\n//   \"website\": \"https://www.techbazaar.com\",\n//   \"adminPanelUrl\": \"https://admin.techbazaar.com\",\n//   \"apiDomains\": [\n//     \"https://api.techbazaar.com\",\n//     \"https://mobile.techbazaar.com\"\n//   ],\n//   \"address\": {\n//     \"addressLine1\": \"22 Innovation Street\",\n//     \"addressLine2\": \"Floor 5\",\n//     \"landmark\": \"Near Tech Park\",\n//     \"zipCode\": \"560001\",\n//     \"city\": \"Bangalore\",\n//     \"state\": \"Karnataka\",\n//     \"country\": \"India\",\n//     \"latitude\": \"12.9716\",\n//     \"longitude\": \"77.5946\",\n//     \"isVerified\": true\n//   }\n// }\n\n\n{\n  \"contact_email\": \"admin@winfresh.com\",\n  \"phoneCode\": \"+91\",\n  \"contact_phoneNumber\": \"9876543210\",\n  \"logo\": \"https://cdn.example.com/logos/winfresh.png\",\n\n  \"companyName\": {\n    \"en\": \"Winfresh Pvt Ltd\",\n    \"fr\": \"Winfresh SARL\",\n    \"ar\": \"وينفريش\"\n  },\n\n  \"description\": {\n    \"en\": \"Fresh food distribution company\",\n    \"fr\": \"Entreprise de distribution alimentaire\",\n    \"ar\": \"شركة توزيع المواد الغذائية\"\n  },\n\n  \"website\": \"https://winfresh.com\",\n\n  \"adminPanelUrl\": \"admin.winfresh.com\",\n\n  \"apiDomains\": [\n    \"api.winfresh.com\",\n    \"services.winfresh.com\"\n  ],\n\n  \"address\": {\n    \"addressLine1\": \"Tower A, Business Park\",\n    \"addressLine2\": \"Sector 5\",\n    \"landmark\": \"Near Metro Station\",\n    \"zipCode\": \"400001\",\n    \"city\": \"Mumbai\",\n    \"state\": \"Maharashtra\",\n    \"country\": \"India\",\n    \"latitude\": \"19.0760\",\n    \"longitude\": \"72.8777\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}affiliate",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}affiliate"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Tenant",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Accept-Language",
+                    "value": "en",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"contact_email\": \"admin@winfresh.com\",\n  \"phoneCode\": \"+91\",\n  \"contact_phoneNumber\": \"9876543210\",\n  \"logo\": \"https://cdn.example.com/logos/winfresh.png\",\n\n  \"companyName\": {\n    \"en\": \"Winfresh Pvt Ltd\",\n    \"fr\": \"Winfresh SARL\",\n    \"ar\": \"وينفريش\"\n  },\n\n  \"description\": {\n    \"en\": \"Fresh food distribution company\",\n    \"fr\": \"Entreprise de distribution alimentaire\",\n    \"ar\": \"شركة توزيع المواد الغذائية\"\n  },\n\n  \"website\": \"https://winfresh.com\",\n\n  \"adminPanelUrl\": \"admin.winfresh.com\",\n\n  \"apiDomains\": [\n    \"api.winfresh.com\",\n    \"services.winfresh.com\"\n  ],\n\n  \"address\": {\n    \"addressLine1\": \"Tower A, Business Park\",\n    \"addressLine2\": \"Sector 5\",\n    \"landmark\": \"Near Metro Station\",\n    \"zipCode\": \"400001\",\n    \"city\": \"Mumbai\",\n    \"state\": \"Maharashtra\",\n    \"country\": \"India\",\n    \"latitude\": \"19.0760\",\n    \"longitude\": \"72.8777\"\n  }\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}affiliate/69b0166ae85c9daa75426747",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}affiliate"
+                  ],
+                  "path": [
+                    "69b0166ae85c9daa75426747"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Tenant Details",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept-Language",
+                    "value": "en",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}affiliate/69b0166ae85c9daa75426747",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}affiliate"
+                  ],
+                  "path": [
+                    "69b0166ae85c9daa75426747"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Delete Tenant",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Accept-Language",
+                    "value": "fr",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}affiliate/69afbe8c1abad144d52b0200",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}affiliate"
+                  ],
+                  "path": [
+                    "69afbe8c1abad144d52b0200"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Tenants List",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Accept-Language",
+                    "value": "ar",
+                    "type": "text"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"page\": 1,\n  \"limit\": 20,\n  \"search\": \"\",\n  \"status\": \"\",\n  \"planId\": \"\",\n  \"country\": \"\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}affiliate",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}affiliate"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Subscriptions",
+          "item": [
+            {
+              "name": "Plans",
+              "item": [
+                {
+                  "name": "Add Plan",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept-Language",
+                        "value": "en",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": {\n    \"en\": \"Basic Plan\",\n    \"fr\": \"Plan de base\",\n    \"ar\": \"الخطة الأساسية\",\n    \"hi\": \"dsadsdsdasd\"\n  },\n\"description\":\n  {\n    \"en\": \"This is the basic subscription plan\",\n    \"fr\": \"This is the basic subscription plan\",\n    \"ar\": \"الخطة الأساسية\"\n  },\n  \"price\": 100,\n  \"currency\": \"USD\",\n  \"duration\": \"MONTHLY\",\n  \"modules\": [] \n}\n"
+                    },
+                    "url": {
+                      "raw": "http://{{baseurl}}plan",
+                      "protocol": "http",
+                      "host": [
+                        "{{baseurl}}plan"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Update Plan",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "PUT",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept-Language",
+                        "value": "en",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"name\": {\n    \"en\": \"Basic Plan\",\n    \"fr\": \"Plan de base\",\n    \"ar\": \"الخطة الأساسية\"\n  },\n\"description\":\n  {\n    \"en\": \"This is the basic subscription plan\",\n    \"fr\": \"This is the basic subscription plan\",\n    \"ar\": \"الخطة الأساسية\"\n  },\n  \"price\": 200,\n  \"currency\": \"INR\",\n  \"duration\": \"MONTHLY\",\n  \"modules\": [],\n  \"status\": \"ACTIVE\"\n}\n"
+                    },
+                    "url": {
+                      "raw": "http://{{baseurl}}plan/69aefe3e68f84385141add67",
+                      "protocol": "http",
+                      "host": [
+                        "{{baseurl}}plan"
+                      ],
+                      "path": [
+                        "69aefe3e68f84385141add67"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Assign Modules & Permission",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept-Language",
+                        "value": "en",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"modules\": [\n    {\n      \"moduleKey\": \"BUSINESS_DETAILS\",\n      \"allowed\": true,\n      \"actions\": [\n        { \"actionKey\": \"BUSINESS_DETAILS_VIEW\", \"allowed\": true },\n        { \"actionKey\": \"BUSINESS_DETAILS_UPDATE\", \"allowed\": true }\n      ]\n    },\n    {\n      \"moduleKey\": \"BUSINESS_KYB\",\n      \"allowed\": true,\n      \"actions\": [\n        { \"actionKey\": \"BUSINESS_KYB_VIEW\", \"allowed\": true },\n        { \"actionKey\": \"BUSINESS_KYB_UPLOAD\", \"allowed\": true },\n        { \"actionKey\": \"BUSINESS_KYB_HISTORY_VIEW\", \"allowed\": true }\n      ]\n    },\n    {\n      \"moduleKey\": \"ADMINS\",\n      \"allowed\": true,\n      \"actions\": [\n        { \"actionKey\": \"SYS_ADMIN_ADD\", \"allowed\": true },\n        { \"actionKey\": \"SYS_ADMIN_UPDATE\", \"allowed\": true },\n        { \"actionKey\": \"SYS_ADMIN_DELETE\", \"allowed\": true },\n        { \"actionKey\": \"SYS_ADMIN_ASSIGN_ROLE\", \"allowed\": true },\n        { \"actionKey\": \"SYS_ADMIN_STATUS_UPDATE\", \"allowed\": true },\n        { \"actionKey\": \"SYS_ADMIN_PASSWORD_RESET\", \"allowed\": true }\n      ]\n    },\n    {\n      \"moduleKey\": \"ROLES\",\n      \"allowed\": true,\n      \"actions\": [\n        { \"actionKey\": \"ROLE_CREATE\", \"allowed\": true },\n        { \"actionKey\": \"ROLE_UPDATE\", \"allowed\": true },\n        { \"actionKey\": \"ROLE_DELETE\", \"allowed\": true },\n        { \"actionKey\": \"ROLE_ASSIGN_PERMISSION\", \"allowed\": true }\n      ]\n    },\n    {\n      \"moduleKey\": \"SUBSCRIPTIONS\",\n      \"allowed\": true,\n      \"actions\": [\n        { \"actionKey\": \"SUBSCRIPTION_VIEW\", \"allowed\": true },\n        { \"actionKey\": \"SUBSCRIPTION_CANCEL\", \"allowed\": true },\n        { \"actionKey\": \"SUBSCRIPTION_UPGRADE\", \"allowed\": true },\n        { \"actionKey\": \"SUBSCRIPTION_FEATURES_VIEW\", \"allowed\": true }\n      ]\n    },\n    {\n      \"moduleKey\": \"CUSTOMERS\",\n      \"allowed\": true,\n      \"actions\": [\n        { \"actionKey\": \"CUSTOMER_ADD\", \"allowed\": true },\n        { \"actionKey\": \"CUSTOMER_VIEW\", \"allowed\": true },\n        { \"actionKey\": \"CUSTOMER_UPDATE\", \"allowed\": true },\n        { \"actionKey\": \"CUSTOMER_DELETE\", \"allowed\": true }\n      ]\n    },\n    {\n      \"moduleKey\": \"CMS_MANAGEMENT\",\n      \"allowed\": true,\n      \"actions\": [\n        { \"actionKey\": \"CMS_CREATE\", \"allowed\": true },\n        { \"actionKey\": \"CMS_VIEW\", \"allowed\": true },\n        { \"actionKey\": \"CMS_UPDATE\", \"allowed\": true },\n        { \"actionKey\": \"CMS_DELETE\", \"allowed\": true }\n      ]\n    },\n    {\n      \"moduleKey\": \"SUPPORT_TICKETS\",\n      \"allowed\": true,\n      \"actions\": [\n        { \"actionKey\": \"TICKET_CREATE\", \"allowed\": true },\n        { \"actionKey\": \"TICKET_VIEW\", \"allowed\": true },\n        { \"actionKey\": \"TICKET_ASSIGN\", \"allowed\": true },\n        { \"actionKey\": \"TICKET_REPLY\", \"allowed\": true }\n      ]\n    },\n    {\n      \"moduleKey\": \"CUSTOMER_SUPPORT_TICKETS\",\n      \"allowed\": true,\n      \"actions\": [\n        { \"actionKey\": \"CUSTOMER_TICKET_CREATE\", \"allowed\": true },\n        { \"actionKey\": \"CUSTOMER_TICKET_VIEW\", \"allowed\": true },\n        { \"actionKey\": \"CUSTOMER_TICKET_CLOSE\", \"allowed\": true }\n      ]\n    },\n    {\n      \"moduleKey\": \"GDPR\",\n      \"allowed\": true,\n      \"actions\": [\n        { \"actionKey\": \"GDPR_EXPORT_DATA\", \"allowed\": true },\n        { \"actionKey\": \"GDPR_DELETE_DATA\", \"allowed\": true },\n        { \"actionKey\": \"GDPR_CONSENT_VIEW\", \"allowed\": true }\n      ]\n    },\n    {\n      \"moduleKey\": \"SYS_AUDIT_LOGS\",\n      \"allowed\": true,\n      \"actions\": [\n        { \"actionKey\": \"AUDIT_VIEW\", \"allowed\": true },\n        { \"actionKey\": \"AUDIT_EXPORT\", \"allowed\": true }\n      ]\n    }\n  ]\n}"
+                    },
+                    "url": {
+                      "raw": "http://{{baseurl}}plan/69aefe3e68f84385141add67/modules",
+                      "protocol": "http",
+                      "host": [
+                        "{{baseurl}}plan"
+                      ],
+                      "path": [
+                        "69aefe3e68f84385141add67",
+                        "modules"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Plans List",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept-Language",
+                        "value": "en",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"page\": 1,\n  \"limit\": 20,\n  \"search\": \"\",\n  \"status\": \"INACTIVE\"\n  }"
+                    },
+                    "url": {
+                      "raw": "http://{{baseurl}}plan",
+                      "protocol": "http",
+                      "host": [
+                        "{{baseurl}}plan"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Plans Details",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept-Language",
+                        "value": "en",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": ""
+                    },
+                    "url": {
+                      "raw": "http://{{baseurl}}plan/69aefd78917f677fbcdd6867",
+                      "protocol": "http",
+                      "host": [
+                        "{{baseurl}}plan"
+                      ],
+                      "path": [
+                        "69aefd78917f677fbcdd6867"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Delete Plan",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "DELETE",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept-Language",
+                        "value": "en",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": ""
+                    },
+                    "url": {
+                      "raw": "http://{{baseurl}}plan/69aefd78917f677fbcdd6867",
+                      "protocol": "http",
+                      "host": [
+                        "{{baseurl}}plan"
+                      ],
+                      "path": [
+                        "69aefd78917f677fbcdd6867"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            },
+            {
+              "name": "Subscribers",
+              "item": [
+                {
+                  "name": "Assign Subscription to Tenant",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept-Language",
+                        "value": "en",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"tenantId\": \"69b0166ae85c9daa75426747\",\n  \"planId\": \"69aefe3e68f84385141add67\"\n}"
+                    },
+                    "url": {
+                      "raw": "http://{{baseurl}}tenant-subscriptions/assign-plan",
+                      "protocol": "http",
+                      "host": [
+                        "{{baseurl}}tenant-subscriptions"
+                      ],
+                      "path": [
+                        "assign-plan"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Update Tenant Subscription",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept-Language",
+                        "value": "en",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"tenantId\": \"69b0166ae85c9daa75426747\",\n  \"newPlanId\": \"69aefe3e68f84385141add67\"\n}"
+                    },
+                    "url": {
+                      "raw": "http://{{baseurl}}tenant-subscriptions/update-plan",
+                      "protocol": "http",
+                      "host": [
+                        "{{baseurl}}tenant-subscriptions"
+                      ],
+                      "path": [
+                        "update-plan"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Get Tenant Active Subscription",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept-Language",
+                        "value": "ar",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": ""
+                    },
+                    "url": {
+                      "raw": "http://{{baseurl}}tenant-subscriptions/69b0166ae85c9daa75426747",
+                      "protocol": "http",
+                      "host": [
+                        "{{baseurl}}tenant-subscriptions"
+                      ],
+                      "path": [
+                        "69b0166ae85c9daa75426747"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Get Subscription history",
+                  "protocolProfileBehavior": {
+                    "disableBodyPruning": true
+                  },
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "GET",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept-Language",
+                        "value": "ar",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"page\": 1,\n  \"limit\": 20\n  }"
+                    },
+                    "url": {
+                      "raw": "http://{{baseurl}}tenant-subscriptions/history/69b0166ae85c9daa75426747",
+                      "protocol": "http",
+                      "host": [
+                        "{{baseurl}}tenant-subscriptions"
+                      ],
+                      "path": [
+                        "history",
+                        "69b0166ae85c9daa75426747"
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Cancel Tenant Subscription",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "{{token}}",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [
+                      {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                      },
+                      {
+                        "key": "Accept-Language",
+                        "value": "en",
+                        "type": "text"
+                      }
+                    ],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\n  \"tenantId\": \"69b0166ae85c9daa75426747\"\n//   \"newPlanId\": \"69aefe3e68f84385141add67\"\n}"
+                    },
+                    "url": {
+                      "raw": "http://{{baseurl}}tenant-subscriptions/cancel",
+                      "protocol": "http",
+                      "host": [
+                        "{{baseurl}}tenant-subscriptions"
+                      ],
+                      "path": [
+                        "cancel"
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "System Settings",
+          "item": []
+        }
+      ]
+    },
+    {
+      "name": "Tenant",
+      "item": [
+        {
+          "name": "Roles",
+          "item": [
+            {
+              "name": "Add Role",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "accept-language",
+                    "value": "en",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tenantId\": \"69b0166ae85c9daa75426747\",\n  \"name\": {\n    \"en\": \"Super Admin\",\n    \"fr\": \"Super Administrateur\",\n    \"ar\": \"المسؤول الأعلى\"\n  },\n  \"description\": {\n    \"en\": \"System Super Admin\",\n    \"fr\": \"Super administrateur du système\",\n    \"ar\": \"المسؤول الأعلى للنظام\"\n  }\n}\n"
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}tenantrole",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}tenantrole"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get All Roles",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept-Language",
+                    "value": "en",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"page\": 1,\n  \"limit\": 5,\n  \"search\": \"\",\n  \"status\": \"\"\n//   \"roleId\": \"\",\n//   \"country\": \"\"\n}"
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}tenantrole/69b0166ae85c9daa75426747",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}tenantrole"
+                  ],
+                  "path": [
+                    "69b0166ae85c9daa75426747"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Role",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept-Language",
+                    "value": "en",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"name\": {\n    \"en\": \"Super Admin\",\n    \"fr\": \"111Super Administrateur du Locataire\",\n    \"ar\": \"المشرف العام للمستأجر\"\n  },\n  \"description\": {\n    \"en\": \"111Full access administrator for the tenant.\",\n    \"fr\": \"Administrateur avec accès complet pour le locataire.\",\n    \"ar\": \"مسؤول لديه صلاحية كاملة داخل المستأجر.\"\n  },\n  \"status\": true\n\n}"
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}tenantrole/69b062575527ce70e2d85e18",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}tenantrole"
+                  ],
+                  "path": [
+                    "69b062575527ce70e2d85e18"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update Role Status",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept-Language",
+                    "value": "en",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"status\": true\n}"
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}roles/69a48cb9db489c4b375099a2/status",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}roles"
+                  ],
+                  "path": [
+                    "69a48cb9db489c4b375099a2",
+                    "status"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Updated Permissions",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"modules\": [\n    {\n      \"moduleKey\": \"SYS_ADMINS\",\n      \"allowed\": false,\n      \"actions\": [\n        { \"actionKey\": \"SYS_ADMIN_ADD\", \"allowed\": false },\n        { \"actionKey\": \"SYS_ADMIN_VIEW\", \"allowed\": false },\n        { \"actionKey\": \"SYS_ADMIN_UPDATE\", \"allowed\": true },\n        { \"actionKey\": \"SYS_ADMIN_DELETE\", \"allowed\": false }\n      ]\n    }\n  ]\n}"
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}roles/69a48cb9db489c4b375099a2/permissions",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}roles"
+                  ],
+                  "path": [
+                    "69a48cb9db489c4b375099a2",
+                    "permissions"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Admin Users",
+          "item": [
+            {
+              "name": "Add User",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "accept-language",
+                    "value": "en",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tenantId\": \"69b0166ae85c9daa75426747\",\n  \"name\": \"John Admin\",\n  \"email\": \"john.admin@tenant.com\",\n  \"phoneCode\": \"+91\",\n  \"phoneNumber\": \"9876543210\",\n  \"password\": \"Secure@123\",\n  \"role\": \"69b062575527ce70e2d85e18\",\n  \"allowedCountries\": [\"IN\", \"US\"]\n}"
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}tenantadmin",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}tenantadmin"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Get All Users",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept-Language",
+                    "value": "en",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \n  \"page\": 1,\n  \"limit\": 20,\n  \"search\": \"\",\n  \"status\": \"\",\n  \"roleId\": \"\",\n  \"country\": \"\"\n}"
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}tenantadmin/69b0166ae85c9daa75426747",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}tenantadmin"
+                  ],
+                  "path": [
+                    "69b0166ae85c9daa75426747"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update User",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"John Updated\",\n  \"email\": \"john.admin@tenant1.com\",\n  \"phoneNumber\": \"9999999999\",\n  \"role\": \"69ac83e41009e5d30bca2d7c\",\n  \"status\": \"ACTIVE\",\n  \"allowedCountries\": [\"IN\"]\n}"
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}tenantadmin/69ad35d25501cfb5ae478def",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}tenantadmin"
+                  ],
+                  "path": [
+                    "69ad35d25501cfb5ae478def"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Update User Status",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n\n  \"status\": \"INACTIVE\"\n  \n}"
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}tenantadmin/69ad35d25501cfb5ae478def/status",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}tenantadmin"
+                  ],
+                  "path": [
+                    "69ad35d25501cfb5ae478def",
+                    "status"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Change Passowrd",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"currentPassword\": \"Root@123\",\n  \"newPassword\": \"Root@12345\"\n}"
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}systemusers/me/change-password",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}systemusers"
+                  ],
+                  "path": [
+                    "me",
+                    "change-password"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Reset-Password",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"newPassword\": \"Root@12345\"\n}\n"
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}systemusers/6982e02e25379db49178812c/reset-password",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}systemusers"
+                  ],
+                  "path": [
+                    "6982e02e25379db49178812c",
+                    "reset-password"
+                  ]
+                }
+              },
+              "response": []
+            }
           ]
         }
-      },
-      "response": []
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "rootAuth",
+          "item": [
+            {
+              "name": "Root Login",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept-Language",
+                    "value": "en",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"email\": \"root@mkproject.com\",  //Root Admin\n    \"password\": \"Root@12345\"\n//      \"email\": \"anil.impetrosys@gmail.com\",\n//   \"password\": \"Strong@123\"\n}\n// "
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}auth/root",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}auth"
+                  ],
+                  "path": [
+                    "root"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Root Profile",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept-Language",
+                    "value": "en",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}auth/root/me",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}auth"
+                  ],
+                  "path": [
+                    "root",
+                    "me"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "ROOT Change Password",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept-Language",
+                    "value": "en",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"newPassword\": \"Root@12345\",\n  \"currentPassword\": \"NewPassword@123\"\n \n}"
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}auth/root/changepassword",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}auth"
+                  ],
+                  "path": [
+                    "root",
+                    "changepassword"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "ROOT Profile",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept-Language",
+                    "value": "en",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Anil Singh\",\n  \"email\": \"anil@example.com\",\n  \"phoneCode\": \"+91\",\n  \"phoneNumber\": \"9876543210\",\n  \"photo\": \"https://cdn.mysite.com/avatar.png\"\n}"
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}auth/updateprofile",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}auth"
+                  ],
+                  "path": [
+                    "updateprofile"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "tenantAuth",
+          "item": [
+            {
+              "name": "Tenant Login",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept-Language",
+                    "value": "en",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"email\": \"anil@test.com\",  //Root Admin\n    \"password\": \"Secure@123\"\n\n}\n// "
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}auth/admin",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}auth"
+                  ],
+                  "path": [
+                    "admin"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Tenant Profile",
+              "protocolProfileBehavior": {
+                "disableBodyPruning": true
+              },
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept-Language",
+                    "value": "en",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": ""
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}auth/admin/me",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}auth"
+                  ],
+                  "path": [
+                    "admin",
+                    "me"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Tenant Change Password",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept-Language",
+                    "value": "en",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"newPassword\": \"Secure@123\",\n  \"currentPassword\": \"Root@12345\"\n \n}"
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}auth/admin/changepassword",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}auth"
+                  ],
+                  "path": [
+                    "admin",
+                    "changepassword"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Tenant Profile",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{token}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  },
+                  {
+                    "key": "Accept-Language",
+                    "value": "en",
+                    "type": "text"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Anil M.\",\n  \"email\": \"anil@test.com\",\n  \"phoneCode\": \"+91\",\n  \"phoneNumber\": \"9977699665\",\n  \"photo\": \"https://cdn.mysite.com/mypic.png\"\n}"
+                },
+                "url": {
+                  "raw": "http://{{baseurl}}auth/admin/updateprofile",
+                  "protocol": "http",
+                  "host": [
+                    "{{baseurl}}auth"
+                  ],
+                  "path": [
+                    "admin",
+                    "updateprofile"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "customerAuth",
+          "item": []
+        }
+      ]
     }
   ],
   "event": [

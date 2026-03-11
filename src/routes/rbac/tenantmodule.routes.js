@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const rootModuleController = require('../../controllers/rbac/systemmodule.controller');
+const rootModuleController = require('../../controllers/rbac/tenantmodule.controller');
 const authMiddleware = require('../../middleware/auth');
 const { checkPermission } = require('../../middleware/permissionMiddleware');
 const { userLimiter } = require('../../config/rateLimit'); // ✅ Rate limiter

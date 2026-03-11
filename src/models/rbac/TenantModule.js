@@ -3,19 +3,7 @@ const { rootDB } = require("../../config/db");
 
 const { Schema } = mongoose;
 
-// =========================================
-// 🌍 Multi-language Name Sub-Schema
-// =========================================
-// const localizedNameSchema = new Schema(
-//   {
-//     en: { type: String, required: true },
-//     fr: { type: String, required: true },
-//     ar: { type: String, required: true }
-//   },
-//   { _id: false }
-// );
 const localizedNameSchema = new Schema({}, { _id: false, strict: false });
-
 
 // =========================================
 // 🧩 Module Action Schema
@@ -46,7 +34,7 @@ const actionSchema = new Schema(
 );
 
 // =========================================
-// 🧩 Affilate Module Schema
+// 🧩 Root Module Schema
 // =========================================
 const moduleSchema = new Schema(
   {
@@ -73,12 +61,12 @@ const moduleSchema = new Schema(
 
     createdBy: {
       type: Schema.Types.ObjectId,
-      ref: "User"
+      ref: "SYS_User"
     }
   },
   { timestamps: true }
 );
- 
+
 // =========================================
 // ⚡ PERFORMANCE INDEX (recommended)
 // =========================================

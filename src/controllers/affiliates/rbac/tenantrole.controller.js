@@ -1,17 +1,19 @@
-const RootRole = require('../../models/rbac/SystemRole');
-const RootModule = require('../../models/rbac/SystemModule');
-const auditLogger = require('../../utils/auditLogger');
-const responseFormatter = require('../../utils/responseFormatter');
-const MSG = require('../../config/constants/messageKeys');
-const CODES = require('../../config/constants/errorCodes');
+const Tenant = require('../../../models/tenants/Tenant');
+const TenantRole = require('../../../models/affiliates/rbac/TenantRole');
+const auditLogger = require('../../../utils/auditLogger');
+const responseFormatter = require('../../../utils/responseFormatter');
 
-const { SUPPORTED_LANGS, DEFAULT_LANG } = require('../../utils/i18n');
+const MSG = require('../../../config/constants/messageKeys');
+const CODES = require('../../../config/constants/errorCodes');
+
+const { SUPPORTED_LANGS, DEFAULT_LANG } = require('../../../utils/i18n');
 
 /**
  * ============================================================
- * 🌍 Helper: Validate localized object dynamically
+ * 🌍 Validate Localized Field
  * ============================================================
  */
+
 function validateLocalizedField(field, fieldName) {
   for (const lang of SUPPORTED_LANGS) {
     if (!field?.[lang]) {
@@ -23,9 +25,10 @@ function validateLocalizedField(field, fieldName) {
 
 /**
  * ============================================================
- * 🌍 Helper: Localize role output dynamically
+ * 🌍 Localize Role Output
  * ============================================================
  */
+
 function localizeRole(role, lang) {
   const obj = role.toObject();
 
@@ -33,11 +36,12 @@ function localizeRole(role, lang) {
   obj.description =
     obj.description?.[lang] || obj.description?.[DEFAULT_LANG];
 
-  if (Array.isArray(obj.modules)) {
-    obj.modules = obj.modules.map(mod => ({
+  if (Array.isArray(obj.permissions)) {
+    obj.permissions = obj.permissions.map(mod => ({
       ...mod,
       moduleName:
         mod.moduleName?.[lang] || mod.moduleName?.[DEFAULT_LANG],
+
       actions: mod.actions?.map(act => ({
         ...act,
         actionName:
@@ -51,72 +55,97 @@ function localizeRole(role, lang) {
 
 /**
  * ============================================================
- * 🟢 CREATE ROLE
+ * 🎭 CREATE ROLE
  * ============================================================
  */
-exports.createRole = async (req, res) => {
+
+exports.createTenantRole = async (req, res) => {
   try {
+
     const lang = req.lang || DEFAULT_LANG;
-    const { name, description } = req.body;
+    const { tenantId, name, description, permissions } = req.body;
+    const user = req.user;
 
-    const nameError = validateLocalizedField(name, 'Role name');
+    /**
+     * Validate Tenant
+     */
+
+    const tenant = await Tenant.findById(tenantId);
+
+    if (!tenant) {
+      return responseFormatter.error(
+        req,
+        res,
+        404,
+        MSG.TENANT_NOT_FOUND,
+        CODES.TEN_404
+      );
+    }
+
+    /**
+     * Validate Multilingual Fields
+     */
+
+    const nameError = validateLocalizedField(name, "Role name");
     if (nameError) {
-      return responseFormatter.error(
-        req,
-        res,
-        400,
-        nameError,
-        CODES.ROL_400
-      );
+      return responseFormatter.error(req, res, 400, nameError);
     }
 
-    const descError = validateLocalizedField(description, 'Role description');
+    const descError = validateLocalizedField(description, "Role description");
     if (descError) {
-      return responseFormatter.error(
-        req,
-        res,
-        400,
-        descError,
-        CODES.ROL_400
-      );
+      return responseFormatter.error(req, res, 400, descError);
     }
 
-    // Prevent duplicate using DEFAULT_LANG
-    const exists = await RootRole.findOne({
-      [`name.${DEFAULT_LANG}`]: name[DEFAULT_LANG]
+    /**
+     * Prevent Duplicate Role
+     */
+
+    const exists = await TenantRole.findOne({
+      tenantId,
+      "name.en": name?.en
     });
 
     if (exists) {
       return responseFormatter.error(
         req,
         res,
-        400,
+        409,
         MSG.ROLE_EXISTS,
-        CODES.ROL_409
       );
     }
 
-    const role = await RootRole.create({
+    /**
+     * Detect Creator Type
+     */
+
+    const createdByType = user?.role?.tenantId ? "TENANT" : "ROOT";
+
+    /**
+     * Create Role
+     */
+
+    const role = await TenantRole.create({
+      tenantId,
       name,
       description,
-      modules: [],
-      createdBy: req.user?._id
+      permissions: permissions || [],
+      createdByType,
+      createdBy: user._id
     });
 
     /**
-     * ======================================================
-     * 4️⃣ Audit Log (Store English + Full i18n)
-     * ======================================================
+     * Audit Log
      */
+
     await auditLogger?.({
       req,
-      user: req.user,
-      action: 'SYS_ROLE_ADD',
-      module: 'SYS_ROLES',
+      user,
+      action: "ROLE_CREATE",
+      module: "TENANT_ROLES",
       entityId: role._id,
-      entityName: role.name?.[DEFAULT_LANG], // Primary label
+      entityName: role.name?.en,
       after: role,
-      message: MSG.ROLE_CREATED,
+      message: "Role created"
     });
 
     return responseFormatter.success(
@@ -129,7 +158,9 @@ exports.createRole = async (req, res) => {
     );
 
   } catch (err) {
+
     console.error(err);
+
     return responseFormatter.error(
       req,
       res,
@@ -140,19 +171,24 @@ exports.createRole = async (req, res) => {
   }
 };
 
+
 /**
  * ============================================================
- * 📄 LIST ROLES
+ * 📄 GET ROLES (LIST)
  * ============================================================
  */
-exports.listRoles = async (req, res) => {
+
+exports.getTenantRoles = async (req, res) => {
+
   try {
 
     const lang = req.lang || DEFAULT_LANG;
     const { page = 1, limit = 20, search = '', status } = req.body;
+    const { tenantId } = req.params;
+
+
 
     const query = {};
-
     if (search) {
       query[`name.${DEFAULT_LANG}`] = {
         $regex: search,
@@ -163,28 +199,24 @@ exports.listRoles = async (req, res) => {
     if (status) {
       query.status = status.toUpperCase();
     }
-
     const skip = (Number(page) - 1) * Number(limit);
 
     const [roles, total] = await Promise.all([
-      RootRole.find(query)
+      TenantRole.find(query)
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(Number(limit)),
-      RootRole.countDocuments(query)
+      TenantRole.countDocuments(query)
     ]);
 
-    const localized = roles.map(role =>
-      localizeRole(role, lang)
-    );
 
-
+    const data = roles.map(role => localizeRole(role, lang));
 
     return responseFormatter.success(
       req,
       res,
       MSG.ROLE_LIST_FETCHED,
-      localized,
+      data,
       {
         page: Number(page),
         limit: Number(limit),
@@ -194,34 +226,43 @@ exports.listRoles = async (req, res) => {
       201
     );
 
-
   } catch (err) {
+
     console.error(err);
+
     return responseFormatter.error(
       req,
       res,
       500,
-      MSG.ROLE_LIST_FAILED
+      MSG.ROLE_FETCH_FAILED,
+      CODES.ROL_500
     );
   }
 };
 
+
 /**
  * ============================================================
- * 🔎 GET ROLE BY ID
+ * 🔍 GET ROLE BY ID
  * ============================================================
  */
-exports.getRoleById = async (req, res) => {
-  try {
-    const lang = req.lang || DEFAULT_LANG;
 
-    const role = await RootRole.findById(req.params.id);
+exports.getTenantRoleById = async (req, res) => {
+
+  try {
+
+    const lang = req.lang || DEFAULT_LANG;
+    const { id } = req.params;
+
+    const role = await TenantRole.findById(id);
+
     if (!role) {
       return responseFormatter.error(
         req,
         res,
         404,
-        MSG.ROLE_NOT_FOUND
+        MSG.ROLE_NOT_FOUND,
+        CODES.ROL_404
       );
     }
 
@@ -229,288 +270,174 @@ exports.getRoleById = async (req, res) => {
       req,
       res,
       MSG.ROLE_FETCHED,
-      localizeRole(role, lang),
-      null,
-      201
+      localizeRole(role, lang)
     );
 
   } catch (err) {
+
     console.error(err);
+
     return responseFormatter.error(
       req,
       res,
       500,
-      MSG.ROLE_FETCH_FAILED
+      MSG.ROLE_FETCH_FAILED,
+      CODES.ROL_500
     );
   }
 };
+
 
 /**
  * ============================================================
  * ✏️ UPDATE ROLE
  * ============================================================
  */
-exports.updateRole = async (req, res) => {
+
+exports.updateTenantRole = async (req, res) => {
   try {
     const lang = req.lang || DEFAULT_LANG;
-    const { name, description } = req.body;
+    const { id } = req.params;
+    const { name } = req.body; // assuming name contains { en, fr, ar }
 
-    const role = await RootRole.findById(req.params.id);
+    const role = await TenantRole.findById(id);
+
     if (!role) {
-      return responseFormatter.error(
-        req,
-        res,
-        404,
-        MSG.ROLE_NOT_FOUND
-      );
+      return responseFormatter.error(req, res, 404, MSG.ROLE_NOT_FOUND);
     }
 
-    /**
-     * ======================================================
-     * 1️⃣ Capture BEFORE snapshot
-     * ======================================================
-     */
-    const beforeData = role.toObject();
+    if (role.isSystem) {
+      return responseFormatter.error(req, res, 403, MSG.ROLE_UPDATE_FAILED);
+    }
 
-    if (name) {
-      const nameError = validateLocalizedField(name, 'Role name');
-      if (nameError) {
+    // =========================================
+    // 1️⃣ Check for duplicate name.en within the same tenant
+    // =========================================
+    if (name?.en && name.en !== role.name?.en) {
+      const existingRole = await TenantRole.findOne({
+        tenantId: role.tenantId,
+        'name.en': name.en,
+        _id: { $ne: role._id } // exclude current role
+      });
+
+      if (existingRole) {
         return responseFormatter.error(
           req,
           res,
-          400,
-          nameError
+          409,
+          MSG.ROLE_EXISTS
         );
       }
-      role.name = name;
     }
 
-    if (description) {
-      const descError = validateLocalizedField(
-        description,
-        'Role description'
-      );
-      if (descError) {
-        return responseFormatter.error(
-          req,
-          res,
-          400,
-          descError
-        );
-      }
-      role.description = description;
-    }
-
+    // =========================================
+    // 2️⃣ Save the update
+    // =========================================
+    const before = role.toObject();
+    Object.assign(role, req.body);
     await role.save();
 
-    /**
-     * ======================================================
-     * 2️⃣ Capture AFTER snapshot
-     * ======================================================
-     */
-    const afterData = role.toObject();
-
-    /**
-     * ======================================================
-     * 3️⃣ Audit Log with Before & After
-     * ======================================================
-     */
+    // =========================================
+    // 3️⃣ Audit log
+    // =========================================
     await auditLogger?.({
       req,
       user: req.user,
-      action: 'UPDATE_ROLE',
-      module: 'ROLES',
+      action: "ROLE_UPDATE",
+      module: "TENANT_ROLES",
       entityId: role._id,
-      entityName: role.name?.[DEFAULT_LANG],
-      before: beforeData,
+      entityName: role.name?.en,
+      before,
       after: role,
-      message: MSG.ROLE_UPDATED
+      message: "Role updated"
     });
 
+    // =========================================
+    // 4️⃣ Response
+    // =========================================
     return responseFormatter.success(
       req,
       res,
       MSG.ROLE_UPDATED,
       localizeRole(role, lang),
-      null,
+      "",
       201
     );
 
   } catch (err) {
-    console.error(err);
-    return responseFormatter.error(
-      req,
-      res,
-      500,
-      MSG.ROLE_UPDATE_FAILED
-    );
+    console.error('UpdateTenantRole error:', err);
+    return responseFormatter.error(req, res, 500, MSG.ROLE_UPDATE_FAILED);
   }
 };
 
 /**
  * ============================================================
- * 🔁 UPDATE ROLE STATUS
+ * 🗑 DELETE ROLE (SOFT DELETE)
  * ============================================================
  */
-exports.updateRoleStatus = async (req, res) => {
+
+exports.deleteTenantRole = async (req, res) => {
+
   try {
-    const lang = req.language || DEFAULT_LANG;
-    let { status } = req.body;
 
-    // ✅ Strict validation
-    if (typeof status !== 'boolean') {
-      return responseFormatter.error(
-        req,
-        res,
-        400,
-        MSG.ROLE_STATUS_REQUIRED
-      );
-    }
+    const { id } = req.params;
 
-    const role = await RootRole.findById(req.params.id);
+    const role = await TenantRole.findById(id);
+
     if (!role) {
       return responseFormatter.error(
         req,
         res,
         404,
-        MSG.ROLE_NOT_FOUND
+        MSG.ROLE_NOT_FOUND,
+        CODES.ROL_404
       );
     }
 
-    /**
-     * ======================================================
-     * 1️⃣ Capture BEFORE snapshot
-     * ======================================================
-     */
-    const beforeData = {
-      status: role.status
-    };
+    if (role.isSystem) {
+      return responseFormatter.error(
+        req,
+        res,
+        403,
+        MSG.SYSTEM_ROLE_CANNOT_DELETE,
+        CODES.ROL_403
+      );
+    }
 
-    role.status = status;
+    role.status = false;
     await role.save();
 
-    /**
-     * ======================================================
-     * 2️⃣ Capture AFTER snapshot
-     * ======================================================
-     */
-    const afterData = {
-      status: role.status
-    };
-
-    /**
-     * ======================================================
-     * 3️⃣ Audit Log with Before & After
-     * ======================================================
-     */
     await auditLogger?.({
       req,
       user: req.user,
-      action: 'UPDATE_ROLE_STATUS',
-      module: 'ROLES',
+      action: "ROLE_DELETE",
+      module: "TENANT_ROLES",
       entityId: role._id,
-      entityName: role.name?.[DEFAULT_LANG],
-      before: beforeData,
-      after: afterData,
-      message: MSG.ROLE_STATUS_UPDATED
+      entityName: role.name?.en,
+      after: role,
+      message: "Role deleted"
     });
 
     return responseFormatter.success(
       req,
       res,
-      MSG.ROLE_STATUS_UPDATED,
-      localizeRole(role, lang),
-      null,
-      201
+      MSG.ROLE_DELETED
     );
 
   } catch (err) {
-    console.error(err);
-    return responseFormatter.error(
-      req,
-      res,
-      500,
-      MSG.ROLE_STATUS_UPDATE_FAILED
-    );
-  }
-};
 
-
-/**
- * ============================================================
- * 🗑️ DELETE ROLE
- * ============================================================
- */
-exports.deleteRole = async (req, res) => {
-  try {
-    const lang = req.language || DEFAULT_LANG;
-
-    const role = await RootRole.findById(req.params.id);
-
-    if (!role) {
-      return responseFormatter.error(
-        req,
-        res,
-        404,
-        MSG.ROLE_NOT_FOUND
-      );
-    }
-
-    /**
-     * ======================================================
-     * 1️⃣ Capture BEFORE snapshot
-     * ======================================================
-     */
-    const beforeData = {
-      name: role.name,
-      description: role.description,
-      status: role.status
-    };
-
-    /**
-     * ======================================================
-     * 2️⃣ Delete Role
-     * ======================================================
-     */
-    await role.deleteOne();
-
-    /**
-     * ======================================================
-     * 3️⃣ Audit Log
-     * ======================================================
-     */
-    await auditLogger?.({
-      req,
-      user: req.user,
-      action: "DELETE_ROLE",
-      module: "ROLES",
-      entityId: role._id,
-      entityName: role.name?.[DEFAULT_LANG],
-      before: beforeData,
-      after: null,
-      message: MSG.ROLE_DELETED
-    });
-
-    return responseFormatter.success(
-      req,
-      res,
-      MSG.ROLE_DELETED,
-      "",
-      "",
-      201
-    );
-
-  } catch (err) {
     console.error(err);
 
     return responseFormatter.error(
       req,
       res,
       500,
-      MSG.ROLE_DELETE_FAILED
+      MSG.ROLE_DELETE_FAILED,
+      CODES.ROL_500
     );
   }
 };
+
 
 /**
  * ============================================================
@@ -522,7 +449,7 @@ exports.assignPermissions = async (req, res) => {
     const lang = req.lang || DEFAULT_LANG;
     const { modules } = req.body;
 
-    const role = await RootRole.findById(req.params.id);
+    const role = await TenantRole.findById(req.params.id);
     if (!role) {
       return responseFormatter.error(
         req, res,
@@ -607,7 +534,7 @@ exports.assignPermissions = async (req, res) => {
       newPermissions.push(moduleSnapshot);
     }
 
-    await RootRole.updateOne(
+    await TenantRole.updateOne(
       { _id: role._id },
       { $set: { permissions: newPermissions } }
     );

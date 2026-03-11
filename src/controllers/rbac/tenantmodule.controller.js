@@ -1,4 +1,4 @@
-const RootModule = require('../../models/rbac/SystemModule');
+const RootModule = require('../../models/rbac/TenantModule');
 const auditLogger = require('../../utils/auditLogger');
 const responseFormatter = require('../../utils/responseFormatter');
 const {

@@ -7,7 +7,7 @@ const isSystemRole = (role) => {
   if (!role) return false;
 
   const roleNameEn = role.name?.en || '';
-  return role.isSystemRole === true || roleNameEn === 'ROOT ADMIN';
+  return role.isSystemRole === true || roleNameEn === 'ROOT ADMIN' || roleNameEn === 'Tenant Super Admin';
 };
 
 
@@ -19,6 +19,8 @@ const hasPermission = (role, moduleKey, actionKey) => {
 
   // System role → always allowed
   if (isSystemRole(role)) return true;
+
+  console.log("ROle" + "   "+ role.permissions);
 
   return role.permissions.some(permission =>
     (permission.moduleKey === moduleKey || permission.moduleKey === '*') &&

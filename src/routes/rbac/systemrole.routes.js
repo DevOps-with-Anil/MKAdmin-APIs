@@ -3,16 +3,12 @@ const authMiddleware = require('../../middleware/auth');
 const ctrl = require('../../controllers/rbac/systemrole.controller');
 const { checkPermission } = require('../../middleware/permissionMiddleware');
 const { userLimiter } = require('../../config/rateLimit'); // ✅ Rate limiter
+const validateUser = require('../../middleware/validateUser');
 
-/**
- * =========================================
- * 🛡️ System Role & Permission Management
- * =========================================
- * Module Key: SYS_ROLES
- */
 
-// Apply auth globally (Good practice)
-router.use(authMiddleware);
+router.use(authMiddleware); 
+router.use(validateUser);
+router.use(userLimiter());
 
 /**
  * -----------------------------------------
@@ -23,7 +19,6 @@ router.use(authMiddleware);
 // Create Role
 router.post(
   '/',
-  userLimiter(), // ✅ Rate Limit
   checkPermission('SYS_ROLES', 'SYS_ROLE_ADD'),
   ctrl.createRole
 );
@@ -31,15 +26,13 @@ router.post(
 // List Roles
 router.get(
   '/',
-  userLimiter(), // ✅ Rate Limit
-  checkPermission('SYS_ROLES', 'SYS_ROLE_VIEW'),
+  checkPermission('SYS_ROLES', 'SYS_ROLE_ADD'),
   ctrl.listRoles
 );
 
 // Update Role
 router.put(
   '/:id',
-  userLimiter(), // ✅ Rate Limit
   checkPermission('SYS_ROLES', 'SYS_ROLE_UPDATE'),
   ctrl.updateRole
 );
@@ -47,9 +40,15 @@ router.put(
 // Update Role Status
 router.patch(
   '/:id/status',
-  userLimiter(), // ✅ Rate Limit
   checkPermission('SYS_ROLES', 'SYS_ROLE_UPDATE'),
   ctrl.updateRoleStatus
+);
+
+// Delete Role
+router.delete(
+  '/:id',
+  checkPermission('SYS_ROLES', 'SYS_ROLE_DELETE'),
+  ctrl.deleteRole
 );
 
 /**
@@ -61,7 +60,6 @@ router.patch(
 // Assign Permissions
 router.patch(
   '/:id/permissions',
-  userLimiter(), // ✅ Rate Limit
   checkPermission('SYS_ROLES', 'SYS_ROLE_ASSIGN_PERMISSIONS'),
   ctrl.assignPermissions
 );
