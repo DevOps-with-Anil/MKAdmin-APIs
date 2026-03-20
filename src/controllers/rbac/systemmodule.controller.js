@@ -56,7 +56,14 @@ function localizeModule(module, lang) {
 const createModule = async (req, res) => {
   try {
     const lang = req.lang || DEFAULT_LANG;
-    const { key, moduleName, description, actions = [] } = req.body;
+
+    const {
+      key,
+      moduleName,
+      description,
+      actions = [],
+      status // ✅ module status
+    } = req.body;
 
     if (!key || !moduleName || typeof moduleName !== "object") {
       return responseFormatter.error(req, res, 400, MSG.MODULE_KEY_REQUIRED);
@@ -74,6 +81,7 @@ const createModule = async (req, res) => {
       return responseFormatter.error(req, res, 409, MSG.MODULE_EXISTS);
     }
 
+    // ✅ Normalize module name & description
     const normalizedModuleName = {};
     const normalizedDescription = {};
 
@@ -83,6 +91,12 @@ const createModule = async (req, res) => {
       normalizedDescription[langKey] =
         description?.[langKey]?.trim() || "";
     }
+
+    // ✅ Normalize module status (default INACTIVE)
+    const normalizedModuleStatus =
+      status && status.toUpperCase() === "ACTIVE"
+        ? "ACTIVE"
+        : "INACTIVE";
 
     const normalizedActions = [];
     const seenKeys = new Set();
@@ -111,10 +125,16 @@ const createModule = async (req, res) => {
           action.actionName?.[langKey]?.trim() || "";
       }
 
+      // ✅ Normalize action status (default INACTIVE)
+      const normalizedActionStatus =
+        action.status && action.status.toUpperCase() === "ACTIVE"
+          ? "ACTIVE"
+          : "INACTIVE";
+
       normalizedActions.push({
         key: actionKey,
         actionName: normalizedActionName,
-        isActive: true
+        status: normalizedActionStatus
       });
     }
 
@@ -122,15 +142,11 @@ const createModule = async (req, res) => {
       key: moduleKey,
       moduleName: normalizedModuleName,
       description: normalizedDescription,
+      status: normalizedModuleStatus, // ✅ added
       actions: normalizedActions,
       createdBy: req.user._id
     });
 
-    /**
-     * ======================================================
-     * Audit Log (Before & After Structure)
-     * ======================================================
-     */
     await auditLogger?.({
       req,
       user: req.user,
@@ -143,6 +159,7 @@ const createModule = async (req, res) => {
         key: module.key,
         moduleName: module.moduleName,
         description: module.description,
+        status: module.status, // ✅ added
         actions: module.actions
       },
       message: req.t(MSG.MODULE_CREATED)
@@ -158,10 +175,10 @@ const createModule = async (req, res) => {
     );
 
   } catch (err) {
+    console.log("ERROR 👉", err);
     return responseFormatter.error(req, res, 500, MSG.MODULE_CREATE_FAILED);
   }
 };
-
 /**
  * ============================================================
  * LIST MODULES (PAGINATED + FILTER)
@@ -177,7 +194,7 @@ const listModules = async (req, res) => {
       search = '',
       status = '',
       moduleKey = ''
-    } = req.body;
+    } = req.query;
 
     const query = {};
 
@@ -188,7 +205,7 @@ const listModules = async (req, res) => {
     }
 
     if (status) {
-      query.isActive = status.toLowerCase() === 'active';
+      query.status = status.toLowerCase() === 'active';
     }
 
     if (moduleKey) {
@@ -260,7 +277,7 @@ const getModule = async (req, res) => {
 const updateModule = async (req, res) => {
   try {
     const lang = req.lang || DEFAULT_LANG;
-    const { moduleName, description, isActive } = req.body;
+    const { moduleName, description, status } = req.body;
 
     const module = await RootModule.findById(req.params.id);
     if (!module) {
@@ -272,11 +289,13 @@ const updateModule = async (req, res) => {
      * 1️⃣ Capture BEFORE snapshot
      * ======================================================
      */
-    const beforeData = JSON.parse(JSON.stringify({
-      moduleName: module.moduleName,
-      description: module.description,
-      isActive: module.isActive
-    }));
+    const beforeData = JSON.parse(
+      JSON.stringify({
+        moduleName: module.moduleName,
+        description: module.description,
+        status: module.status,
+      })
+    );
 
     /**
      * ============================================================
@@ -290,37 +309,37 @@ const updateModule = async (req, res) => {
       }
 
       for (const langKey of SUPPORTED_LANGS) {
-        module.moduleName.set
-          ? module.moduleName.set(langKey, moduleName[langKey].trim())
-          : (module.moduleName[langKey] = moduleName[langKey].trim());
+        if (module.moduleName.set) {
+          module.moduleName.set(langKey, moduleName[langKey].trim());
+        } else {
+          module.moduleName[langKey] = moduleName[langKey].trim();
+        }
       }
-
       module.markModified("moduleName");
     }
 
     /**
      * ============================================================
-     * 🌍 Update Description
+     * 🌍 Update Description (Localized)
      * ============================================================
      */
     if (description) {
       for (const langKey of SUPPORTED_LANGS) {
-        module.description[langKey] =
-          description?.[langKey]?.trim() || "";
+        module.description[langKey] = description?.[langKey]?.trim() || "";
       }
-
       module.markModified("description");
     }
 
-    /** 
+    /**
      * ============================================================
-     * 🔁 Update Active Status
+     * 🔁 Update Status (Active / Inactive)
      * ============================================================
      */
-    if (typeof isActive === "boolean") {
-      module.isActive = isActive;
+    if (typeof status === "string") {
+      module.status = status;
     }
 
+    // Save updates
     await module.save();
 
     /**
@@ -331,7 +350,7 @@ const updateModule = async (req, res) => {
     const afterData = {
       moduleName: module.moduleName,
       description: module.description,
-      isActive: module.isActive
+      status: module.status,
     };
 
     /**
@@ -348,9 +367,10 @@ const updateModule = async (req, res) => {
       entityName: module.moduleName?.[DEFAULT_LANG] || module.key,
       before: beforeData,
       after: afterData,
-      message: req.t(MSG.MODULE_UPDATED)
+      message: req.t(MSG.MODULE_UPDATED),
     });
 
+    // Send success response
     return responseFormatter.success(
       req,
       res,
@@ -359,13 +379,11 @@ const updateModule = async (req, res) => {
       null,
       200
     );
-
   } catch (err) {
     console.error("Update Module Error:", err);
     return responseFormatter.error(req, res, 500, MSG.MODULE_UPDATE_FAILED);
   }
 };
-
 /**
  * ============================================================
  * DELETE MODULE
@@ -402,7 +420,17 @@ const deleteModule = async (req, res) => {
 const toggleModuleStatus = async (req, res) => {
   try {
     const lang = req.lang || DEFAULT_LANG;
-    const { isActive } = req.body;
+    const { status } = req.body;
+
+    // ✅ Strict validation: must be string 'ACTIVE' or 'INACTIVE'
+        if (typeof status !== 'string' || !['ACTIVE', 'INACTIVE'].includes(status)) {
+          return responseFormatter.error(
+            req,
+            res,
+            400,
+            MSG.MODULE_STATUS_UPDATED
+          );
+        }
 
     const module = await RootModule.findById(req.params.id);
     if (!module) {
@@ -415,17 +443,10 @@ const toggleModuleStatus = async (req, res) => {
      * ======================================================
      */
     const beforeData = {
-      isActive: module.isActive
+      status: module.status
     };
 
-    module.isActive = !!isActive;
-
-    let rolesUpdated = false;
-
-    if (!isActive) {
-      await disableModuleInAllRoles(module.key);
-      rolesUpdated = true;
-    }
+    module.status = status;
 
     await module.save();
 
@@ -435,7 +456,7 @@ const toggleModuleStatus = async (req, res) => {
      * ======================================================
      */
     const afterData = {
-      isActive: module.isActive
+      status: module.status
     };
 
     /**
@@ -452,9 +473,6 @@ const toggleModuleStatus = async (req, res) => {
       entityName: module.moduleName?.[DEFAULT_LANG] || module.key,
       before: beforeData,
       after: afterData,
-      meta: {
-        affectedRolesUpdated: rolesUpdated
-      },
       message: req.t(MSG.MODULE_STATUS_UPDATED)
     });
 
@@ -464,7 +482,7 @@ const toggleModuleStatus = async (req, res) => {
       MSG.MODULE_STATUS_UPDATED,
       localizeModule(module, lang),
       null,
-      200
+      201
     );
 
   } catch (err) {
@@ -501,7 +519,7 @@ const addAction = async (req, res) => {
     module.actions.push({
       key: key.trim().toUpperCase(),
       actionName: normalizedActionName,
-      isActive: true
+      status: true
     });
 
     await module.save();
@@ -528,7 +546,7 @@ const addAction = async (req, res) => {
 const updateAction = async (req, res) => {
   try {
     const lang = req.lang || DEFAULT_LANG;
-    const { actionKey, newName, isActive } = req.body;
+    const { actionKey, newName, status } = req.body;
 
     const module = await RootModule.findById(req.params.id);
     if (!module) {
@@ -555,12 +573,12 @@ const updateAction = async (req, res) => {
       }
     }
 
-    if (typeof isActive === "boolean") {
-      action.isActive = isActive;
-      if (!isActive) {
-        await disableActionInAllRoles(module.key, action.key);
-      }
-    }
+    // if (typeof status === "boolean") {
+    //   action.status = status;
+    //   if (!status) {
+    //     await disableActionInAllRoles(module.key, action.key);
+    //   }
+    // }
 
     await module.save();
 

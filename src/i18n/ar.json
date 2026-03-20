@@ -76,7 +76,7 @@
   "SERVER_ERROR": "خطأ في الخادم",
   "USER_NOT_FOUND": "المستخدم غير موجود",
 
-  "PASSWORD.TOO_WEAK": "يجب أن تكون كلمة المرور مكونة من 8 أحرف على الأقل.",
+  "PASSWORD.TOO_WEAK": "كلمة المرور ضعيفة جدًا.",
   "PASSWORD.REQUIRED": "كلمة المرور مطلوبة.",
   "PASSWORD.CURRENT_INVALID": "كلمة المرور الحالية غير صحيحة.",
   "PASSWORD.RESET_FAILED": "فشل في إعادة تعيين كلمة المرور.",

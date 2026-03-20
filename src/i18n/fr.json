@@ -76,7 +76,7 @@
   "SERVER_ERROR": "Erreur serveur",
   "USER_NOT_FOUND": "Utilisateur introuvable",
 
-  "PASSWORD.TOO_WEAK": "Le mot de passe doit comporter au moins 8 caractères.",
+  "PASSWORD.TOO_WEAK": "Le mot de passe est trop faible.",
   "PASSWORD.REQUIRED": "Le mot de passe est requis.",
   "PASSWORD.CURRENT_INVALID": "Le mot de passe actuel est incorrect.",
   "PASSWORD.RESET_FAILED": "Échec de la réinitialisation du mot de passe.",

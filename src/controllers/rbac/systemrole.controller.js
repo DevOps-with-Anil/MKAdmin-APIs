@@ -1,4 +1,5 @@
 const RootRole = require('../../models/rbac/SystemRole');
+const RootUSER = require('../../models/rbac/RootAdmin');
 const RootModule = require('../../models/rbac/SystemModule');
 const auditLogger = require('../../utils/auditLogger');
 const responseFormatter = require('../../utils/responseFormatter');
@@ -57,7 +58,7 @@ function localizeRole(role, lang) {
 exports.createRole = async (req, res) => {
   try {
     const lang = req.lang || DEFAULT_LANG;
-    const { name, description } = req.body;
+    const { name, description, status } = req.body;
 
     const nameError = validateLocalizedField(name, 'Role name');
     if (nameError) {
@@ -100,7 +101,8 @@ exports.createRole = async (req, res) => {
       name,
       description,
       modules: [],
-      createdBy: req.user?._id
+      createdBy: req.user?._id,
+      status : status
     });
 
     /**
@@ -147,16 +149,15 @@ exports.createRole = async (req, res) => {
  */
 exports.listRoles = async (req, res) => {
   try {
-
     const lang = req.lang || DEFAULT_LANG;
-    const { page = 1, limit = 20, search = '', status } = req.body;
+    const { page = 1, limit = 20, search = '', status } = req.query;
 
     const query = {};
 
     if (search) {
       query[`name.${DEFAULT_LANG}`] = {
         $regex: search,
-        $options: 'i'
+        $options: 'i',
       };
     }
 
@@ -171,14 +172,42 @@ exports.listRoles = async (req, res) => {
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(Number(limit)),
-      RootRole.countDocuments(query)
+      RootRole.countDocuments(query),
     ]);
 
-    const localized = roles.map(role =>
-      localizeRole(role, lang)
-    );
+    // ✅ Get role IDs
+    const roleIds = roles.map(role => role._id);
 
+    // ✅ Aggregate user count by role
+    const userCounts = await RootUSER.aggregate([
+  {
+    $match: {
+      role: { $in: roleIds }, // ✅ FIXED
+    },
+  },
+  {
+    $group: {
+      _id: "$role", // ✅ FIXED
+      count: { $sum: 1 },
+    },
+  },
+]);
 
+    // ✅ Convert to map for quick lookup
+    const countMap = {};
+    userCounts.forEach(item => {
+      countMap[item._id.toString()] = item.count;
+    });
+
+    // ✅ Attach count to each role
+    const localized = roles.map(role => {
+      const data = localizeRole(role, lang);
+
+      return {
+        ...data,
+        assignedUserCount: countMap[role._id.toString()] || 0,
+      };
+    });
 
     return responseFormatter.success(
       req,
@@ -189,20 +218,14 @@ exports.listRoles = async (req, res) => {
         page: Number(page),
         limit: Number(limit),
         total,
-        totalPages: Math.ceil(total / limit)
+        totalPages: Math.ceil(total / Number(limit)),
       },
       201
     );
 
-
   } catch (err) {
     console.error(err);
-    return responseFormatter.error(
-      req,
-      res,
-      500,
-      MSG.ROLE_LIST_FAILED
-    );
+    return responseFormatter.error(req, res, 500, MSG.ROLE_LIST_FAILED);
   }
 };
 
@@ -229,7 +252,7 @@ exports.getRoleById = async (req, res) => {
       req,
       res,
       MSG.ROLE_FETCHED,
-      localizeRole(role, lang),
+      role,
       null,
       201
     );
@@ -253,7 +276,7 @@ exports.getRoleById = async (req, res) => {
 exports.updateRole = async (req, res) => {
   try {
     const lang = req.lang || DEFAULT_LANG;
-    const { name, description } = req.body;
+    const { name, description, status } = req.body;
 
     const role = await RootRole.findById(req.params.id);
     if (!role) {
@@ -300,6 +323,8 @@ exports.updateRole = async (req, res) => {
       }
       role.description = description;
     }
+
+    role.status = status;
 
     await role.save();
 
@@ -357,8 +382,8 @@ exports.updateRoleStatus = async (req, res) => {
     const lang = req.language || DEFAULT_LANG;
     let { status } = req.body;
 
-    // ✅ Strict validation
-    if (typeof status !== 'boolean') {
+  // ✅ Strict validation: must be string 'ACTIVE' or 'INACTIVE'
+    if (typeof status !== 'string' || !['ACTIVE', 'INACTIVE'].includes(status)) {
       return responseFormatter.error(
         req,
         res,

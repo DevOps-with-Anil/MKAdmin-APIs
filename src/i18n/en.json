@@ -80,7 +80,7 @@
   "USER_NOT_FOUND": "User not found",
 
 
-  "PASSWORD.TOO_WEAK": "Password must be at least 8 characters long.",
+  "PASSWORD.TOO_WEAK": "Password is too weak.",
   "PASSWORD.REQUIRED": "Password is required.",
   "PASSWORD.CURRENT_INVALID": "Current password is incorrect.",
   "PASSWORD.RESET_FAILED": "Failed to reset password.",

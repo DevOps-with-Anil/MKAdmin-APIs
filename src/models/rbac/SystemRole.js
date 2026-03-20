@@ -98,9 +98,10 @@ const roleSchema = new Schema(
     },
 
     // Active/inactive
-    status: {
-      type: Boolean,
-      default: true
+     status: {
+      type: String,
+      enum: ["ACTIVE", "INACTIVE", "SUSPENDED"],
+      default: "ACTIVE"
     },
     
      createdBy: {

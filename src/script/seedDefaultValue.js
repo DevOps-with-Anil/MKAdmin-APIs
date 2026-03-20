@@ -129,7 +129,7 @@ module.exports = async function seedRootSystem() {
           ar: "المسؤول الجذري مع وصول كامل للنظام"
         },
         permissions: [],
-        status: true
+        status: "ACTIVE"
       });
 
       await AuditLog.create({

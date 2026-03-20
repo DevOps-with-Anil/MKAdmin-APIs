@@ -150,35 +150,64 @@ exports.createUser = async (req, res) => {
 exports.getUserList = async (req, res) => {
   try {
     const lang = req.lang || DEFAULT_LANG;
-    const { page = 1, limit = 10, search, status, roleId, country } = req.body;
+
+    let {
+      page = 1,
+      limit = 10,
+      search,
+      status,
+      roleId,
+      country
+    } = req.query;
+
+    // Convert pagination safely
+    page = parseInt(page, 10) || 1;
+    limit = parseInt(limit, 10) || 10;
+
+    // Prevent invalid values
+    if (page < 1) page = 1;
+    if (limit < 1) limit = 10;
+
+    const skip = (page - 1) * limit;
 
     const query = {};
 
+    // Search filter
     if (search) {
       query.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } }
+        { name: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } }
       ];
     }
 
-    if (status) query.status = status.toUpperCase();
-    if (roleId) query.role = roleId;
-    if (country) query.allowedCountries = country.toUpperCase();
+    // Status filter
+    if (status) {
+      query.status = status.toUpperCase();
+    }
 
-    const skip = (Number(page) - 1) * Number(limit);
+    // Role filter
+    if (roleId) {
+      query.role = roleId;
+    }
 
+    // Country filter (if allowedCountries is an array)
+    if (country) {
+      query.allowedCountries = { $in: [country.toUpperCase()] };
+    }
+
+    // Fetch users + total count
     const [users, total] = await Promise.all([
       User.find(query)
-        .populate('role', 'name')
-        .select('-password -tokens')
+        .populate("role", "name")
+        .select("-password -tokens")
         .skip(skip)
-        .limit(Number(limit))
+        .limit(limit)
         .sort({ createdAt: -1 }),
 
       User.countDocuments(query)
     ]);
 
-    const localizedUsers = users.map(u => localizeUser(u, lang));
+    const localizedUsers = users.map((u) => localizeUser(u, lang));
 
     return responseFormatter.success(
       req,
@@ -186,17 +215,83 @@ exports.getUserList = async (req, res) => {
       MSG.USER_LIST_FETCHED,
       localizedUsers,
       {
-        page: Number(page),
-        limit: Number(limit),
+        page,
+        limit,
         total,
-        totalPages: Math.ceil(total / limit)
+        totalPages: Math.ceil(total / limit) || 1
       },
       200
     );
 
   } catch (err) {
-    console.error('Get user list error:', err);
-    return responseFormatter.error(req, res, 500, MSG.USER_LIST_FAILED, CODES.USR_500);
+    console.error("Get user list error:", err);
+
+    return responseFormatter.error(
+      req,
+      res,
+      500,
+      MSG.USER_LIST_FAILED,
+      CODES.USR_500
+    );
+  }
+};
+
+/**
+ * ==========================================================
+ * 🔹 Get User Detail by ID
+ * ==========================================================
+ */
+exports.getAdminById = async (req, res) => {
+  try {
+    const lang = req.lang || DEFAULT_LANG;
+    const userId = req.params.id;
+
+    if (!userId) {
+      return responseFormatter.error(
+        req,
+        res,
+        400,
+        "User ID is required",
+        CODES.USR_400
+      );
+    }
+
+    const user = await User.findById(userId)
+      .populate("role", "name")
+      .select("-password -tokens");
+
+    if (!user) {
+      return responseFormatter.error(
+        req,
+        res,
+        404,
+        "User not found",
+        CODES.USR_404
+      );
+    }
+
+    const localizedUser = user;
+    // const localizedUser = localizeUser(user, lang);
+
+    return responseFormatter.success(
+      req,
+      res,
+      "User fetched successfully",
+      localizedUser,
+      {},
+      200
+    );
+
+  } catch (err) {
+    console.error("Get user by ID error:", err);
+
+    return responseFormatter.error(
+      req,
+      res,
+      500,
+      MSG.USER_FETCH_FAILED,
+      CODES.USR_500
+    );
   }
 };
 
@@ -235,7 +330,8 @@ exports.updateUser = async (req, res) => {
 
     if (name) user.name = name;
     if (phoneNumber) user.phoneNumber = phoneNumber;
-    if (status) user.status = status.toUpperCase();
+    if (status) user.status = status;
+    if (role) user.role = role;
     if (allowedCountries)
       user.allowedCountries = allowedCountries.map(c => c.toUpperCase());
 
@@ -267,6 +363,95 @@ exports.updateUser = async (req, res) => {
   } catch (err) {
     console.error('Update user error:', err);
     return responseFormatter.error(req, res, 500, MSG.USER_UPDATE_FAILED, CODES.USR_500);
+  }
+};
+
+
+/**
+ * ==========================================================
+ * 🔹 Update User Status
+ * ==========================================================
+ */
+exports.updateUserStatus = async (req, res) => {
+  try {
+    const lang = req.language || DEFAULT_LANG;
+    let { status } = req.body;
+
+    // ✅ Strict validation: must be string 'ACTIVE' or 'INACTIVE'
+    if (typeof status !== 'string' || !['ACTIVE', 'INACTIVE'].includes(status.toUpperCase())) {
+      return responseFormatter.error(
+        req,
+        res,
+        400,
+        MSG.STATUS_REQUIRED
+      );
+    }
+
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return responseFormatter.error(
+        req,
+        res,
+        404,
+        MSG.USER_NOT_FOUND
+      );
+    }
+
+    /**
+     * ======================================================
+     * 1️⃣ Capture BEFORE snapshot
+     * ======================================================
+     */
+    const beforeData = {
+      status: user.status
+    };
+
+    user.status = status.toUpperCase();
+    await user.save();
+
+    /**
+     * ======================================================
+     * 2️⃣ Capture AFTER snapshot
+     * ======================================================
+     */
+    const afterData = {
+      status: user.status
+    };
+
+    /**
+     * ======================================================
+     * 3️⃣ Audit Log with Before & After
+     * ======================================================
+     */
+    await auditLogger?.({
+      req,
+      user: req.user,
+      action: 'UPDATE_USER_STATUS',
+      module: 'USERS',
+      entityId: user._id,
+      entityName: user.email,
+      before: beforeData,
+      after: afterData,
+      message: MSG.USER_STATUS_UPDATED
+    });
+
+    return responseFormatter.success(
+      req,
+      res,
+      MSG.USER_STATUS_UPDATED,
+      { id: user._id, status: user.status },
+      null,
+      201
+    );
+
+  } catch (err) {
+    console.error('Update user status error:', err);
+    return responseFormatter.error(
+      req,
+      res,
+      500,
+      MSG.USER_UPDATE_FAILED
+    );
   }
 };
 
@@ -321,5 +506,75 @@ exports.adminResetUserPassword = async (req, res) => {
   }
 };
 
+/**
+     * ======================================================
+     * 2️⃣ Delete User
+     * ======================================================
+     */
+exports.deleteUser = async (req, res) => {
+  try {
+    const lang = req.language || DEFAULT_LANG;
+
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return responseFormatter.error(
+        req,
+        res,
+        404,
+        MSG.USER_NOT_FOUND
+      );
+    }
+
+    // Optional: Prevent deleting self or super-admin
+    if (user._id.equals(req.user._id)) {
+      return responseFormatter.error(
+        req,
+        res,
+        400,
+        "You cannot delete your own account."
+      );
+    }
+
+    const beforeData = {
+      email: user.email,
+      status: user.status,
+      role: user.role
+    };
+
+
+    await user.deleteOne();
+
+
+    await auditLogger?.({
+      req,
+      user: req.user,
+      action: 'DELETE_USER',
+      module: 'USERS',
+      entityId: user._id,
+      entityName: user.email,
+      before: beforeData,
+      after: null,
+      message: MSG.USER_DELETED
+    });
+
+    return responseFormatter.success(
+      req,
+      res,
+      MSG.USER_DELETED,
+      { id: user._id },
+      null,
+      201
+    );
+
+  } catch (err) {
+    console.error('Delete user error:', err);
+    return responseFormatter.error(
+      req,
+      res,
+      500,
+      MSG.USER_DELETE_FAILED
+    );
+  }
+};
 
 

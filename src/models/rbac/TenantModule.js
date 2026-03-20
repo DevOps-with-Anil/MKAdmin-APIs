@@ -22,10 +22,11 @@ const actionSchema = new Schema(
       required: true
     },
 
-    isActive: {
-      type: Boolean,
-      default: true
-    }
+    status: {
+      type: String,
+      enum: ["ACTIVE", "INACTIVE", "SUSPENDED"],
+      default: "ACTIVE"
+    },
   },
   {
     _id: true,
@@ -52,9 +53,10 @@ const moduleSchema = new Schema(
       required: true
     },
 
-    isActive: {
-      type: Boolean,
-      default: true
+    status: {
+      type: String,
+      enum: ["ACTIVE", "INACTIVE", "SUSPENDED"],
+      default: "ACTIVE"
     },
 
     actions: [actionSchema],

@@ -39,6 +39,13 @@ router.get(
   userController.getUserList
 );
 
+// Get Admin by ID
+router.get(
+  '/:id',
+  checkPermission('SYS_ADMINS', 'SYS_ADMIN_VIEW'),
+  userController.getAdminById
+);
+
 /**
  * Update System Admin
  * Permission: SYS_ADMIN_UPDATE
@@ -47,6 +54,14 @@ router.put(
   '/:id',
   checkPermission('SYS_ADMINS', 'SYS_ADMIN_UPDATE'),
   userController.updateUser
+);
+
+
+// Update Role Status
+router.patch(
+  '/:id/status',
+  checkPermission('SYS_ADMINs', 'SYS_ROLE_UPDATE'),
+  userController.updateUserStatus
 );
 
 /**
@@ -67,6 +82,13 @@ router.post(
   '/:id/reset-password',
   checkPermission('SYS_ADMINS', 'SYS_ADMIN_RESET_PASSWORD'),
   userController.adminResetUserPassword
+);
+
+// Delete Role
+router.delete(
+  '/:id',
+  checkPermission('SYS_ADMINS', 'SYS_ADMIN_DELETE'),
+  userController.deleteUser
 );
 
 

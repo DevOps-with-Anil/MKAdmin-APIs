@@ -63,6 +63,8 @@ module.exports = async (req, res, next) => {
     // ========================================
     const authHeader = req.headers.authorization;
 
+    // console.log("authHeader is :  " + authHeader)
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return responseFormatter.error(
         req,

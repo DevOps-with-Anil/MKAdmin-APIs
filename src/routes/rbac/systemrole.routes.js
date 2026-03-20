@@ -26,8 +26,15 @@ router.post(
 // List Roles
 router.get(
   '/',
-  checkPermission('SYS_ROLES', 'SYS_ROLE_ADD'),
+  checkPermission('SYS_ROLES', 'SYS_ROL_VIEW'),
   ctrl.listRoles
+);
+
+// Get Role by ID
+router.get(
+  '/:id',
+  checkPermission('SYS_ROLES', 'SYS_ROLE_VIEW'),
+  ctrl.getRoleById
 );
 
 // Update Role
