@@ -1,10 +1,9 @@
-const SUPPORTED_LANGS = ['en', 'fr', 'ar'];
+const SUPPORTED_LANGS = ['en', 'fr'];
 const DEFAULT_LANG = 'en';
 
 const translations = {
   en: require('../i18n/en.json'),
   fr: require('../i18n/fr.json'),
-  ar: require('../i18n/ar.json')
 };
 
 function translate(lang, key) {

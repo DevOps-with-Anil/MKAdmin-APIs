@@ -423,14 +423,14 @@ const toggleModuleStatus = async (req, res) => {
     const { status } = req.body;
 
     // ✅ Strict validation: must be string 'ACTIVE' or 'INACTIVE'
-        if (typeof status !== 'string' || !['ACTIVE', 'INACTIVE'].includes(status)) {
-          return responseFormatter.error(
-            req,
-            res,
-            400,
-            MSG.MODULE_STATUS_UPDATED
-          );
-        }
+    if (typeof status !== 'string' || !['ACTIVE', 'INACTIVE'].includes(status)) {
+      return responseFormatter.error(
+        req,
+        res,
+        400,
+        MSG.MODULE_STATUS_UPDATED
+      );
+    }
 
     const module = await RootModule.findById(req.params.id);
     if (!module) {
@@ -498,9 +498,10 @@ const toggleModuleStatus = async (req, res) => {
 const addAction = async (req, res) => {
   try {
     const lang = req.lang || DEFAULT_LANG;
-    const { key, actionName } = req.body;
+    const { key, actionName, status } = req.body;
 
     const module = await RootModule.findById(req.params.id);
+
     if (!module) {
       return responseFormatter.error(req, res, 404, MSG.MODULE_NOT_FOUND);
     }
@@ -519,7 +520,7 @@ const addAction = async (req, res) => {
     module.actions.push({
       key: key.trim().toUpperCase(),
       actionName: normalizedActionName,
-      status: true
+      status: status
     });
 
     await module.save();
@@ -546,9 +547,10 @@ const addAction = async (req, res) => {
 const updateAction = async (req, res) => {
   try {
     const lang = req.lang || DEFAULT_LANG;
-    const { actionKey, newName, status } = req.body;
+    const { actionKey, newactionName, status } = req.body;
 
     const module = await RootModule.findById(req.params.id);
+
     if (!module) {
       return responseFormatter.error(req, res, 404, MSG.MODULE_NOT_FOUND);
     }
@@ -561,25 +563,23 @@ const updateAction = async (req, res) => {
       return responseFormatter.error(req, res, 404, MSG.ACTION_NOT_FOUND);
     }
 
-    if (newName) {
-      const validation = validateLocalizedField(newName, "actionName");
+    // ✅ Update name
+    if (newactionName) {
+      const validation = validateLocalizedField(newactionName, "actionName");
       if (validation) {
         return responseFormatter.error(req, res, 400, validation);
       }
 
       for (const langKey of SUPPORTED_LANGS) {
         action.actionName[langKey] =
-          newName?.[langKey]?.trim() || "";
+          newactionName?.[langKey]?.trim() || "";
+
+        console.log("Updated action:", action.actionName[langKey]);
       }
     }
-
-    // if (typeof status === "boolean") {
-    //   action.status = status;
-    //   if (!status) {
-    //     await disableActionInAllRoles(module.key, action.key);
-    //   }
-    // }
-
+    
+    action.status = status;
+    module.markModified("actions");
     await module.save();
 
     return responseFormatter.success(
@@ -592,6 +592,7 @@ const updateAction = async (req, res) => {
     );
 
   } catch (err) {
+    console.log("ERROR 👉", err);
     return responseFormatter.error(req, res, 500, MSG.ACTION_UPDATE_FAILED);
   }
 };
@@ -623,7 +624,7 @@ const deleteAction = async (req, res) => {
 
     module.actions.splice(index, 1);
 
-    await disableActionInAllRoles(module.key, action.key);
+    // await disableActionInAllRoles(module.key, action.key);
 
     await module.save();
 

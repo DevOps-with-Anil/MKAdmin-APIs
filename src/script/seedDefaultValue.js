@@ -7,6 +7,7 @@ const ROOT_SYSTEM_MODULES = require("../config/constants/defaultRootModules");
 const AFFILIATE_SYSTEM_MODULES = require("../config/constants/defaultTenantModules");
 
 const AffiliateModule = require("../models/rbac/TenantModule");
+const { isSystemRole } = require("../utils/rbac");
 
 // =========================================
 // 🌱 ROOT SYSTEM BOOTSTRAP
@@ -31,14 +32,14 @@ module.exports = async function seedRootSystem() {
           moduleName: {
             en: mod.name.en.trim(),
             fr: mod.name.fr.trim(),
-            ar: mod.name.ar.trim()
+            
           },
           actions: mod.actions.map((a) => ({
             key: a.key.trim(),
             actionName: {
               en: a.name.en.trim(),
               fr: a.name.fr.trim(),
-              ar: a.name.ar.trim()
+              
             },
             isActive: true
           }))
@@ -73,14 +74,12 @@ module.exports = async function seedRootSystem() {
           moduleName: {
             en: mod.name.en.trim(),
             fr: mod.name.fr.trim(),
-            ar: mod.name.ar.trim()
           },
           actions: mod.actions.map((a) => ({
             key: a.key.trim(),
             actionName: {
               en: a.name.en.trim(),
               fr: a.name.fr.trim(),
-              ar: a.name.ar.trim()
             },
             isActive: true
           }))
@@ -121,15 +120,14 @@ module.exports = async function seedRootSystem() {
         name: {
           en: "ROOT ADMIN",
           fr: "ADMINISTRATEUR RACINE",
-          ar: "المسؤول الجذري"
         },
         description: {
           en: "Default Root Admin with full system access",
           fr: "Administrateur racine avec accès complet",
-          ar: "المسؤول الجذري مع وصول كامل للنظام"
         },
         permissions: [],
-        status: "ACTIVE"
+        status: "ACTIVE",
+        isSystemRole: true
       });
 
       await AuditLog.create({

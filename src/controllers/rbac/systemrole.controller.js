@@ -542,12 +542,21 @@ exports.deleteRole = async (req, res) => {
  * 🧩 ASSIGN PERMISSIONS
  * ============================================================
  */
-exports.assignPermissions = async (req, res) => {
+exports.assignModulesPermissions = async (req, res) => {
   try {
-    const lang = req.lang || DEFAULT_LANG;
     const { modules } = req.body;
 
-    const role = await RootRole.findById(req.params.id);
+    // ✅ Validate modules array
+    if (!Array.isArray(modules) || modules.length === 0) {
+      return responseFormatter.error(
+        req,
+        res,
+        400,
+        MSG.MODULES_ARRAY_REQUIRED
+      );
+    }
+
+   const role = await RootRole.findById(req.params.id);
     if (!role) {
       return responseFormatter.error(
         req, res,
@@ -558,7 +567,7 @@ exports.assignPermissions = async (req, res) => {
       );
     }
 
-    if (role.name?.[DEFAULT_LANG]?.toUpperCase() === 'SUPER ADMIN') {
+    if (role.isSystemRole) {
       return responseFormatter.error(
         req, res,
         403,
@@ -568,94 +577,134 @@ exports.assignPermissions = async (req, res) => {
       );
     }
 
-    if (!Array.isArray(modules) || modules.length === 0) {
-      return responseFormatter.error(
-        req, res,
-        400,
-        CODES.MODULES_ARRAY_REQUIRED,
-        MSG.MODULES_ARRAY_REQUIRED,
-        req.t(MSG.MODULES_ARRAY_REQUIRED)
-      );
-    }
+    // ✅ Extract module keys safely
+    const moduleKeys = modules.map(m => {
+      if (!m.moduleKey) {
+        throw new Error("moduleKey is required");
+      }
+      return m.moduleKey.toUpperCase();
+    });
 
-    const newPermissions = [];
+    // ✅ Fetch all modules in one query (optimized)
+    const rootModule = await RootModule.find({
+      key: { $in: moduleKeys },
+      status: "ACTIVE"
+    });
 
+    // ✅ Create lookup map
+    const moduleMap = new Map(
+      rootModule.map(m => [m.key, m])
+    );
+
+    const newModules = [];
+
+    // ✅ Process each module
     for (const mod of modules) {
+      const { moduleKey, actions = [] } = mod;
 
-      const rootModule = await RootModule.findOne({
-        key: { $regex: new RegExp(`^${mod.moduleKey}$`, 'i') },
-        isActive: true
-      });
+      if (!moduleKey) {
+        return responseFormatter.error(
+          req,
+          res,
+          400,
+          MSG.MODULE_KEY_REQUIRED
+        );
+      }
+
+      const rootModule = moduleMap.get(moduleKey.toUpperCase());
 
       if (!rootModule) {
         return responseFormatter.error(
-          req, res,
+          req,
+          res,
           400,
-          CODES.INVALID_MODULE_KEY,
-          MSG.INVALID_MODULE_KEY,
-          req.t(MSG.INVALID_MODULE_KEY)
+          MSG.INVALID_MODULE_KEY.replace('{moduleKey}', moduleKey)
         );
       }
 
-      const moduleSnapshot = {
-        moduleKey: rootModule.key,
-        moduleName: rootModule.moduleName,   // ✅ STORED
-        allowed: Boolean(mod.allowed),
-        actions: []
-      };
+      const validActions = [];
 
-      for (const act of mod.actions) {
-
-        const action = rootModule.actions.find(
-          a =>
-            a.key.toLowerCase() === act.actionKey.toLowerCase() &&
-            a.isActive
-        );
-
-        if (!action) {
+      // ✅ Validate actions
+      for (const act of actions) {
+        if (!act.actionKey) {
           return responseFormatter.error(
-            req, res,
+            req,
+            res,
             400,
-            CODES.INVALID_ACTION_KEY,
-            MSG.INVALID_ACTION_KEY,
-            req.t(MSG.INVALID_ACTION_KEY)
+            MSG.ACTION_KEY_REQUIRED
           );
         }
 
-        moduleSnapshot.actions.push({
-          actionKey: action.key,
-          actionName: action.actionName,   // ✅ STORED
-          allowed: Boolean(act.allowed)
+        const rootAction = rootModule.actions.find(
+          a =>
+            a.key === act.actionKey.toUpperCase() &&
+            a.status === "ACTIVE"
+        );
+
+        if (!rootAction) {
+          return responseFormatter.error(
+            req,
+            res,
+            400,
+            MSG.INVALID_ACTION_KEY.replace('{actionKey}', act.actionKey)
+          );
+        }
+
+        validActions.push({
+          actionKey: rootAction.key,
+          actionName: rootAction.actionName,
+          allowed: !!act.allowed
         });
       }
 
-      newPermissions.push(moduleSnapshot);
+      newModules.push({
+        moduleKey: rootModule.key,
+        moduleName: rootModule.moduleName,
+        actions: validActions,
+        allowed: mod.allowed
+      });
     }
 
-    await RootRole.updateOne(
-      { _id: role._id },
-      { $set: { permissions: newPermissions } }
-    );
+    // ✅ Save to plan
+    role.permissions = newModules;
+    role.markModified("modules");
+    await role.save();
 
+    // ✅ Audit log
+    await auditLogger?.({
+      req,
+      user: req.user,
+      action: "ASSIGN_MODULES",
+      module: "Roles",
+      entityId: role._id,
+      entityName: role.name?.[req.lang] || role.name?.[DEFAULT_LANG],
+      after: role,
+      message: req.t(MSG.MODULES_ASSIGNED)
+    });
+
+    // ✅ Success response
     return responseFormatter.success(
       req,
       res,
-      MSG.PERMISSIONS_UPDATED,
-      newPermissions,
-      "",
+      MSG.MODULES_ASSIGNED,
+      localizeRole(role, req.lang),
+      null,
       200
     );
-
   } catch (err) {
-    console.error('Assign Permission Error:', err);
+    console.error("Assign modules error:", err);
+
+    // Handle thrown validation errors
+    if (err.message === "moduleKey is required") {
+      return responseFormatter.error(req, res, 400, err.message);
+    }
 
     return responseFormatter.error(
       req,
       res,
       500,
-      CODES.PERMISSIONS_ASSIGN_FAILED,
-      MSG.PERMISSIONS_ASSIGN_FAILED,
-      req.t(MSG.PERMISSIONS_ASSIGN_FAILED)
+      MSG.MODULES_ASSIGN_FAILED
     );
   }
 };
+

@@ -100,8 +100,15 @@ const roleSchema = new Schema(
     // Active/inactive
      status: {
       type: String,
-      enum: ["ACTIVE", "INACTIVE", "SUSPENDED"],
+      enum: ["ACTIVE", "INACTIVE"],
       default: "ACTIVE"
+    },
+
+     // isSystem Root
+     isSystemRole: {
+      type: Boolean,
+      enum: [true, false],
+      default: false
     },
     
      createdBy: {

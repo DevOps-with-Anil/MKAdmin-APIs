@@ -1,282 +1,49 @@
-// const mongoose = require("mongoose");
-// const { rootDB } = require("../../config/db");
-// const { isValidEmail, isValidPhone } = require("../../utils/validator");
-
-// const { Schema } = mongoose;
-
-// /**
-//  * =========================================
-//  * 🌍 Multilingual Schema
-//  * =========================================
-//  */
-
-// const localizedSchema = new Schema({}, { _id: false, strict: false });
-
-// /**
-//  * =========================================
-//  * 🏢 Address Schema
-//  * =========================================
-//  */
-
-// const addressSchema = new Schema(
-//   {
-//     addressLine1: { type: String, trim: true },
-//     addressLine2: { type: String, trim: true },
-//     landmark: { type: String, trim: true },
-//     zipCode: { type: String, trim: true },
-//     city: { type: String, trim: true },
-//     state: { type: String, trim: true },
-//     country: { type: String, trim: true },
-//     latitude: String,
-//     longitude: String,
-//     isVerified: {
-//       type: Boolean,
-//       default: false
-//     }
-//   },
-//   { _id: false }
-// );
-
-// /**
-//  * =====================================
-//  * 🔐 Tenant Action Schema
-//  * =====================================
-//  */
-
-// const tenantActionSchema = new Schema(
-//   {
-//     actionKey: {
-//       type: String,
-//       required: true,
-//       uppercase: true,
-//       trim: true
-//     },
-
-//     actionName: localizedSchema,
-
-//     allowed: {
-//       type: Boolean,
-//       default: false
-//     }
-//   },
-//   { _id: false }
-// );
-
-// /**
-//  * =====================================
-//  * 🧩 Tenant Module Schema
-//  * =====================================
-//  */
-
-// const tenantModuleSchema = new Schema(
-//   {
-//     moduleKey: {
-//       type: String,
-//       required: true,
-//       uppercase: true,
-//       trim: true
-//     },
-
-//     moduleName: localizedSchema,
-
-//     actions: {
-//       type: [tenantActionSchema],
-//       default: []
-//     }
-//   },
-//   { _id: false }
-// );
-
-// /**
-//  * =========================================
-//  * 🎯 Tenant Schema
-//  * =========================================
-//  */
-
-// const tenantSchema = new Schema(
-//   {
-//     /**
-//      * =====================================
-//      * CONTACT INFO
-//      * =====================================
-//      */
-
-//     contact_email: {
-//       type: String,
-//       required: true,
-//       lowercase: true,
-//       trim: true,
-//       validate: {
-//         validator: isValidEmail,
-//         message: "Invalid email"
-//       }
-//     },
-
-//     phoneCode: {
-//       type: String,
-//       trim: true
-//     },
-
-//     contact_phoneNumber: {
-//       type: String,
-//       trim: true,
-//       validate: {
-//         validator: isValidPhone,
-//         message: "Invalid phone"
-//       }
-//     },
-
-//     logo: String,
-
-//     /**
-//      * =====================================
-//      * BUSINESS INFO
-//      * =====================================
-//      */
-
-//     companyName: localizedSchema,
-//     description: localizedSchema,
-
-//     website: {
-//       type: String,
-//       trim: true
-//     },
-
-//     /**
-//      * =====================================
-//      * DOMAIN ACCESS CONTROL
-//      * =====================================
-//      */
-
-//     adminPanelUrl: {
-//       type: String,
-//       required: true,
-//       trim: true
-//     },
-
-//     apiDomains: {
-//       type: [String],
-//       default: []
-//     },
-
-//     /**
-//      * =====================================
-//      * ADDRESS
-//      * =====================================
-//      */
-
-//     address: addressSchema,
-
-//     /**
-//      * =====================================
-//      * KYB
-//      * =====================================
-//      */
-
-//     kybVerificationId: {
-//       type: Schema.Types.ObjectId,
-//       ref: "KybVerification"
-//     },
-
-//     kybStatus: {
-//       type: String,
-//       enum: ["PENDING", "UNDER_REVIEW", "APPROVED", "REJECTED"],
-//       default: "PENDING"
-//     },
-
-//     /**
-//      * =====================================
-//      * SUBSCRIPTION
-//      * =====================================
-//      */
-
-//     subscriptionPlanId: {
-//       type: Schema.Types.ObjectId,
-//       ref: "Subscription"
-//     },
-
-//     assignedModules: {
-//       type: [tenantModuleSchema],
-//       default: []
-//     },
-
-//     subscriptionStatus: {
-//       type: String,
-//       enum: ["ACTIVE", "INACTIVE", "EXPIRED", "CANCELLED", "PENDING"]
-//     },
-
-//     /**
-//      * =====================================
-//      * TENANT STATUS
-//      * =====================================
-//      */
-
-//     status: {
-//       type: String,
-//       enum: ["ACTIVE", "INACTIVE", "SUSPENDED", "PENDING"],
-//       default: "PENDING"
-//     },
-
-//     /**
-//      * =====================================
-//      * AUDIT
-//      * =====================================
-//      */
-
-//     createdBy: {
-//       type: Schema.Types.ObjectId,
-//       ref: "SYS_User",
-//       required: true
-//     },
-
-//     isDeleted: {
-//       type: Boolean,
-//       default: false
-//     },
-
-//     deletedAt: Date
-//   },
-//   {
-//     timestamps: true
-//   }
-// );
-
-// /**
-//  * =========================================
-//  * 📈 INDEXES
-//  * =========================================
-//  */
-
-// tenantSchema.index(
-//   { contact_email: 1 },
-//   {
-//     unique: true,
-//     partialFilterExpression: { isDeleted: false }
-//   }
-// );
-
-// tenantSchema.index({ subscriptionPlanId: 1 });
-// tenantSchema.index({ status: 1 });
-
-// /**
-//  * =========================================
-//  * 🚀 EXPORT
-//  * =========================================
-//  */
-
-// module.exports =
-//   rootDB.models.Tenant ||
-//   rootDB.model("Tenant", tenantSchema);
-
-
 const mongoose = require("mongoose");
 const { rootDB } = require("../../config/db");
 const { isValidEmail, isValidPhone } = require("../../utils/validator");
 
 const { Schema } = mongoose;
 
+/* ================= MULTILANG ================= */
 const localizedSchema = new Schema({}, { _id: false, strict: false });
 
+/* ================= CONTACT ================= */
+const phoneSchema = new Schema(
+  {
+    code: { type: String, trim: true },
+    number: {
+      type: String,
+      trim: true,
+      validate: { validator: isValidPhone, message: "Invalid phone" }
+    }
+  },
+  { _id: false }
+);
+
+const contactSchema = new Schema(
+  {
+    email: {
+      type: String,
+      required: true,
+      lowercase: true,
+      trim: true,
+      validate: { validator: isValidEmail, message: "Invalid email" }
+    },
+    phone: phoneSchema
+  },
+  { _id: false }
+);
+
+/* ================= PLATFORM ================= */
+const platformSchema = new Schema(
+  {
+    website: { type: String, trim: true },
+    adminPanelUrl: { type: String, required: true, unique: true, trim: true }
+  },
+  { _id: false }
+);
+
+/* ================= ADDRESS ================= */
 const addressSchema = new Schema(
   {
     addressLine1: String,
@@ -288,141 +55,82 @@ const addressSchema = new Schema(
     country: String,
     latitude: String,
     longitude: String,
-    isVerified: {
-      type: Boolean,
-      default: false
-    }
+    isVerified: { type: Boolean, default: false }
   },
   { _id: false }
 );
 
+/* ================= MAIN SCHEMA ================= */
 const tenantSchema = new Schema(
   {
-    /**
-     * CONTACT INFO
-     */
-    contact_email: {
-      type: String,
-      required: true,
-      lowercase: true,
-      trim: true,
-      validate: {
-        validator: isValidEmail,
-        message: "Invalid email"
-      }
-    },
-
-    phoneCode: String,
-
-    contact_phoneNumber: {
-      type: String,
-      trim: true,
-      validate: {
-        validator: isValidPhone,
-        message: "Invalid phone"
-      }
-    },
-
-    logo: String,
-
-    /**
-     * BUSINESS INFO
-     */
-
+    /* BUSINESS */
     companyName: localizedSchema,
     description: localizedSchema,
 
-    website: String,
+    /* CONTACT */
+    contact: contactSchema,
 
-    /**
-     * DOMAIN CONFIG
-     */
+    /* PLATFORM */
+    platform: platformSchema,
 
-    adminPanelUrl: {
-      type: String,
-      required: true,
-      unique: true,
-      trim: true
-    },
+    apiDomains: { type: [String], default: [] },
 
-    apiDomains: {
-      type: [String],
-      default: []
-    },
-
-    /**
-     * ADDRESS
-     */
-
+    /* ADDRESS */
     address: addressSchema,
 
-    /**
-     * KYB REFERENCE
-     */
-
-    kybId: {
-      type: Schema.Types.ObjectId,
-      ref: "TenantKYB"
-    },
-
+    /* KYB */
+    kybId: { type: Schema.Types.ObjectId, ref: "TenantKYB" },
     kybStatus: {
       type: String,
       enum: ["PENDING", "UNDER_REVIEW", "APPROVED", "REJECTED"],
       default: "PENDING"
     },
 
-    /**
-     * CURRENT SUBSCRIPTION
-     */
+    /* SUBSCRIPTION */
+    currentSubscriptionId: { type: Schema.Types.ObjectId, ref: "TenantSubscription" },
 
-    currentSubscriptionId: {
-      type: Schema.Types.ObjectId,
-      ref: "TenantSubscription"
-    },
+    /* STATUS */
+    status: { type: String, enum: ["ACTIVE", "INACTIVE", "SUSPENDED", "PENDING"], default: "PENDING" },
 
-    /**
-     * STATUS
-     */
+    /* AUDIT */
+    createdBy: { type: Schema.Types.ObjectId, ref: "SYS_User", required: true },
 
-    status: {
-      type: String,
-      enum: ["ACTIVE", "INACTIVE", "SUSPENDED", "PENDING"],
-      default: "PENDING"
-    },
+    /* UNIQUE IDS */
+    tenantId: { type: String, unique: true, uppercase: true, length: 8 },
 
-    /**
-     * AUDIT
-     */
-
-    createdBy: {
-      type: Schema.Types.ObjectId,
-      ref: "SYS_User",
-      required: true
-    },
-
-    isDeleted: {
-      type: Boolean,
-      default: false
-    },
-
+    /* DELETION */
+    isDeleted: { type: Boolean, default: false },
     deletedAt: Date
   },
-  {
-    timestamps: true
+  { timestamps: true }
+);
+
+/* ================= INDEXES ================= */
+tenantSchema.index({ "contact.email": 1 }, { unique: true, partialFilterExpression: { isDeleted: false } });
+// tenantSchema.index({ "platform.adminPanelUrl": 1 }, { unique: true });
+// tenantSchema.index({ status: 1 });
+
+/* ================= PRE-SAVE HOOK TO GENERATE UNIQUE IDS ================= */
+tenantSchema.pre("save", async function (next) {
+  const generateId = () => {
+    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let result = "";
+    for (let i = 0; i < 8; i++) result += chars.charAt(Math.floor(Math.random() * chars.length));
+    return result;
+  };
+
+  // Generate tenantId if not exists
+  if (!this.tenantId) {
+    let unique = false;
+    while (!unique) {
+      const newId = generateId();
+      const exists = await this.constructor.findOne({ tenantId: newId });
+      if (!exists) { this.tenantId = newId; unique = true; }
+    }
   }
-);
 
-/**
- * INDEXES
- */
+  next();
+});
 
-tenantSchema.index(
-  { contact_email: 1 },
-  { unique: true, partialFilterExpression: { isDeleted: false } }
-);
-
-tenantSchema.index({ status: 1 });
-
-module.exports =
-  rootDB.models.Tenant ||
-  rootDB.model("Tenant", tenantSchema);
+/* ================= EXPORT ================= */
+module.exports = rootDB.models.Tenant || rootDB.model("Tenant", tenantSchema);

@@ -143,6 +143,9 @@ exports.rootlogin = async (req, res) => {
      * 6️⃣ Generate JWT
      * =========================================
      */
+
+    console.log(JSON.stringify(user))
+    
     const tokenPayload = {
       _id: user._id,
       email: user.email,
@@ -192,7 +195,7 @@ exports.rootlogin = async (req, res) => {
               user.role.name?.[DEFAULT_LANG],
             permissions: user.role.permissions
           },
-
+          userType: user.userType,
           status: user.status,
           lastLoginAt: user.lastLoginAt,
           currentDevice: user.currentDevice

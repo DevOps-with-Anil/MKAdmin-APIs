@@ -18,76 +18,74 @@ router.use(userLimiter());
  * 📦 Module CRUD Operations
  * -----------------------------------------
  */
-
-// Create Module (Strict Security)
+// Create Module
 router.post(
   '/add',
-  checkPermission('SYS_MODULES', 'SYS_MODULE_ADD'),
+  checkPermission('AFFILIATE_MODULES', 'AFFILIATE_MODULE_ADD'),
   rootModuleController.createModule
 );
 
-// List Modules (Medium Security)
+// List Modules
 router.get(
   '/',
-  checkPermission('SYS_MODULES', 'SYS_MODULE_VIEW'),
+  checkPermission('AFFILIATE_MODULES', 'AFFILIATE_MODULE_VIEW'),
   rootModuleController.listModules
 );
 
 // Get Module
 router.get(
   '/:id',
-  checkPermission('SYS_MODULES', 'SYS_MODULE_VIEW'),
+  checkPermission('AFFILIATE_MODULES', 'AFFILIATE_MODULE_VIEW'),
   rootModuleController.getModule
 );
 
 // Update Module
 router.put(
   '/:id',
-  checkPermission('SYS_MODULES', 'SYS_MODULE_UPDATE'),
+  checkPermission('AFFILIATE_MODULES', 'AFFILIATE_MODULE_UPDATE'),
   rootModuleController.updateModule
 );
 
-// Delete Module (Strict)
+// Delete Module (hard delete)
 router.delete(
   '/:id',
-  checkPermission('SYS_MODULES', 'SYS_MODULE_DISABLE'),
+  checkPermission('AFFILIATE_MODULES', 'AFFILIATE_MODULE_DELETE'),
   rootModuleController.deleteModule
 );
 
-/**
- * -----------------------------------------
- * 🔁 Module Status
- * -----------------------------------------
- */
-
+// Module Status
 router.patch(
   '/:id/status',
-  checkPermission('SYS_MODULES', 'SYS_MODULE_DISABLE'),
+  checkPermission('AFFILIATE_MODULES', 'AFFILIATE_MODULE_STATUS'),
   rootModuleController.toggleModuleStatus
 );
 
-/**
- * -----------------------------------------
- * ⚙️ Module Actions
- * -----------------------------------------
- */
-
+// Add Actions
 router.post(
   '/:id/actions',
-  checkPermission('SYS_MODULES', 'SYS_MODULE_ADD_ACTION'),
+  checkPermission('AFFILIATE_MODULES', 'AFFILIATE_MODULE_ADD_ACTION'),
   rootModuleController.addAction
 );
 
+// Update Action
 router.put(
-  '/:id/actions',
-  checkPermission('SYS_MODULES', 'SYS_MODULE_UPDATE_ACTION'),
+  '/:id/actions/:actionId',
+  checkPermission('AFFILIATE_MODULES', 'AFFILIATE_MODULE_UPDATE_ACTION'),
   rootModuleController.updateAction
 );
 
+// Delete Action
 router.delete(
-  '/:id/actions',
-  checkPermission('SYS_MODULES', 'SYS_MODULE_DISABLE_ACTION'),
+  '/:id/actions/:actionId',
+  checkPermission('AFFILIATE_MODULES', 'AFFILIATE_MODULE_DELETE_ACTION'),
   rootModuleController.deleteAction
 );
+
+// // Optional: Toggle Action Status
+// router.patch(
+//   '/:id/actions/:actionId/status',
+//   checkPermission('AFFILIATE_MODULES', 'AFFILIATE_MODULE_STATUS_ACTION'),
+//   rootModuleController.toggleActionStatus
+// );
 
 module.exports = router;

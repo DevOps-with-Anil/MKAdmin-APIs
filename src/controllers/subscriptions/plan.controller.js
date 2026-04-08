@@ -190,6 +190,31 @@ exports.getPlan = async (req, res) => {
 
 /**
  * =========================================
+ * GET PLAN To Edit
+ * =========================================
+ */
+exports.getPlantoEdit = async (req, res) => {
+  try {
+    const plan = await Plan.findById(req.params.id);
+    if (!plan)
+      return responseFormatter.error(req, res, 404, MSG.PLAN_NOT_FOUND);
+
+    return responseFormatter.success(
+      req,
+      res,
+      MSG.PLAN_FETCHED,
+      plan, 
+      null,
+      200
+    );
+  } catch (err) {
+    console.error('Get plan error:', err);
+    return responseFormatter.error(req, res, 500, MSG.PLAN_FETCH_FAILED);
+  }
+};
+
+/**
+ * =========================================
  * UPDATE PLAN
  * =========================================
  */
@@ -290,51 +315,102 @@ exports.deletePlan = async (req, res) => {
  * ASSIGN MODULES
  * =========================================
  */
-exports.assignModules = async (req, res) => {
+exports.assignModulesPermissions = async (req, res) => {
   try {
     const { modules } = req.body;
+    // ✅ Validate modules array
+    if (!Array.isArray(modules) || modules.length === 0) {
+      return responseFormatter.error(
+        req,
+        res,
+        400,
+        MSG.MODULES_ARRAY_REQUIRED
+      );
+    }
 
-    if (!Array.isArray(modules))
-      return responseFormatter.error(req, res, 400, MSG.MODULES_ARRAY_REQUIRED);
-
+    // ✅ Fetch plan
     const plan = await Plan.findById(req.params.id);
-    if (!plan)
-      return responseFormatter.error(req, res, 404, MSG.PLAN_NOT_FOUND);
+    if (!plan) {
+      return responseFormatter.error(
+        req,
+        res,
+        404,
+        MSG.PLAN_NOT_FOUND
+      );
+    }
+
+    // ✅ Extract module keys safely
+    const moduleKeys = modules.map(m => {
+      if (!m.moduleKey) {
+        throw new Error("moduleKey is required");
+      }
+      return m.moduleKey.toUpperCase();
+    });
+
+    // ✅ Fetch all modules in one query (optimized)
+    const tenantModules = await TenantModule.find({
+      key: { $in: moduleKeys },
+      status: "ACTIVE"
+    });
+
+    // ✅ Create lookup map
+    const moduleMap = new Map(
+      tenantModules.map(m => [m.key, m])
+    );
 
     const newModules = [];
 
+    // ✅ Process each module
     for (const mod of modules) {
       const { moduleKey, actions = [] } = mod;
 
-      const tenantModule = await TenantModule.findOne({
-        key: moduleKey.toUpperCase(),
-        isActive: true
-      });
+      if (!moduleKey) {
+        return responseFormatter.error(
+          req,
+          res,
+          400,
+          MSG.MODULE_KEY_REQUIRED
+        );
+      }
 
-      if (!tenantModule)
+      const tenantModule = moduleMap.get(moduleKey.toUpperCase());
+
+      if (!tenantModule) {
         return responseFormatter.error(
           req,
           res,
           400,
           MSG.INVALID_MODULE_KEY.replace('{moduleKey}', moduleKey)
         );
+      }
 
       const validActions = [];
 
+      // ✅ Validate actions
       for (const act of actions) {
+        if (!act.actionKey) {
+          return responseFormatter.error(
+            req,
+            res,
+            400,
+            MSG.ACTION_KEY_REQUIRED
+          );
+        }
+
         const tenantAction = tenantModule.actions.find(
           a =>
             a.key === act.actionKey.toUpperCase() &&
-            a.isActive
+            a.status === "ACTIVE"
         );
 
-        if (!tenantAction)
+        if (!tenantAction) {
           return responseFormatter.error(
             req,
             res,
             400,
             MSG.INVALID_ACTION_KEY.replace('{actionKey}', act.actionKey)
           );
+        }
 
         validActions.push({
           actionKey: tenantAction.key,
@@ -350,21 +426,24 @@ exports.assignModules = async (req, res) => {
       });
     }
 
+    // ✅ Save to plan
     plan.modules = newModules;
-    plan.markModified('modules');
+    plan.markModified("modules");
     await plan.save();
 
+    // ✅ Audit log
     await auditLogger?.({
       req,
       user: req.user,
-      action: 'ASSIGN_MODULES',
-      module: 'PLANS',
+      action: "ASSIGN_MODULES",
+      module: "PLANS",
       entityId: plan._id,
       entityName: plan.name?.[req.lang] || plan.name?.[DEFAULT_LANG],
       after: plan,
       message: req.t(MSG.MODULES_ASSIGNED)
     });
 
+    // ✅ Success response
     return responseFormatter.success(
       req,
       res,
@@ -374,8 +453,19 @@ exports.assignModules = async (req, res) => {
       200
     );
   } catch (err) {
-    console.error('Assign modules error:', err);
-    return responseFormatter.error(req, res, 500, MSG.MODULES_ASSIGN_FAILED);
+    console.error("Assign modules error:", err);
+
+    // Handle thrown validation errors
+    if (err.message === "moduleKey is required") {
+      return responseFormatter.error(req, res, 400, err.message);
+    }
+
+    return responseFormatter.error(
+      req,
+      res,
+      500,
+      MSG.MODULES_ASSIGN_FAILED
+    );
   }
 };
 

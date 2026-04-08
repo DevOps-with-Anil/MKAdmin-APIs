@@ -19,14 +19,77 @@ router.use(userLimiter());
  * -----------------------------------------
  */
 
-// Create Module (Strict Security)
+
+// // Create Module (Strict Security)
+// router.post(
+//   '/add',
+//   checkPermission('SYS_MODULES', 'SYS_MODULE_ADD'),
+//   rootModuleController.createModule
+// );
+
+// // List Modules (Medium Security)
+// router.get(
+//   '/',
+//   checkPermission('SYS_MODULES', 'SYS_MODULE_VIEW'),
+//   rootModuleController.listModules
+// );
+
+// // Get Module
+// router.get(
+//   '/:id',
+//   checkPermission('SYS_MODULES', 'SYS_MODULE_VIEW'),
+//   rootModuleController.getModule
+// );
+
+// // Update Module
+// router.put(
+//   '/:id',
+//   checkPermission('SYS_MODULES', 'SYS_MODULE_UPDATE'),
+//   rootModuleController.updateModule
+// );
+
+// // Delete Module (Strict)
+// router.delete(
+//   '/:id',
+//   checkPermission('SYS_MODULES', 'SYS_MODULE_DISABLE'),
+//   rootModuleController.deleteModule
+// );
+
+// // Module Status
+// router.patch(
+//   '/:id/status',
+//   checkPermission('SYS_MODULES', 'SYS_MODULE_DISABLE'),
+//   rootModuleController.toggleModuleStatus
+// );
+
+// // Module Actions
+// router.post(
+//   '/:id/actions',
+//   checkPermission('SYS_MODULES', 'SYS_MODULE_ADD_ACTION'),
+//   rootModuleController.addAction
+// );
+
+// router.put(
+//   '/:id/actions',
+//   checkPermission('SYS_MODULES', 'SYS_MODULE_UPDATE_ACTION'),
+//   rootModuleController.updateAction
+// );
+
+// router.delete(
+//   '/:id/actions',
+//   checkPermission('SYS_MODULES', 'SYS_MODULE_DISABLE_ACTION'),
+//   rootModuleController.deleteAction
+// );
+
+
+// Create Module
 router.post(
   '/add',
   checkPermission('SYS_MODULES', 'SYS_MODULE_ADD'),
   rootModuleController.createModule
 );
 
-// List Modules (Medium Security)
+// List Modules
 router.get(
   '/',
   checkPermission('SYS_MODULES', 'SYS_MODULE_VIEW'),
@@ -47,46 +110,38 @@ router.put(
   rootModuleController.updateModule
 );
 
-// Delete Module (Strict)
+// Delete Module
 router.delete(
   '/:id',
-  checkPermission('SYS_MODULES', 'SYS_MODULE_DISABLE'),
+  checkPermission('SYS_MODULES', 'SYS_MODULE_DELETE'),
   rootModuleController.deleteModule
 );
 
-/**
- * -----------------------------------------
- * 🔁 Module Status
- * -----------------------------------------
- */
-
+// ✅ FIXED HERE
 router.patch(
   '/:id/status',
-  checkPermission('SYS_MODULES', 'SYS_MODULE_DISABLE'),
+  checkPermission('SYS_MODULES', 'SYS_MODULE_STATUS'),
   rootModuleController.toggleModuleStatus
 );
 
-/**
- * -----------------------------------------
- * ⚙️ Module Actions
- * -----------------------------------------
- */
-
+// Add Module Action
 router.post(
   '/:id/actions',
   checkPermission('SYS_MODULES', 'SYS_MODULE_ADD_ACTION'),
   rootModuleController.addAction
 );
 
+// Update Module Action
 router.put(
   '/:id/actions',
   checkPermission('SYS_MODULES', 'SYS_MODULE_UPDATE_ACTION'),
   rootModuleController.updateAction
 );
 
+// Delete Module Action
 router.delete(
-  '/:id/actions',
-  checkPermission('SYS_MODULES', 'SYS_MODULE_DISABLE_ACTION'),
+  '/:id/actions/',
+  checkPermission('SYS_MODULES', 'SYS_MODULE_DELETE_ACTION'),
   rootModuleController.deleteAction
 );
 

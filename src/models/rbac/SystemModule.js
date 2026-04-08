@@ -6,16 +6,7 @@ const { Schema } = mongoose;
 // =========================================
 // 🌍 Multi-language Name Sub-Schema
 // =========================================
-// const localizedNameSchema = new Schema(
-//   {
-//     en: { type: String, required: true },
-//     fr: { type: String, required: true },
-//     ar: { type: String, required: true }
-//   },
-//   { _id: false }
-// );
 const localizedNameSchema = new Schema({}, { _id: false, strict: false });
-
 
 // =========================================
 // 🧩 Module Action Schema
@@ -35,7 +26,7 @@ const actionSchema = new Schema(
     },
     status: {
       type: String,
-      enum: ["ACTIVE", "INACTIVE", "SUSPENDED"],
+      enum: ["ACTIVE", "INACTIVE"],
       default: "ACTIVE"
     },
   },

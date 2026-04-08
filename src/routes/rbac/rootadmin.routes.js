@@ -18,76 +18,66 @@ router.use(userLimiter());
  * 👤 System Admin Management Routes
  * =========================================
  */
-
 /**
- * Create System Admin
- * Permission: SYS_ADMIN_ADD
+ * Create User
  */
 router.post(
   '/',
-  checkPermission('SYS_ADMINS', 'SYS_ADMIN_ADD'),
+  checkPermission('SYS_USERS', 'SYS_USER_ADD'),
   userController.createUser
 );
 
 /**
- * List System Admins
- * Permission: SYS_ADMIN_VIEW
+ * List Users
  */
 router.get(
   '/',
-  checkPermission('SYS_ADMINS', 'SYS_ADMIN_VIEW'),
+  checkPermission('SYS_USERS', 'SYS_USER_VIEW'),
   userController.getUserList
 );
 
-// Get Admin by ID
+/**
+ * Get User by ID
+ */
 router.get(
   '/:id',
-  checkPermission('SYS_ADMINS', 'SYS_ADMIN_VIEW'),
+  checkPermission('SYS_USERS', 'SYS_USER_VIEW'),
   userController.getAdminById
 );
 
 /**
- * Update System Admin
- * Permission: SYS_ADMIN_UPDATE
+ * Update User
  */
 router.put(
   '/:id',
-  checkPermission('SYS_ADMINS', 'SYS_ADMIN_UPDATE'),
+  checkPermission('SYS_USERS', 'SYS_USER_UPDATE'),
   userController.updateUser
 );
 
-
-// Update Role Status
+/**
+ * Update User Status
+ */
 router.patch(
   '/:id/status',
-  checkPermission('SYS_ADMINs', 'SYS_ROLE_UPDATE'),
+  checkPermission('SYS_USERS', 'SYS_USER_CHANGE_STATUS'),
   userController.updateUserStatus
 );
 
 /**
- * Delete System Admin (if you implement soft delete later)
- * Permission: SYS_ADMIN_DELETE
- */
-// router.delete(
-//   '/:id',
-//   checkPermission('SYS_ADMINS', 'SYS_ADMIN_DELETE'),
-//   userController.deleteUser
-// );
-
-/**
- * Reset Admin Password (Admin → Admin)
- * Permission: SYS_ADMIN_RESET_PASSWORD
+ * Reset User Password
  */
 router.post(
   '/:id/reset-password',
-  checkPermission('SYS_ADMINS', 'SYS_ADMIN_RESET_PASSWORD'),
+  checkPermission('SYS_USERS', 'SYS_USER_RESET_PASSWORD'),
   userController.adminResetUserPassword
 );
 
-// Delete Role
+/**
+ * Delete User
+ */
 router.delete(
   '/:id',
-  checkPermission('SYS_ADMINS', 'SYS_ADMIN_DELETE'),
+  checkPermission('SYS_USERS', 'SYS_USER_DELETE'),
   userController.deleteUser
 );
 

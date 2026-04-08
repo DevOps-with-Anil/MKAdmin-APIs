@@ -6,8 +6,9 @@
 const isSystemRole = (role) => {
   if (!role) return false;
 
-  const roleNameEn = role.name?.en || '';
-  return role.isSystemRole === true || roleNameEn === 'ROOT ADMIN' || roleNameEn === 'Tenant Super Admin';
+  // const roleNameEn = role.name?.en || '';
+  // return role.isSystemRole === true || roleNameEn === 'ROOT ADMIN' || roleNameEn === 'Tenant Super Admin';
+  return role.isSystemRole === true;
 };
 
 

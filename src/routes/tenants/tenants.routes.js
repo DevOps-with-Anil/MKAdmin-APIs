@@ -22,42 +22,42 @@ router.use(userLimiter());
 // ================= CREATE TENANT =================
 router.post(
   "/",
-  checkPermission("TENANTS", "TENANT_CREATE"),
+  checkPermission("AFFILIATES", "AFFILIATE_CREATE"),
   tenantController.createTenant
 );
 
 // ================= LIST TENANTS =================
 router.get(
   "/",
-  checkPermission("TENANTS", "TENANT_VIEW"),
+  checkPermission("AFFILIATES", "AFFILIATE_VIEW"),
   tenantController.listTenants
 );
 
 // ================= GET TENANT =================
 router.get(
   "/:id",
-  checkPermission("TENANTS", "TENANT_VIEW"),
+  checkPermission("AFFILIATES", "AFFILIATE_VIEW"),
   tenantController.getTenantById
 );
 
 // ================= UPDATE TENANT =================
 router.put(
   "/:id",
-  checkPermission("TENANTS", "TENANT_UPDATE"),
+  checkPermission("AFFILIATES", "AFFILIATE_UPDATE"),
   tenantController.updateTenant
 );
 
 // ================= DELETE TENANT =================
 router.delete(
   "/:id",
-  checkPermission("TENANTS", "TENANT_DELETE"),
+  checkPermission("AFFILIATES", "AFFILIATE_DELETE"),
   tenantController.softDeleteTenant
 );
 
 // ================= ASSIGN PLAN =================
 router.post(
   "/assign-plan",
-  checkPermission("TENANTS", "TENANT_ASSIGN_PLAN"),
+  checkPermission("AFFILIATES", "AFFILIATE_ASSIGN_PLAN"),
   tenantController.assignPlanToTenant
 );
 

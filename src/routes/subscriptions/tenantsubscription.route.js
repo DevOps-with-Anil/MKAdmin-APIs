@@ -20,63 +20,38 @@ router.use(authMiddleware);
 router.use(validateUser);
 router.use(userLimiter());
 
-/**
- * ===========================================
- * ASSIGN PLAN TO TENANT
- * ===========================================
- */
-
+// ASSIGN PLAN TO TENANT
 router.post(
   "/assign-plan",
-  checkPermission("TENANTS", "TENANT_ASSIGN_PLAN"),
+  checkPermission("AFFILIATE_SUBSCRIPTIONS", "AFFILIATE_ASSIGN_PLAN"),
   tenantSubscriptionController.assignPlan
 );
 
-/**
- * ===========================================
- * UPDATE TENANT PLAN
- * ===========================================
- */
-
+// UPDATE TENANT PLAN
 router.post(
   "/update-plan",
-  checkPermission("TENANTS", "TENANT_UPDATE_PLAN"),
+  checkPermission("AFFILIATE_SUBSCRIPTIONS", "AFFILIATE_UPDATE_PLAN"),
   tenantSubscriptionController.updatePlan
 );
 
-/**
- * ===========================================
- * GET ACTIVE SUBSCRIPTION
- * ===========================================
- */
-
+// GET ACTIVE SUBSCRIPTION
 router.get(
   "/:tenantId",
-  checkPermission("TENANTS", "TENANT_VIEW"),
+  checkPermission("AFFILIATE_SUBSCRIPTIONS", "AFFILIATE_VIEW_SUBSCRIPTION"),
   tenantSubscriptionController.getActiveSubscription
 );
 
-/**
- * ===========================================
- * CANCEL SUBSCRIPTION
- * ===========================================
- */
-
+// CANCEL SUBSCRIPTION
 router.post(
   "/cancel",
-  checkPermission("TENANTS", "TENANT_CANCEL_SUBSCRIPTION"),
+  checkPermission("AFFILIATE_SUBSCRIPTIONS", "AFFILIATE_CANCEL_SUBSCRIPTION"),
   tenantSubscriptionController.cancelSubscription
 );
 
-/**
- * ===========================================
- * SUBSCRIPTION HISTORY
- * ===========================================
- */
-
+// SUBSCRIPTION HISTORY
 router.get(
   "/history/:tenantId",
-  checkPermission("TENANTS", "TENANT_VIEW"),
+  checkPermission("AFFILIATE_SUBSCRIPTIONS", "AFFILIATE_VIEW_SUBSCRIPTION_HISTORY"),
   tenantSubscriptionController.getSubscriptionHistory
 );
 
