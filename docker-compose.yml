@@ -1,60 +1,24 @@
-
-
-# services:
-#   backend:
-#     build: .
-#     container_name: backend
-#     ports:
-#       - "4000:4000"
-#     env_file:
-#       - .env
-#     depends_on:
-#       - redis
-#       - mongo
-
-#   redis:
-#     image: redis:alpine
-#     container_name: redis
-#     ports:
-#       - "6379:6379"
-
-#   mongo:
-#     image: mongo
-#     container_name: mongo
-#     ports:
-#       - "27017:27017"
-#     volumes:
-#       - mongo_data:/data/db
-
-# volumes:
-#   mongo_data:
 services:
-  backend:
+  app:
     build: .
-    image: impetrosys/adminapis-backend:latest  
+    image: impetrosys/admin_apis:v1
+    container_name: admin_apis
+    restart: always
     env_file:
       - .env
-    ports:
-      - "8000:8000"
     depends_on:
-      - mongo
       - redis
+    ports:
+      - "8001:8001"
 
   redis:
     image: redis:alpine
     container_name: redis
-    command: ["redis-server", "--protected-mode", "no"]
+    restart: always
     ports:
       - "6379:6379"
-
-  mongo:
-    image: mongo:7-jammy
-    container_name: mongo
-    command: ["mongod", "--bind_ip_all"]
-    ports:
-      - "27017:27017"
     volumes:
-      - mongo_data:/data/db
+      - redis_data:/data
 
 volumes:
-  mongo_data:
+  redis_data:
