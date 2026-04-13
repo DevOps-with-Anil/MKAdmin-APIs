@@ -1,8 +1,5 @@
 
-const env = process.env.NODE_ENV || "development";
-require("dotenv").config({
-  path: `.env.${env}`
-});
+require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
@@ -26,6 +23,7 @@ require("./config/db");
 connectRedis().catch(err =>
   console.error("Redis connection failed:", err)
 );
+
 
 /**
  * =====================================================
@@ -51,26 +49,33 @@ app.use(
         const tenant = await Tenant.findOne({ domain });
         if (
           tenant ||
-          domain === "localhost" ||
+          domain === "dev.rui.plf.mkelefa.net" ||
           domain === "127.0.0.1" ||
+          domain === "localhost" ||
           domain === "192.168.1.5"
         ) {
-          return callback(null, true);
+          return callback(null, true);  
         }
         return callback(new Error("Domain not allowed by CORS"));
       } catch (err) {
         return callback(new Error("Invalid origin"));
       }
     },
-    credentials: true
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
   })
 );
+
+app.options("*", cors());
 
 /**
  * =====================================================
  * Global Middlewares
  * =====================================================
  */
+
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -118,6 +123,10 @@ app.use(languageMiddleware);
  * Routes
  * =====================================================
  */
+app.use((req, res, next) => {
+  console.log("👉 METHOD:", req.method, "| URL:", req.url);
+  next();
+});
 
 app.use("/api/auth", require("./routes/auth/auth.routes"));
 app.use("/api/systemmodule", require("./routes/rbac/systemmodule.routes"));
