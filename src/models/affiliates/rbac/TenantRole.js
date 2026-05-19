@@ -124,10 +124,12 @@ const roleSchema = new Schema(
       default: false
     },
 
-    status: {
-      type: Boolean,
-      default: true
-    }
+       // Active/inactive
+     status: {
+      type: String,
+      enum: ["ACTIVE", "INACTIVE"],
+      default: "ACTIVE"
+    },
   },
   { timestamps: true }
 );

@@ -10,14 +10,14 @@ const auditLogger = require('../../utils/auditLogger');
 const responseFormatter = require('../../utils/responseFormatter');
 const MSG = require('../../config/constants/messageKeys');
 const CODES = require('../../config/constants/errorCodes');
-
+const path = require("path");
+const fs = require("fs");
 const {
   isValidEmail,
   isValidPhone,
   isValidPassword,
   isValidName
 } = require('../../utils/validator');
-
 const DEFAULT_LANG = 'en';
 
 /**
@@ -99,6 +99,20 @@ exports.createUser = async (req, res) => {
       return responseFormatter.error(req, res, 400, MSG.USER_INVALID_ROLE, CODES.USR_400);
 
     // ===== Create User =====
+    // const user = await User.create({
+    //   name,
+    //   email: email.toLowerCase(),
+    //   phoneCode,
+    //   phoneNumber,
+    //   password,
+    //   role,
+    //   allowedCountries: Array.isArray(allowedCountries)
+    //     ? allowedCountries.map(c => c.toUpperCase())
+    //     : [],
+    //   status: status || 'ACTIVE',
+    //   createdBy: req.user._id
+    // });
+
     const user = await User.create({
       name,
       email: email.toLowerCase(),
@@ -106,11 +120,21 @@ exports.createUser = async (req, res) => {
       phoneNumber,
       password,
       role,
-      allowedCountries: Array.isArray(allowedCountries)
-        ? allowedCountries.map(c => c.toUpperCase())
+
+      // ✅ FIX: safe parsing for FormData + JSON
+      allowedCountries: allowedCountries
+        ? Array.isArray(allowedCountries)
+          ? allowedCountries.map(c => c.toUpperCase())
+          : JSON.parse(allowedCountries).map(c => c.toUpperCase())
         : [],
+
       status: status || 'ACTIVE',
-      createdBy: req.user._id
+      createdBy: req.user._id,
+
+      // ✅ ADD IMAGE SUPPORT
+      photo: req.file
+        ? `${req.protocol}://${req.get("host")}/${req.file.path.replace(/\\/g, "/")}`
+        : null
     });
 
     // ===== Audit =====
@@ -196,16 +220,33 @@ exports.getUserList = async (req, res) => {
     }
 
     // Fetch users + total count
-    const [users, total] = await Promise.all([
+    // const [users, total] = await Promise.all([
+    //   User.find(query)
+    //     .populate("role", "name")
+    //     .select("-password -tokens")
+    //     .skip(skip)
+    //     .limit(limit)
+    //     .sort({ createdAt: -1 }),
+
+    //   User.countDocuments(query)
+    // ]);
+
+    const [usersRaw, total] = await Promise.all([
       User.find(query)
-        .populate("role", "name")
+        .populate({
+          path: "role",
+          select: "name isSystemRole",
+          match: { isSystemRole: { $ne: true } }, // skiped the Root admin
+        })
         .select("-password -tokens")
         .skip(skip)
         .limit(limit)
         .sort({ createdAt: -1 }),
 
-      User.countDocuments(query)
+      User.countDocuments(query),
     ]);
+
+    const users = usersRaw.filter(user => user.role !== null);
 
     const localizedUsers = users.map((u) => localizeUser(u, lang));
 
@@ -303,47 +344,136 @@ exports.getAdminById = async (req, res) => {
 exports.updateUser = async (req, res) => {
   try {
     const lang = req.lang || DEFAULT_LANG;
+
     const user = await User.findById(req.params.id);
 
-    if (!user)
-      return responseFormatter.error(req, res, 404, MSG.USER_NOT_FOUND, CODES.USR_404);
+    if (!user) {
+      return responseFormatter.error(
+        req,
+        res,
+        404,
+        MSG.USER_NOT_FOUND,
+        CODES.USR_404
+      );
+    }
 
     const before = user.toObject();
 
-    const { name, email, phoneNumber, role, allowedCountries, status } = req.body;
+    const {
+      name,
+      email,
+      phoneNumber,
+      role,
+      allowedCountries,
+      status
+    } = req.body;
 
+    // ========================
+    // EMAIL CHECK
+    // ========================
     if (email && email !== user.email) {
       const exists = await User.findOne({ email: email.toLowerCase() });
-      if (exists)
-        return responseFormatter.error(req, res, 400, MSG.USER_EMAIL_EXISTS, CODES.USR_400);
+
+      if (exists) {
+        return responseFormatter.error(
+          req,
+          res,
+          400,
+          MSG.USER_EMAIL_EXISTS,
+          CODES.USR_400
+        );
+      }
 
       user.email = email.toLowerCase();
     }
 
+    // ========================
+    // ROLE VALIDATION
+    // ========================
     if (role) {
       const roleExists = await Role.findById(role);
-      if (!roleExists)
-        return responseFormatter.error(req, res, 400, MSG.USER_INVALID_ROLE, CODES.USR_400);
+
+      if (!roleExists) {
+        return responseFormatter.error(
+          req,
+          res,
+          400,
+          MSG.USER_INVALID_ROLE,
+          CODES.USR_400
+        );
+      }
 
       user.role = role;
     }
 
+    // ========================
+    // BASIC FIELDS
+    // ========================
     if (name) user.name = name;
     if (phoneNumber) user.phoneNumber = phoneNumber;
     if (status) user.status = status;
-    if (role) user.role = role;
-    if (allowedCountries)
-      user.allowedCountries = allowedCountries.map(c => c.toUpperCase());
+
+    // ========================
+    // COUNTRIES (SAFE PARSE)
+    // ========================
+    if (allowedCountries) {
+      const parsed =
+        typeof allowedCountries === "string"
+          ? JSON.parse(allowedCountries)
+          : allowedCountries;
+
+      user.allowedCountries = parsed.map((c) => c.toUpperCase());
+    }
+
+
+    // ✅ ADD IMAGE SUPPORT
+    if (req.file) {
+      /**
+       * Delete old image
+       */
+      if (user.photo) {
+        try {
+          const oldPath = user.photo.split(req.get("host"))[1];
+          console.log("OLD PATH. :  " + oldPath);
+          if (oldPath) {
+
+            const fullPath = path.join(
+              process.cwd(),
+              oldPath
+            );
+
+            if (fs.existsSync(fullPath)) {
+              fs.unlinkSync(fullPath);
+            }
+          }
+
+        } catch (deleteError) {
+          console.error(
+            "Old image delete failed:",
+            deleteError
+          );
+        }
+      }
+      /**
+       * Save new image URL
+       */
+
+
+      user.photo = `${req.protocol}://${req.get("host")}/${req.file.path.replace(/\\/g, "/")}`;
+    }
+
+
+
 
     await user.save();
 
-    const populatedUser = await user.populate('role', 'name');
+    const populatedUser = await user.populate("role", "name");
 
     await auditLogger?.({
       req,
       user: req.user,
-      action: 'UPDATE_USER',
-      module: 'USERS',
+      action: "UPDATE_USER",
+      module: "USERS",
       entityId: user._id,
       entityName: user.email,
       before,
@@ -361,8 +491,15 @@ exports.updateUser = async (req, res) => {
     );
 
   } catch (err) {
-    console.error('Update user error:', err);
-    return responseFormatter.error(req, res, 500, MSG.USER_UPDATE_FAILED, CODES.USR_500);
+    console.error("Update user error:", err);
+
+    return responseFormatter.error(
+      req,
+      res,
+      500,
+      MSG.USER_UPDATE_FAILED,
+      CODES.USR_500
+    );
   }
 };
 

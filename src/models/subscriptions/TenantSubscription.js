@@ -3,6 +3,8 @@ const { rootDB } = require("../../config/db");
 
 const { Schema } = mongoose;
 
+const localizedNameSchema = new Schema({}, { _id: false, strict: false });
+
 /**
  * MODULE ACTION
  */
@@ -62,6 +64,11 @@ const tenantSubscriptionSchema = new Schema(
     planId: {
       type: Schema.Types.ObjectId,
       ref: "Subscription",
+      required: true
+    },
+
+    planName: {
+      type: localizedNameSchema,
       required: true
     },
 

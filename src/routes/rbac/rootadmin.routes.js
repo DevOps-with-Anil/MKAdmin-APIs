@@ -7,6 +7,8 @@ const { checkPermission } = require('../../middleware/permissionMiddleware');
 const { userLimiter } = require('../../config/rateLimit');
 
 const validateUser = require('../../middleware/validateUser');
+const upload = require("../../config/upload");
+
 
 
 router.use(authMiddleware); 
@@ -24,6 +26,7 @@ router.use(userLimiter());
 router.post(
   '/',
   checkPermission('SYS_USERS', 'SYS_USER_ADD'),
+  upload.single("photo"),
   userController.createUser
 );
 
@@ -51,6 +54,7 @@ router.get(
 router.put(
   '/:id',
   checkPermission('SYS_USERS', 'SYS_USER_UPDATE'),
+  upload.single("photo"),
   userController.updateUser
 );
 

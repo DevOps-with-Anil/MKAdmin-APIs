@@ -1,8 +1,8 @@
 services:
   app:
     build: .
-    image: impetrosys/admin_apis:v1
-    container_name: admin_apis
+    image: impetrosys/root_apis:v1
+    container_name: root_apis
     restart: always
     env_file:
       - .env

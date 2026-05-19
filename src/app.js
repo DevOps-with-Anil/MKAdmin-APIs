@@ -10,6 +10,8 @@ const languageMiddleware = require("./middleware/languageMiddleware");
 const { connectRedis } = require("./config/redis");
 const Tenant = require("./models/tenants/Tenant");
 const app = express();
+const path = require('path');
+
 
 
 /**
@@ -30,7 +32,6 @@ connectRedis().catch(err =>
  * Seed Dev Data
  * =====================================================
  */
-
 seedSuperAdmin();
 
 /**
@@ -41,7 +42,6 @@ seedSuperAdmin();
 app.use(
   cors({
     origin: async function (origin, callback) {
-
       // allow server-to-server / Postman
       if (!origin) return callback(null, true);
       try {
@@ -50,9 +50,7 @@ app.use(
         if (
           tenant ||
           domain === "dev.rui.plf.mkelefa.net" ||
-          domain === "127.0.0.1" ||
-          domain === "localhost" ||
-          domain === "192.168.1.5"
+          domain === "localhost" 
         ) {
           return callback(null, true);  
         }
@@ -74,60 +72,24 @@ app.options("*", cors());
  * Global Middlewares
  * =====================================================
  */
-
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(morgan("dev"));
 app.use(languageMiddleware);
 
-/**
- * =====================================================
- * Tenant Resolver Middleware
- * =====================================================
- */
-// app.use(async (req, res, next) => {
-//   try {
-//     const host = req.headers.host?.split(":")[0]; // remove port
-
-//     if (!host) {
-//       return res.status(400).json({
-//         success: false,
-//         message: "Invalid domain"
-//       });
-//     }
-
-//     const tenant = await Tenant.findOne({ domain: host });
-
-//     // if (!tenant) {
-//     //   return res.status(403).json({
-//     //     success: false,
-//     //     message: "Unauthorized Access."
-//     //   });
-//     // }
-//     // attach tenant to request
-//     req.tenant = tenant;
-//     next();
-//   } catch (error) {
-//     console.error("Tenant resolve error:", error);
-//     return res.status(500).json({
-//       success: false,
-//       message: "Tenant resolution failed"
-//     });
-//   }
-// });
 
 /**
  * =====================================================
  * Routes
  * =====================================================
  */
-app.use((req, res, next) => {
-  console.log("👉 METHOD:", req.method, "| URL:", req.url);
-  next();
-});
 
+// app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use(
+    "/uploads",
+    express.static(path.join(process.cwd(), "uploads"))
+);
 app.use("/api/auth", require("./routes/auth/auth.routes"));
 app.use("/api/systemmodule", require("./routes/rbac/systemmodule.routes"));
 app.use("/api/tenantmodule", require("./routes/rbac/tenantmodule.routes"));
@@ -138,6 +100,9 @@ app.use("/api/affiliate", require("./routes/tenants/tenants.routes"));
 app.use("/api/tenantrole", require("./routes/affiliates/rbac/tenantrole.routes"));
 app.use("/api/tenantadmin", require("./routes/affiliates/rbac/tenantadmin.routes"));
 app.use("/api/tenant-subscriptions", require("./routes/subscriptions/tenantsubscription.route"));
+app.use("/api/tenantkyb", require("./routes/tenants/tenantkyb.routes"));
+app.use("/api/kybdoc", require("./routes/settings/kybtype.routes"));
+
 
 /**
  * =====================================================
@@ -145,7 +110,7 @@ app.use("/api/tenant-subscriptions", require("./routes/subscriptions/tenantsubsc
  * =====================================================
  */
 app.get("/", (req, res) => {
-  res.send("APIs are running...");
+  res.send("APIs are running on new server....");
 });
 
 /**

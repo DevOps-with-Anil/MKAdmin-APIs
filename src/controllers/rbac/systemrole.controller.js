@@ -102,7 +102,7 @@ exports.createRole = async (req, res) => {
       description,
       modules: [],
       createdBy: req.user?._id,
-      status : status
+      status: status
     });
 
     /**
@@ -152,7 +152,9 @@ exports.listRoles = async (req, res) => {
     const lang = req.lang || DEFAULT_LANG;
     const { page = 1, limit = 20, search = '', status } = req.query;
 
-    const query = {};
+    const query = {
+      isSystemRole: { $ne: true }, // ✅ added
+    };
 
     if (search) {
       query[`name.${DEFAULT_LANG}`] = {
@@ -180,18 +182,18 @@ exports.listRoles = async (req, res) => {
 
     // ✅ Aggregate user count by role
     const userCounts = await RootUSER.aggregate([
-  {
-    $match: {
-      role: { $in: roleIds }, // ✅ FIXED
-    },
-  },
-  {
-    $group: {
-      _id: "$role", // ✅ FIXED
-      count: { $sum: 1 },
-    },
-  },
-]);
+      {
+        $match: {
+          role: { $in: roleIds }, // ✅ FIXED
+        },
+      },
+      {
+        $group: {
+          _id: "$role", // ✅ FIXED
+          count: { $sum: 1 },
+        },
+      },
+    ]);
 
     // ✅ Convert to map for quick lookup
     const countMap = {};
@@ -382,7 +384,7 @@ exports.updateRoleStatus = async (req, res) => {
     const lang = req.language || DEFAULT_LANG;
     let { status } = req.body;
 
-  // ✅ Strict validation: must be string 'ACTIVE' or 'INACTIVE'
+    // ✅ Strict validation: must be string 'ACTIVE' or 'INACTIVE'
     if (typeof status !== 'string' || !['ACTIVE', 'INACTIVE'].includes(status)) {
       return responseFormatter.error(
         req,
@@ -556,7 +558,7 @@ exports.assignModulesPermissions = async (req, res) => {
       );
     }
 
-   const role = await RootRole.findById(req.params.id);
+    const role = await RootRole.findById(req.params.id);
     if (!role) {
       return responseFormatter.error(
         req, res,

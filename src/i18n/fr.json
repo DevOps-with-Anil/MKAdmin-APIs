@@ -143,6 +143,60 @@
   "SUBSCRIPTION.CANCEL_FAILED": "Échec de l'annulation de l'abonnement.",
 
   "SUBSCRIPTION.HISTORY_FETCHED": "Historique des abonnements récupéré avec succès.",
-  "SUBSCRIPTION.HISTORY_FAILED": "Échec de la récupération de l'historique des abonnements."
+  "SUBSCRIPTION.HISTORY_FAILED": "Échec de la récupération de l'historique des abonnements.",
 
+  
+  "KYB_DOC_TYPE.CREATED": "Type de document créé avec succès.",
+  "KYB_DOC_TYPE.UPDATED": "Type de document mis à jour avec succès.",
+  "KYB_DOC_TYPE.DELETED": "Type de document supprimé avec succès.",
+
+  "KYB_DOC_TYPE.NOT_FOUND": "Type de document introuvable.",
+  "KYB_DOC_TYPE.ALREADY_EXISTS": "Le type de document existe déjà.",
+
+  "KYB_DOC_TYPE.FETCHED": "Types de documents KYB récupérés avec succès.",
+  "KYB_DOC_TYPE.FETCH_FAILED": "Échec de la récupération des types de documents KYB.",
+
+  "KYB_DOC_TYPE.ENABLED": "Type de document activé avec succès.",
+  "KYB_DOC_TYPE.DISABLED": "Type de document désactivé avec succès.",
+
+  "KYB_DOC_TYPE.REQUIRED_UPDATED": "Statut requis mis à jour avec succès.",
+
+  "KYB_DOC_TYPE.TYPE_REQUIRED": "Le type de document est requis.",
+  "KYB_DOC_TYPE.LABEL_INVALID": "Le label doit être un objet multilingue valide avec au moins 'en'.",
+
+  "KYB_DOC_TYPE.SERVER_ERROR": "Une erreur est survenue. Veuillez réessayer plus tard.",
+
+  
+  "KYB.UPLOADED": "KYB téléchargé avec succès.",
+  "KYB.UPLOAD_FAILED": "Échec du téléchargement KYB.",
+
+  "KYB.FETCHED": "KYB récupéré avec succès.",
+  "KYB.FETCH_FAILED": "Échec de la récupération du KYB.",
+  "KYB.NOT_FOUND": "KYB introuvable pour ce locataire.",
+
+  "KYB.TENANT_ID_REQUIRED": "L'identifiant du locataire est requis.",
+  "KYB.DOCUMENTS_REQUIRED": "Le tableau des documents est requis.",
+  "KYB.DOC_TYPE_REQUIRED": "Le type de document est requis.",
+
+  "KYB.INVALID_FILE_INDEX": "Index de fichier invalide.",
+  "KYB.DOC_DUPLICATE": "Un document avec ce numéro existe déjà pour un autre locataire.",
+
+  "KYB.IDS_REQUIRED": "tenantId et documentId sont requis.",
+  "KYB.DOCUMENT_NOT_FOUND": "Document introuvable.",
+  "KYB.DOCUMENT_DELETED": "Document supprimé avec succès.",
+  "KYB.DELETE_FAILED": "Échec de la suppression du document.",
+
+  "KYB.FILE_IDS_REQUIRED": "tenantId, documentId et fileId sont requis.",
+  "KYB.FILE_NOT_FOUND": "Fichier introuvable.",
+  "KYB.FILE_DELETED": "Fichier supprimé avec succès.",
+  "KYB.FILE_DELETE_FAILED": "Échec de la suppression du fichier.",
+
+  
+  "KYB.STATUS_UPDATED": "Le statut du document KYB a été mis à jour.",
+  "KYB.INVALID_STATUS": "Statut KYB invalide.",
+  "KYB.COMMENT_REQUIRED": "Un commentaire est requis.",
+  "KYB.ALREADY_APPROVED": "Le document est déjà approuvé."
+  
 }
+
+

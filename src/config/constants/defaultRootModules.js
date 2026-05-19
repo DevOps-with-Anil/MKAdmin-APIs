@@ -38,25 +38,25 @@ SYS_MODULES: {
   ]
 },
 
-AFFILIATE_MODULES: {
-  key: 'AFFILIATE_MODULES',
-  name: { en: 'Affiliate Modules', fr: 'Modules affiliés' },
+TENANT_MODULES: {
+  key: 'TENANT_MODULES',
+  name: { en: 'Tenant Modules', fr: 'Modules des locataires' },
   actions: [
-    { key: 'AFFILIATE_MODULE_ADD', name: { en: 'Add Module', fr: 'Ajouter un module' } },
-    { key: 'AFFILIATE_MODULE_VIEW', name: { en: 'View Modules', fr: 'Voir les modules' } },
-    { key: 'AFFILIATE_MODULE_UPDATE', name: { en: 'Update Module', fr: 'Mettre à jour le module' } },
+    { key: 'TENANT_MODULE_ADD', name: { en: 'Add Module', fr: 'Ajouter un module' } },
+    { key: 'TENANT_MODULE_VIEW', name: { en: 'View Modules', fr: 'Voir les modules' } },
+    { key: 'TENANT_MODULE_UPDATE', name: { en: 'Update Module', fr: 'Mettre à jour le module' } },
 
-    // ✅ Status + Delete split
-    { key: 'AFFILIATE_MODULE_STATUS', name: { en: 'Change Module Status', fr: 'Changer le statut du module' } },
-    { key: 'AFFILIATE_MODULE_DELETE', name: { en: 'Delete Module', fr: 'Supprimer le module' } },
+    // Status + Delete split
+    { key: 'TENANT_MODULE_STATUS', name: { en: 'Change Module Status', fr: 'Changer le statut du module' } },
+    { key: 'TENANT_MODULE_DELETE', name: { en: 'Delete Module', fr: 'Supprimer le module' } },
 
     // Module Actions
-    { key: 'AFFILIATE_MODULE_ADD_ACTION', name: { en: 'Add Module Action', fr: 'Ajouter une action' } },
-    { key: 'AFFILIATE_MODULE_VIEW_ACTION', name: { en: 'View Module Actions', fr: 'Voir les actions' } },
-    { key: 'AFFILIATE_MODULE_UPDATE_ACTION', name: { en: 'Update Module Action', fr: 'Mettre à jour l’action' } },
+    { key: 'TENANT_MODULE_ADD_ACTION', name: { en: 'Add Module Action', fr: 'Ajouter une action' } },
+    { key: 'TENANT_MODULE_VIEW_ACTION', name: { en: 'View Module Actions', fr: 'Voir les actions' } },
+    { key: 'TENANT_MODULE_UPDATE_ACTION', name: { en: 'Update Module Action', fr: 'Mettre à jour l’action' } },
 
-    { key: 'AFFILIATE_MODULE_STATUS_ACTION', name: { en: 'Change Module Action Status', fr: 'Changer le statut de l’action' } },
-    { key: 'AFFILIATE_MODULE_DELETE_ACTION', name: { en: 'Delete Module Action', fr: 'Supprimer l’action' } }
+    { key: 'TENANT_MODULE_STATUS_ACTION', name: { en: 'Change Module Action Status', fr: 'Changer le statut de l’action' } },
+    { key: 'TENANT_MODULE_DELETE_ACTION', name: { en: 'Delete Module Action', fr: 'Supprimer l’action' } }
   ]
 },
 
@@ -100,63 +100,70 @@ SUBSCRIPTION_PLANS: {
   ]
 },
 
-AFFILIATES: {
-  key: 'AFFILIATES',
-  name: { en: 'WhiteLabel Affiliates', fr: 'Affiliés en marque blanche' },
+
+TENANTS: {
+  key: 'TENANTS',
+  name: { en: 'WhiteLabel Tenants', fr: 'Locataires en marque blanche' },
   actions: [
-    { key: 'AFFILIATE_CREATE', name: { en: 'Create Affiliate', fr: 'Créer un affilié' } },
-    { key: 'AFFILIATE_VIEW', name: { en: 'View Affiliates', fr: 'Voir les affiliés' } },
-    { key: 'AFFILIATE_UPDATE', name: { en: 'Update Affiliate', fr: 'Mettre à jour l’affilié' } },
+    { key: 'TENANT_CREATE', name: { en: 'Create Tenant', fr: 'Créer un locataire' } },
+    { key: 'TENANT_VIEW', name: { en: 'View Tenants', fr: 'Voir les locataires' } },
+    { key: 'TENANT_UPDATE', name: { en: 'Update Tenant', fr: 'Mettre à jour le locataire' } },
 
-    { key: 'AFFILIATE_DELETE', name: { en: 'Delete Affiliate', fr: 'Supprimer l’affilié' } },
-    { key: 'AFFILIATE_STATUS', name: { en: 'Change Affiliate Status', fr: 'Changer le statut' } },
+    { key: 'TENANT_DELETE', name: { en: 'Delete Tenant', fr: 'Supprimer le locataire' } },
+    { key: 'TENANT_STATUS', name: { en: 'Change Tenant Status', fr: 'Changer le statut' } },
 
-    { key: 'AFFILIATE_ASSIGN_PLAN', name: { en: 'Assign Plan', fr: 'Attribuer un plan' } }
+    { key: 'TENANT_ASSIGN_PLAN', name: { en: 'Assign Plan', fr: 'Attribuer un plan' } }
   ]
 },
 
-AFFILIATE_SUBSCRIPTIONS: {
-  key: 'AFFILIATE_SUBSCRIPTIONS',
-  name: { en: 'Affiliate Subscriptions', fr: 'Abonnements affiliés' },
+TENANT_SUBSCRIPTIONS: {
+  key: 'TENANT_SUBSCRIPTIONS',
+  name: { en: 'Tenant Subscriptions', fr: 'Abonnements des locataires' },
   actions: [
-    { key: 'AFFILIATE_ASSIGN_PLAN', name: { en: 'Assign Plan', fr: 'Attribuer un plan' } },
-    { key: 'AFFILIATE_UPDATE_PLAN', name: { en: 'Update Plan', fr: 'Mettre à jour le plan' } },
+    { key: 'TENANT_ASSIGN_PLAN', name: { en: 'Assign Plan', fr: 'Attribuer un plan' } },
+    { key: 'TENANT_UPDATE_PLAN', name: { en: 'Update Plan', fr: 'Mettre à jour le plan' } },
 
-    { key: 'AFFILIATE_VIEW_SUBSCRIPTION', name: { en: 'View Subscription', fr: 'Voir l’abonnement' } },
-    { key: 'AFFILIATE_VIEW_SUBSCRIPTION_HISTORY', name: { en: 'View Subscription History', fr: 'Voir l’historique des abonnements' } },
+    { key: 'TENANT_VIEW_SUBSCRIPTION', name: { en: 'View Subscription', fr: 'Voir l’abonnement' } },
+    { key: 'TENANT_VIEW_SUBSCRIPTION_HISTORY', name: { en: 'View Subscription History', fr: 'Voir l’historique des abonnements' } },
 
-    { key: 'AFFILIATE_CANCEL_SUBSCRIPTION', name: { en: 'Cancel Subscription', fr: 'Annuler l’abonnement' } }
+    { key: 'TENANT_CANCEL_SUBSCRIPTION', name: { en: 'Cancel Subscription', fr: 'Annuler l’abonnement' } },
+    { key: 'TENANT_CHANGE_PLAN', name: { en: 'Change Subscription Plan', fr: 'Changer de plan' } },
+    { key: 'TENANT_VIEW_BILLING', name: { en: 'View Tenant Billing', fr: 'Voir la facturation des locataires' } },
   ]
 },
 
-AFFILIATES_KYB: {
-    key: 'AFFILIATES_KYB',
-    name: { en: 'WhiteLabel Affiliates KYB', fr: 'Affiliés en marque blanche' },
-    actions: [
-      { key: 'AFFILIATE_KYB_VIEW_ALL', name: { en: 'View All KYB Verification Requests', fr: 'Voir toutes les demandes KYB' } },
-      { key: 'AFFILIATE_KYB_VERIFY', name: { en: 'Verify KYB Documents', fr: 'Vérifier les documents KYB' } },
-      { key: 'AFFILIATE_KYB_REJECT', name: { en: 'Reject KYB Documents', fr: 'Rejeter les documents KYB' } },
-      { key: 'AFFILIATE_KYB_SUSPEND', name: { en: 'Suspend Affiliate for KYB Non-Compliance', fr: 'Suspendre pour non-conformité KYB' } },
-      { key: 'AFFILIATE_KYB_MARK_EXPIRED', name: { en: 'Mark KYB as Expired', fr: 'Marquer KYB comme expiré' } },
-      { key: 'AFFILIATE_KYB_NOTIFY', name: { en: 'Notify Affiliate for KYB Status', fr: 'Notifier l’affilié du statut KYB' } },
+TENANTS_KYB: {
+  key: 'TENANTS_KYB',
+  name: { en: 'Tenant KYB Management', fr: 'Gestion KYB des locataires' },
+  actions: [
+    { key: 'KYB_UPLOAD', name: { en: 'Upload KYB Documents', fr: 'Télécharger documents KYB' } },
+    { key: 'KYB_VIEW', name: { en: 'View KYB Documents', fr: 'Voir documents KYB' } },
+    { key: 'KYB_DELETE', name: { en: 'Delete KYB Documents', fr: 'Supprimer documents KYB' } },
 
-      { key: 'AFFILIATE_ASSIGN_PLAN', name: { en: 'Assign Subscription Plan', fr: 'Attribuer un plan' } },
-      { key: 'AFFILIATE_CHANGE_PLAN', name: { en: 'Change Subscription Plan', fr: 'Changer de plan' } },
-      { key: 'AFFILIATE_VIEW_BILLING', name: { en: 'View Affiliate Billing', fr: 'Voir la facturation' } },
-
-      { key: 'AFFILIATE_UPDATE_BRANDING', name: { en: 'Update Affiliate Branding', fr: 'Mettre à jour la marque' } },
-      { key: 'AFFILIATE_SET_DOMAIN', name: { en: 'Set Custom Domain', fr: 'Définir un domaine' } },
-      { key: 'AFFILIATE_SET_EMAIL_SMTP', name: { en: 'Set Email SMTP Configuration', fr: 'Configurer SMTP Email' } },
-
-      { key: 'AFFILIATE_EXPORT_DATA', name: { en: 'Export Affiliate Data', fr: 'Exporter les données' } },
-    ]
+    { key: 'TENANT_KYB_VIEW_ALL', name: { en: 'View All KYB Requests', fr: 'Voir toutes les demandes KYB' } },
+    { key: 'TENANT_KYB_VERIFY', name: { en: 'Verify KYB Documents', fr: 'Vérifier documents KYB' } },
+    { key: 'TENANT_KYB_REJECT', name: { en: 'Reject KYB Documents', fr: 'Rejeter documents KYB' } },
+    { key: 'TENANT_KYB_SUSPEND', name: { en: 'Suspend Tenant for KYB Non-Compliance', fr: 'Suspendre pour non-conformité KYB' } },
+    { key: 'TENANT_KYB_MARK_EXPIRED', name: { en: 'Mark KYB as Expired', fr: 'Marquer KYB expiré' } },
+    { key: 'TENANT_KYB_NOTIFY', name: { en: 'Notify Tenant for KYB Status', fr: 'Notifier le locataire du statut KYB' } }
+  ]
 },
 
-AFFILIATES_SUPPORT_TICKETS: {
-    key: 'AFFILIATES_SUPPORT_TICKETS',
-    name: { en: 'Affiliates Support Tickets', fr: 'Affiliés en marque blanche' },
+TENANTS_SUPPORT_TICKETS: {
+    key: 'TENANTS_SUPPORT_TICKETS',
+    name: { en: 'Tenants Support Tickets', fr: 'Support des tickets locataires' },
     actions: [
-      { key: 'AFFILIATE_TICKETS_VIEW_ALL', name: { en: 'View All KYB Verification Requests', fr: 'Voir toutes les demandes KYB' } },
+      { key: 'TENANT_TICKETS_VIEW_ALL', name: { en: 'View All Tickets', fr: 'Voir tous les tickets' } },
+      { key: 'TENANT_TICKETS_VIEW', name: { en: 'View Ticket Details', fr: 'Voir les détails du ticket' } },
+      { key: 'TENANT_TICKETS_CREATE', name: { en: 'Create Ticket', fr: 'Créer un ticket' } },
+      { key: 'TENANT_TICKETS_UPDATE', name: { en: 'Update Ticket', fr: 'Mettre à jour le ticket' } },
+      { key: 'TENANT_TICKETS_DELETE', name: { en: 'Delete Ticket', fr: 'Supprimer le ticket' } },
+      { key: 'TENANT_TICKETS_ASSIGN', name: { en: 'Assign Ticket', fr: 'Assigner le ticket' } },
+      { key: 'TENANT_TICKETS_CLOSE', name: { en: 'Close Ticket', fr: 'Fermer le ticket' } },
+      { key: 'TENANT_TICKETS_REOPEN', name: { en: 'Reopen Ticket', fr: 'Rouvrir le ticket' } },
+      { key: 'TENANT_TICKETS_COMMENT', name: { en: 'Add Comment', fr: 'Ajouter un commentaire' } },
+      { key: 'TENANT_TICKETS_ATTACHMENTS', name: { en: 'Manage Attachments', fr: 'Gérer les pièces jointes' } },
+      { key: 'TENANT_TICKETS_EXPORT', name: { en: 'Export Tickets', fr: 'Exporter les tickets' } },
     ]
 },
 

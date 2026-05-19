@@ -128,6 +128,7 @@
   "TENANT.SOFT_DELETED": "Tenant has been soft deleted.",
   "TENANT.DELETE_FAILED": "Failed to delete tenant.",
   "TENANT.NOT_FOUND": "Tenant not found.",
+  "TENANT.NOT_ACTIVE": "Tenant is not active.",
   "TENANT.LIST_FETCHED": "Tenant list fetched successfully.",
   "TENANT.LIST_FETCH_FAILED": "Failed to fetch tenant list.",
   "TENANT.RESTORED": "Tenant has been restored successfully.",
@@ -151,6 +152,60 @@
   "SUBSCRIPTION.CANCEL_FAILED": "Failed to cancel subscription.",
 
   "SUBSCRIPTION.HISTORY_FETCHED": "Subscription history fetched successfully.",
-  "SUBSCRIPTION.HISTORY_FAILED": "Failed to fetch subscription history."
+  "SUBSCRIPTION.HISTORY_FAILED": "Failed to fetch subscription history.",
 
+
+  "KYB_DOC_TYPE.CREATED": "Document type created successfully.",
+  "KYB_DOC_TYPE.UPDATED": "Document type updated successfully.",
+  "KYB_DOC_TYPE.DELETED": "Document type deleted successfully.",
+
+  "KYB_DOC_TYPE.NOT_FOUND": "Document type not found.",
+  "KYB_DOC_TYPE.ALREADY_EXISTS": "Document type already exists.",
+
+  "KYB_DOC_TYPE.FETCHED": "KYB document types fetched successfully.",
+  "KYB_DOC_TYPE.FETCH_FAILED": "Failed to fetch KYB document types.",
+
+  "KYB_DOC_TYPE.ENABLED": "Document type enabled successfully.",
+  "KYB_DOC_TYPE.DISABLED": "Document type disabled successfully.",
+
+  "KYB_DOC_TYPE.REQUIRED_UPDATED": "Required status updated successfully.",
+
+  "KYB_DOC_TYPE.TYPE_REQUIRED": "Document type is required.",
+  "KYB_DOC_TYPE.LABEL_INVALID": "Label must be a valid multi-language object with at least 'en'.",
+
+  "KYB_DOC_TYPE.SERVER_ERROR": "Something went wrong. Please try again later.",
+
+
+  "KYB.UPLOADED": "KYB uploaded successfully.",
+  "KYB.UPLOAD_FAILED": "KYB upload failed.",
+
+  "KYB.FETCHED": "KYB fetched successfully.",
+  "KYB.FETCH_FAILED": "Failed to fetch KYB.",
+  "KYB.NOT_FOUND": "KYB not found for this tenant.",
+
+  "KYB.TENANT_ID_REQUIRED": "Tenant ID is required.",
+  "KYB.DOCUMENTS_REQUIRED": "Documents array is required.",
+  "KYB.DOC_TYPE_REQUIRED": "Document type is required.",
+
+  "KYB.INVALID_FILE_INDEX": "Invalid file index provided.",
+  "KYB.DOC_DUPLICATE": "Document with same number already exists for another tenant.",
+
+  "KYB.IDS_REQUIRED": "tenantId and documentId are required.",
+  "KYB.DOCUMENT_NOT_FOUND": "Document not found.",
+  "KYB.DOCUMENT_DELETED": "Document deleted successfully.",
+  "KYB.DELETE_FAILED": "Failed to delete document.",
+
+  "KYB.FILE_IDS_REQUIRED": "tenantId, documentId and fileId are required.",
+  "KYB.FILE_NOT_FOUND": "File not found.",
+  "KYB.FILE_DELETED": "File deleted successfully.",
+  "KYB.FILE_DELETE_FAILED": "Failed to delete file.",
+
+  "KYB.STATUS_UPDATED": "KYB document status updated.",
+  "KYB.INVALID_STATUS": "Invalid KYB status.",
+  "KYB.COMMENT_REQUIRED": "Comment is required.",
+  "KYB.ALREADY_APPROVED": "Document already approved."
+ 
 }
+
+
+

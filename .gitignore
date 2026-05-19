@@ -80,3 +80,7 @@ docker-compose.override.yml
 # Optional (Recommended KEEP)
 # =========================
 # package-lock.json
+
+project-tasks
+project-status.md
+AdminAPIs Backend.postman_collection.json

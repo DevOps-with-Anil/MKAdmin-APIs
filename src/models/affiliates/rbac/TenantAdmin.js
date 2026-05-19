@@ -94,7 +94,7 @@ const tenantAdminSchema = new Schema(
 
     photo: { type: String },
 
-    password: { type: String, required: true, select: true },
+    password: { type: String, required: true, select: false },
 
     // Role Reference
     role: { type: Schema.Types.ObjectId, ref: "Tenant_Role", required: true },

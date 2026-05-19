@@ -104,7 +104,7 @@ const planSchema = new Schema(
     // Billing duration
     duration: {
       type: String,
-      enum: ["MONTHLY", "YEARLY"],
+      enum: ["MONTHLY", "QUATERLY", "YEARLY"],
       default: "MONTHLY"
     },
 

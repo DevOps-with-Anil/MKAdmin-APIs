@@ -82,7 +82,7 @@ const tenantSchema = new Schema(
     kybId: { type: Schema.Types.ObjectId, ref: "TenantKYB" },
     kybStatus: {
       type: String,
-      enum: ["PENDING", "UNDER_REVIEW", "APPROVED", "REJECTED"],
+      enum: ["PENDING", "UPLOADED", "APPROVED", "REJECTED", "SUSPENDED"],
       default: "PENDING"
     },
 
@@ -90,7 +90,10 @@ const tenantSchema = new Schema(
     currentSubscriptionId: { type: Schema.Types.ObjectId, ref: "TenantSubscription" },
 
     /* STATUS */
-    status: { type: String, enum: ["ACTIVE", "INACTIVE", "SUSPENDED", "PENDING"], default: "PENDING" },
+    status: { type: String, enum: ["ACTIVE", "INACTIVE", "SUSPENDED"], default: "INACTIVE" },
+
+    /* LOGO */
+    logo: { type: String, default: null },
 
     /* AUDIT */
     createdBy: { type: Schema.Types.ObjectId, ref: "SYS_User", required: true },

@@ -8,6 +8,8 @@
 
 const jwt = require("jsonwebtoken");
 const UAParser = require("ua-parser-js");
+const path = require("path");
+const fs = require("fs");
 
 const User = require("../../models/rbac/RootAdmin");
 const UserAdmin = require("../../models/affiliates/rbac/TenantAdmin");
@@ -18,7 +20,7 @@ const auditLogger = require("../../utils/auditLogger");
 const MSG = require("../../config/constants/messageKeys");
 const CODES = require("../../config/constants/errorCodes");
 
-const { JWT_SECRET } = require("../../config/env");
+const JWT_SECRET = process.env.JWT_SECRET
 
 
 
@@ -144,8 +146,8 @@ exports.rootlogin = async (req, res) => {
      * =========================================
      */
 
-    console.log(JSON.stringify(user))
-    
+    // console.log(JSON.stringify(user))
+
     const tokenPayload = {
       _id: user._id,
       email: user.email,
@@ -220,7 +222,6 @@ exports.rootlogin = async (req, res) => {
 };
 
 
-
 /**
  * ============================================================
  * 👤 GET MY PROFILE
@@ -235,13 +236,13 @@ exports.getMyProfile = async (req, res) => {
     const lang = req.lang || DEFAULT_LANG;
     // const user = req.user;
 
-      /**
-     * =========================================
-     * 1️⃣ Fetch user
-     * =========================================
-     */
+    /**
+   * =========================================
+   * 1️⃣ Fetch user
+   * =========================================
+   */
     const user = await User.findById(req.user)
-    .populate('role');
+      .populate('role');
 
     if (!user) {
       return responseFormatter.error(
@@ -260,16 +261,17 @@ exports.getMyProfile = async (req, res) => {
       id: user._id,
       name: user.name,
       email: user.email,
+      phoneCode: user.phoneCode,
       phoneNumber: user.phoneNumber || null,
       photo: user.photo || null,
 
-       role: {
-            _id: user.role._id,
-            name:
-              user.role.name?.[lang] ||
-              user.role.name?.[DEFAULT_LANG],
-            permissions: user.role.permissions
-          },
+      role: {
+        _id: user.role._id,
+        name:
+          user.role.name?.[lang] ||
+          user.role.name?.[DEFAULT_LANG],
+        permissions: user.role.permissions
+      },
 
       allowedCountries: user.allowedCountries || [],
       status: user.status || "INACTIVE",
@@ -309,10 +311,18 @@ exports.getMyProfile = async (req, res) => {
  * @access  Private
  * ============================================================
  */
+
 exports.updateMyProfile = async (req, res) => {
   try {
 
-    const { name, email, phoneNumber, phoneCode, photo } = req.body;
+    const {
+      name,
+      email,
+      phoneNumber,
+      phoneCode
+    } = req.body;
+
+    const file = req.file;
 
     const userId = req.user._id;
 
@@ -333,21 +343,14 @@ exports.updateMyProfile = async (req, res) => {
       );
     }
 
-    const before = {
-      name: user.name,
-      email: user.email,
-      phoneNumber: user.phoneNumber,
-      phoneCode: user.phoneCode,
-      photo: user.photo
-    };
+    const before = { ...user.toObject() };
 
     /**
      * =========================================
-     * 2️⃣ Validate fields
+     * 2️⃣ Validation
      * =========================================
      */
-
-    if (name && !isValidName(name)) {
+    if (name && !isValidName(name.trim())) {
       return responseFormatter.error(
         req,
         res,
@@ -357,7 +360,7 @@ exports.updateMyProfile = async (req, res) => {
       );
     }
 
-    if (email && !isValidEmail(email)) {
+    if (email && !isValidEmail(email.trim())) {
       return responseFormatter.error(
         req,
         res,
@@ -367,7 +370,7 @@ exports.updateMyProfile = async (req, res) => {
       );
     }
 
-    if (phoneNumber && !isValidPhone(phoneNumber)) {
+    if (phoneNumber && !isValidPhone(phoneNumber.trim())) {
       return responseFormatter.error(
         req,
         res,
@@ -379,13 +382,17 @@ exports.updateMyProfile = async (req, res) => {
 
     /**
      * =========================================
-     * 3️⃣ Check duplicate email
+     * 3️⃣ Duplicate email check
      * =========================================
      */
-    if (email && email.toLowerCase() !== user.email) {
+    if (
+      email &&
+      email.toLowerCase().trim() !== user.email
+    ) {
 
       const existingUser = await User.findOne({
-        email: email.toLowerCase()
+        email: email.toLowerCase().trim(),
+        _id: { $ne: user._id }
       });
 
       if (existingUser) {
@@ -403,27 +410,102 @@ exports.updateMyProfile = async (req, res) => {
 
     /**
      * =========================================
-     * 4️⃣ Update fields (partial update)
+     * 4️⃣ Duplicate phone check
      * =========================================
      */
-    if (name) user.name = name;
-    if (phoneNumber) user.phoneNumber = phoneNumber;
-    if (phoneCode) user.phoneCode = phoneCode;
-    if (photo) user.photo = photo;
+    if (
+      phoneNumber &&
+      phoneNumber !== user.phoneNumber
+    ) {
 
-    await user.save();
+      const existingPhoneUser = await User.findOne({
+        phoneNumber,
+        _id: { $ne: user._id }
+      });
 
-    const after = {
-      name: user.name,
-      email: user.email,
-      phoneNumber: user.phoneNumber,
-      phoneCode: user.phoneCode,
-      photo: user.photo
-    };
+      if (existingPhoneUser) {
+        return responseFormatter.error(
+          req,
+          res,
+          409,
+          MSG.PHONE_ALREADY_EXISTS,
+          CODES.USR_409
+        );
+      }
+    }
 
     /**
      * =========================================
-     * 5️⃣ Audit log
+     * 5️⃣ Update fields
+     * =========================================
+     */
+    if (name) {
+      user.name = name.trim();
+    }
+
+    if (phoneNumber !== undefined) {
+      user.phoneNumber = phoneNumber.trim();
+    }
+
+    if (phoneCode !== undefined) {
+      user.phoneCode = phoneCode.trim();
+    }
+
+    /**
+     * =========================================
+     * 6️⃣ Handle profile photo upload
+     * =========================================
+     */
+    if (file) {
+
+      /**
+       * Delete old image
+       */
+      if (user.photo) {
+
+        try {
+
+          const oldPath = user.photo.split(req.get("host"))[1];
+
+          if (oldPath) {
+
+            const fullPath = path.join(
+              process.cwd(),
+              oldPath
+            );
+
+            if (fs.existsSync(fullPath)) {
+              fs.unlinkSync(fullPath);
+            }
+          }
+
+        } catch (deleteError) {
+          console.error(
+            "Old image delete failed:",
+            deleteError
+          );
+        }
+      }
+
+      /**
+       * Save new image URL
+       */
+      const baseUrl =
+        `${req.protocol}://${req.get("host")}`;
+
+      const photoUrl =
+        `${baseUrl}/${file.path.replace(/\\/g, "/")}`;
+
+      user.photo = photoUrl;
+    }
+
+    await user.save();
+
+    const after = { ...user.toObject() };
+
+    /**
+     * =========================================
+     * 7️⃣ Audit log
      * =========================================
      */
     await auditLogger?.({
@@ -440,7 +522,7 @@ exports.updateMyProfile = async (req, res) => {
 
     /**
      * =========================================
-     * 6️⃣ Response
+     * 8️⃣ Response
      * =========================================
      */
     return responseFormatter.success(
@@ -456,12 +538,15 @@ exports.updateMyProfile = async (req, res) => {
         photo: user.photo
       },
       {},
-      201
+      200
     );
 
   } catch (error) {
 
-    console.error("Update profile error:", error);
+    console.error(
+      "Update profile error:",
+      error
+    );
 
     return responseFormatter.error(
       req,
@@ -756,7 +841,7 @@ exports.adminlogin = async (req, res) => {
               user.role.name?.[DEFAULT_LANG],
             permissions: user.role.permissions
           },
-
+          userType: user.userType,
           status: user.status,
           lastLoginAt: user.lastLoginAt,
           currentDevice: user.currentDevice
@@ -765,6 +850,7 @@ exports.adminlogin = async (req, res) => {
       "",
       200
     );
+
 
   } catch (err) {
 
@@ -794,17 +880,17 @@ exports.getMyProfileAdmin = async (req, res) => {
   try {
 
     const lang = req.lang || DEFAULT_LANG;
-    
 
-      /**
-     * =========================================
-     * 1️⃣ Fetch user
-     * =========================================
-     */
+
+    /**
+   * =========================================
+   * 1️⃣ Fetch user
+   * =========================================
+   */
     const user = await UserAdmin.findById(req.user)
-    .populate('role');;
+      .populate('role');;
 
-      if (!user) {
+    if (!user) {
       return responseFormatter.error(
         req,
         res,
@@ -821,6 +907,7 @@ exports.getMyProfileAdmin = async (req, res) => {
       id: user._id,
       name: user.name,
       email: user.email,
+      phoneCode: user.phoneCode,
       phoneNumber: user.phoneNumber || null,
       photo: user.photo || null,
 

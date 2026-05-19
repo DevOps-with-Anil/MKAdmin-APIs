@@ -19,6 +19,21 @@ function localizeSubscription(subscription, lang = "en") {
 
   const obj = subscription.toObject ? subscription.toObject() : subscription;
 
+  if (obj.tenantId) {
+    obj.tenantId.companyName =
+      obj.tenantId.companyName?.[lang] ||
+      obj.tenantId.companyName?.[DEFAULT_LANG] ||
+      "";
+  }
+
+   
+    obj.planName =
+      obj.planName?.[lang] ||
+      obj.planName?.[DEFAULT_LANG] ||
+      "";
+  
+
+
   if (Array.isArray(obj.modules)) {
     obj.modules = obj.modules.map((module) => {
       module.moduleName = module.moduleName?.[lang] || module.moduleName?.[DEFAULT_LANG] || "";
@@ -78,6 +93,7 @@ exports.assignPlan = async (req, res) => {
     const subscription = await TenantSubscription.create({
       tenantId,
       planId,
+      planName: plan.name,
       startDate,
       expiryDate,
       modules,
@@ -150,6 +166,7 @@ exports.updatePlan = async (req, res) => {
     const newSubscription = await TenantSubscription.create({
       tenantId,
       planId: newPlanId,
+      planName: plan.name,
       startDate,
       expiryDate,
       modules,
@@ -169,7 +186,7 @@ exports.updatePlan = async (req, res) => {
     });
 
     const localized = localizeSubscription(newSubscription, lang);
-    return success(req, res, MSG.SUBSCRIPTION_UPDATED, localized);
+    return success(req, res, MSG.SUBSCRIPTION_UPDATED, localized, "", 201);
 
   } catch (err) {
     console.error("updatePlan error:", err);
@@ -188,7 +205,11 @@ exports.getActiveSubscription = async (req, res) => {
     const { tenantId } = req.params;
 
     const subscription = await TenantSubscription.findOne({ tenantId, status: "ACTIVE" })
-      .populate("planId", "planName price");
+      .populate("planId", "planName price")
+      .populate(
+        "tenantId",
+        "companyName tenantId status"
+      );
 
     if (!subscription) return error(req, res, 404, MSG.SUBSCRIPTION_NOT_FOUND);
 

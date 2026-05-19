@@ -19,6 +19,8 @@ module.exports = async function seedRootSystem() {
     const superAdminEmail = process.env.SUPER_ADMIN_EMAIL;
     const superAdminPassword = process.env.SUPER_ADMIN_PASSWORD;
     const superAdminName = process.env.SUPER_ADMIN_NAME || "ROOT ADMIN";
+    const superAdminPhoneNumber = process.env.SUPER_ADMIN_PHONE || '9999999999'
+    const superAdminPhoneCode = process.env.SUPER_ADMIN_PHONECODE || "+1";
 
     // ======================================================
     // 1️⃣ SEED ROOT SYSTEM MODULES
@@ -155,6 +157,8 @@ module.exports = async function seedRootSystem() {
       const superAdminUser = await User.create({
         name: superAdminName.trim(),
         email: normalizedEmail,
+        phoneCode: superAdminPhoneCode,
+        phoneNumber: superAdminPhoneNumber, 
         password: superAdminPassword,
         role: superRole._id,
         status: "ACTIVE"

@@ -17,25 +17,36 @@ if (!process.env.AUDITLOG_DB_URI) {
   throw new Error("❌ AUDITLOG_DB_URI missing in .env");
 }
 
+if (!process.env.NOTIFICATION_DB_URI) {
+  throw new Error("❌ NOTIFICATION_DB_URI missing in .env");
+}
+
 // =========================================
-// 🧩 ROOT DB
+// ROOT DB
 // =========================================
 connections.rootDB = mongoose.createConnection(
   process.env.ROOT_DB_URI
 );
 
 // =========================================
-// 🧩 AFFILIATE DB
+// AFFILIATE DB
 // =========================================
 connections.affiliateDB = mongoose.createConnection(
   process.env.AFFILIATE_DB_URI
 );
 
 // =========================================
-// 🧾 AUDIT LOG DB
+// AUDIT LOG DB
 // =========================================
 connections.auditLogDB = mongoose.createConnection(
   process.env.AUDITLOG_DB_URI
+);
+
+// =========================================
+// NOTIFICATION DB
+// =========================================
+connections.notificationDB = mongoose.createConnection(
+  process.env.NOTIFICATION_DB_URI
 );
 
 // =========================================
@@ -53,6 +64,14 @@ connections.auditLogDB.on("connected", () => {
   console.log("✅ Audit Log DB connected");
 });
 
+connections.notificationDB.on("connected", () => {
+  console.log("✅ Notification DB connected");
+});
+
+
+
+
+
 // Error handlers (important for production)
 connections.rootDB.on("error", err =>
   console.error("❌ Root DB error:", err)
@@ -64,6 +83,10 @@ connections.affiliateDB.on("error", err =>
 
 connections.auditLogDB.on("error", err =>
   console.error("❌ AuditLog DB error:", err)
+);
+
+connections.notificationDB.on("error", err =>
+  console.error("❌ notificationDB DB error:", err)
 );
 
 module.exports = connections;
