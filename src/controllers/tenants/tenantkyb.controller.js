@@ -54,7 +54,7 @@ function updateKYBStatus(kyb) {
 }
 
 /* ============================================================
-🚀 UPLOAD KYB
+UPLOAD TENANT KYB DOCUMETS
 ============================================================ */
 
 exports.uploadTenantKYB = async (req, res) => {
@@ -317,11 +317,16 @@ exports.uploadTenantKYB = async (req, res) => {
                 const uniqueFiles =
                     [...new Set(mergedFiles)];
 
+
+                const isApproved = kyb.documents[index].status === "APPROVED";
+
                 kyb.documents[index].set({
                     ...newDoc,
 
-                    files: uniqueFiles,
+                    // 🔒 LOCK STATUS IF APPROVED
+                    status: isApproved ? "APPROVED" : newDoc.status,
 
+                    files: uniqueFiles,
                     updatedAt: new Date()
                 });
 
@@ -416,7 +421,7 @@ exports.uploadTenantKYB = async (req, res) => {
 
 
 /* ============================================================
-📄 VIEW ALL NEWLY UPLOADED KYB LIST
+VIEW ALL NEWLY UPLOADED KYB LIST
 ============================================================ */
 
 exports.ListTenantKYB = async (req, res) => {
@@ -481,21 +486,83 @@ exports.ListTenantKYB = async (req, res) => {
     }
 };
 
-
 /* ============================================================
-📄 VIEW TENANT KYB
+VIEW TENANT KYB
 ============================================================ */
+// Old
+// exports.viewTenantKYB = async (req, res) => {
+//     try {
 
+//         const lang = req.lang || DEFAULT_LANG;
+//         const user = req.user;
+//         const { tenantId } = req.params;
+
+//         if (!tenantId) {
+//             return responseFormatter.error(req, res, 400, MSG.KYB_TENANT_ID_REQUIRED);
+//         }
+
+//         const tenant = await Tenant.findById(tenantId);
+
+//         if (!tenant) {
+//             return responseFormatter.error(
+//                 req,
+//                 res,
+//                 404,
+//                 MSG.TENANT_NOT_FOUND
+//             );
+//         }
+
+//         const kyb = await TenantKYB.findOne({ tenantId })
+//             .populate("tenantId", "companyName contact.email contact.phone, logo")
+//         // .populate("verifiedBy", "name email")
+//         .lean();
+
+//          /*
+//          * FETCH ACTIVE KYB DOC TYPES
+//          */
+//         const kybDocTypes = await KYBDocType.find({
+//             isEnabled: true,
+//             isDeleted: false
+//         }).lean();
+
+//         if (!kybDocTypes) {
+//             return responseFormatter.error(req, res, 404, MSG.KYB_NOT_FOUND);
+//         }
+
+//         return responseFormatter.success(
+//             req,
+//             res,
+//             MSG.KYB_FETCHED,
+//             localizeKYB(kyb, lang),
+//             null,
+//             200
+//         );
+
+//     } catch (err) {
+//         console.error(err);
+//         return responseFormatter.error(req, res, 500, MSG.KYB_FETCH_FAILED);
+//     }
+// };
+
+// New but not working for detail page
 exports.viewTenantKYB = async (req, res) => {
     try {
-
         const lang = req.lang || DEFAULT_LANG;
+        const user = req.user;
         const { tenantId } = req.params;
 
         if (!tenantId) {
-            return responseFormatter.error(req, res, 400, MSG.KYB_TENANT_ID_REQUIRED);
+            return responseFormatter.error(
+                req,
+                res,
+                400,
+                MSG.KYB_TENANT_ID_REQUIRED
+            );
         }
 
+        /*
+         * CHECK TENANT
+         */
         const tenant = await Tenant.findById(tenantId);
 
         if (!tenant) {
@@ -507,39 +574,114 @@ exports.viewTenantKYB = async (req, res) => {
             );
         }
 
+        /*
+         * FETCH TENANT KYB
+         */
         const kyb = await TenantKYB.findOne({ tenantId })
-            .populate("tenantId", "companyName contact.email contact.phone")
-        // .populate("verifiedBy", "name email")
-        // .lean();
+            .populate(
+                "tenantId",
+                "companyName contact.email contact.phone logo"
+            )
+            .lean();
 
-        // if (!kyb) {
-        //     return responseFormatter.error(req, res, 404, MSG.KYB_NOT_FOUND);
-        // }
+        /*
+         * FETCH ACTIVE KYB DOC TYPES
+         */
+        const kybDocTypes = await KYBDocType.find({
+            isEnabled: true,
+            isDeleted: false,
+        }).lean();
+
+        if (!kybDocTypes || kybDocTypes.length === 0) {
+            return responseFormatter.error(
+                req,
+                res,
+                404,
+                MSG.KYB_NOT_FOUND
+            );
+        }
+
+        /*
+         * MAP DOCUMENT LABELS
+         */
+        const formattedDocuments = kybDocTypes.map((docType) => {
+            // Find uploaded document by type
+            const uploadedDoc =
+                kyb?.documents?.find(
+                    (doc) => doc.type === docType.type
+                ) || null;
+
+            return {
+                type: docType.type,
+                label:
+                    docType?.label?.[lang] ||
+                    docType?.label?.[DEFAULT_LANG] ||
+                    "",
+                description:
+                    docType?.description?.[lang] ||
+                    docType?.description?.[DEFAULT_LANG] ||
+                    "",
+                isRequired: docType.isRequired,
+                documentId: uploadedDoc?._id || null,
+                documentNumber:
+                    uploadedDoc?.documentNumber || "",
+                status:
+                    uploadedDoc?.status || "PENDING",
+                issueDate:
+                    uploadedDoc?.issueDate || null,
+                expiryDate:
+                    uploadedDoc?.expiryDate || null,
+                files: uploadedDoc?.files || [],
+                reviewedBy:
+                    uploadedDoc?.reviewedBy || null,
+                reviewedAt:
+                    uploadedDoc?.reviewedAt || null,
+                createdAt:
+                    uploadedDoc?.createdAt || null,
+                updatedAt:
+                    uploadedDoc?.updatedAt || null,
+            };
+        });
+
+        /*
+         * FINAL RESPONSE
+         */
+        const responseData = {
+            ...kyb,
+            documents: formattedDocuments,
+        };
 
         return responseFormatter.success(
             req,
             res,
             MSG.KYB_FETCHED,
-            localizeKYB(kyb, lang),
+            localizeKYB(responseData, lang),
             null,
             200
         );
-
     } catch (err) {
         console.error(err);
-        return responseFormatter.error(req, res, 500, MSG.KYB_FETCH_FAILED);
+
+        return responseFormatter.error(
+            req,
+            res,
+            500,
+            MSG.KYB_FETCH_FAILED
+        );
     }
 };
 
+
+
 /* ============================================================
-🗑️ DELETE DOCUMENT
+DELETE DOCUMENT
 ============================================================ */
 
 exports.deleteTenantKYBDocument = async (req, res) => {
     try {
 
         const lang = req.lang || DEFAULT_LANG;
-
+        const user = req.user;
         const { tenantId, documentId } = req.body;
 
         if (!tenantId || !documentId) {
@@ -679,7 +821,7 @@ exports.deleteTenantKYBFile = async (req, res) => {
     try {
 
         const lang = req.lang || DEFAULT_LANG;
-
+        const user = req.user;
         const { tenantId, documentId, fileId } = req.body;
 
         if (!tenantId || !documentId || fileId === undefined) {
@@ -767,9 +909,10 @@ exports.deleteTenantKYBFile = async (req, res) => {
             kyb.status = "PENDING";
         } else if (missingRequiredDocs.length > 0) {
             kyb.status = "PENDING";
-        } else {
-            kyb.status = "UPLOADED";
         }
+        // else {
+        //     kyb.status = "UPLOADED";
+        // }
 
         kyb.updatedAt = new Date();
 
@@ -821,9 +964,8 @@ exports.deleteTenantKYBFile = async (req, res) => {
     }
 };
 
-
 /* ============================================================
-🗑️ Update Document Status
+Update Document Status
 ============================================================ */
 
 exports.updateKYBDocumentStatus = async (req, res) => {
@@ -909,11 +1051,11 @@ exports.updateKYBDocumentStatus = async (req, res) => {
             MSG.KYB_STATUS_UPDATED,
             kyb,
             null,
-            200
+            201
         );
 
     } catch (err) {
         console.error(err);
-        return responseFormatter.error(req, res, 500, MSG.KYB_ACTION_FAILED);
+        return responseFormatter.error(req, res, 520, MSG.KYB_ACTION_FAILED);
     }
 };
