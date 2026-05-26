@@ -40,22 +40,18 @@ const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "8h";
 /**
  * ============================================================
  * 🔐 ROOT LOGIN
- * @route   POST /auth/login
- * @desc    Authenticate root user and issue JWT
- * @access  Public
  * ============================================================
  */
+
 exports.rootlogin = async (req, res) => {
   try {
 
     const lang = req.lang || DEFAULT_LANG;
     const { email, password } = req.body;
 
-    /**
-     * =========================================
-     * 1️⃣ Fetch user
-     * =========================================
-     */
+    /* =========================================
+       1️⃣ FETCH USER
+    ========================================= */
     const user = await User.findOne({
       email: email.toLowerCase().trim()
     })
@@ -72,11 +68,9 @@ exports.rootlogin = async (req, res) => {
       );
     }
 
-    /**
-     * =========================================
-     * 2️⃣ Check account status
-     * =========================================
-     */
+    /* =========================================
+       2️⃣ CHECK STATUS
+    ========================================= */
     if (user.status !== "ACTIVE") {
       return responseFormatter.error(
         req,
@@ -87,11 +81,9 @@ exports.rootlogin = async (req, res) => {
       );
     }
 
-    /**
-     * =========================================
-     * 3️⃣ Validate password
-     * =========================================
-     */
+    /* =========================================
+       3️⃣ VALIDATE PASSWORD
+    ========================================= */
     const isMatch = await user.comparePassword(password);
 
     if (!isMatch) {
@@ -104,11 +96,9 @@ exports.rootlogin = async (req, res) => {
       );
     }
 
-    /**
-     * =========================================
-     * 4️⃣ Parse device information
-     * =========================================
-     */
+    /* =========================================
+       4️⃣ DEVICE INFO
+    ========================================= */
     const parser = new UAParser(req.headers["user-agent"]);
     const ua = parser.getResult();
 
@@ -125,11 +115,9 @@ exports.rootlogin = async (req, res) => {
       lastUsedAt: new Date()
     };
 
-    /**
-     * =========================================
-     * 5️⃣ Update login tracking
-     * =========================================
-     */
+    /* =========================================
+       5️⃣ LOGIN TRACKING
+    ========================================= */
     user.lastLoginAt = new Date();
     user.currentDevice = deviceInfo;
 
@@ -140,51 +128,55 @@ exports.rootlogin = async (req, res) => {
 
     user.loginHistory = user.loginHistory.slice(0, 20);
 
-    /**
-     * =========================================
-     * 6️⃣ Generate JWT
-     * =========================================
-     */
-
-    // console.log(JSON.stringify(user))
-
-    const tokenPayload = {
+    /* =========================================
+       6️⃣ SESSION (WEB ADMIN PANEL)
+    ========================================= */
+    req.session.user = {
       _id: user._id,
       email: user.email,
       roleId: user.role._id,
       roleType: user.userType
     };
 
-    const token = jwt.sign(tokenPayload, JWT_SECRET, {
-      expiresIn: JWT_EXPIRES_IN
-    });
+    /* =========================================
+       7️⃣ JWT (MOBILE / API)
+    ========================================= */
+    const accessToken = jwt.sign(
+      {
+        _id: user._id,
+        email: user.email,
+        roleId: user.role._id,
+        roleType: user.userType,
+        type: "access"
+      },
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRES_IN || "15m" }
+    );
 
-    /**
-     * =========================================
-     * 7️⃣ Store active session token
-     * =========================================
-     */
+
+    /* =========================================
+       8️⃣ STORE REFRESH TOKEN (OPTIONAL BUT RECOMMENDED)
+    ========================================= */
     user.tokens.unshift({
-      token,
+      token: accessToken,
       ipAddress,
       userAgent: req.headers["user-agent"]
     });
 
-    user.tokens = user.tokens.slice(0, 1);
+    user.tokens = user.tokens.slice(0, 5);
 
     await user.save();
 
-    /**
-     * =========================================
-     * 8️⃣ Send response
-     * =========================================
-     */
+    /* =========================================
+       9️⃣ RESPONSE (HYBRID OUTPUT)
+    ========================================= */
     return responseFormatter.success(
       req,
       res,
       MSG.AUTH_LOGIN_SUCCESS,
       {
-        token,
+       // accessToken,
+        session: req.session.user, // for web clarity
         user: {
           _id: user._id,
           name: user.name,
@@ -197,6 +189,7 @@ exports.rootlogin = async (req, res) => {
               user.role.name?.[DEFAULT_LANG],
             permissions: user.role.permissions
           },
+
           userType: user.userType,
           status: user.status,
           lastLoginAt: user.lastLoginAt,
@@ -208,7 +201,6 @@ exports.rootlogin = async (req, res) => {
     );
 
   } catch (err) {
-
     console.error("Login error:", err);
 
     return responseFormatter.error(
@@ -221,13 +213,9 @@ exports.rootlogin = async (req, res) => {
   }
 };
 
-
 /**
  * ============================================================
  * 👤 GET MY PROFILE
- * @route   GET /users/me
- * @desc    Get logged-in user profile
- * @access  Private
  * ============================================================
  */
 exports.getMyProfile = async (req, res) => {
@@ -284,7 +272,7 @@ exports.getMyProfile = async (req, res) => {
       res,
       MSG.USER_PROFILE_FETCHED,
       profileResponse,
-      {},
+      null,
       200
     );
 
@@ -306,10 +294,7 @@ exports.getMyProfile = async (req, res) => {
 /**
  * ============================================================
  * ✏️ UPDATE MY PROFILE
- * @route   PUT /users/me
- * @desc    Update logged-in user profile
- * @access  Private
- * ============================================================
+  ============================================================
  */
 
 exports.updateMyProfile = async (req, res) => {
@@ -562,9 +547,6 @@ exports.updateMyProfile = async (req, res) => {
 /**
  * ============================================================
  * 🔑 CHANGE MY PASSWORD
- * @route   POST /auth/change-password
- * @desc    Change logged-in user's password
- * @access  Private
  * ============================================================
  */
 exports.changeMyPassword = async (req, res) => {
@@ -681,6 +663,77 @@ exports.changeMyPassword = async (req, res) => {
   }
 };
 
+
+/**
+ * ============================================================
+ * ROOT LOOUT
+ * ============================================================
+ */
+
+exports.rootlogout = async (req, res) => {
+  try {
+    const userId = req.session?.user?._id;
+
+    /* =========================================
+       1️⃣ CLEAR USER TOKENS (OPTIONAL)
+    ========================================= */
+    if (userId) {
+      await User.findByIdAndUpdate(userId, {
+        $set: { tokens: [] }
+      });
+    }
+
+    /* =========================================
+       2️⃣ DESTROY SESSION
+    ========================================= */
+    req.session.destroy((err) => {
+      if (err) {
+        console.error("Session destroy error:", err);
+
+        return responseFormatter.error(
+          req,
+          res,
+          500,
+          MSG.AUTH_LOGOUT_FAILED,
+          CODES.USR_500
+        );
+      }
+
+      /* =========================================
+         3️⃣ CLEAR COOKIE
+      ========================================= */
+      res.clearCookie("connect.sid", {
+        path: "/",
+        httpOnly: true,
+        sameSite: "lax",
+        secure: process.env.NODE_ENV === "production"
+      });
+
+      /* =========================================
+         4️⃣ SUCCESS RESPONSE
+      ========================================= */
+      return responseFormatter.success(
+        req,
+        res,
+        MSG.AUTH_LOGOUT_SUCCESS,
+        null,
+        "",
+        201
+      );
+    });
+
+  } catch (err) {
+    console.error("Logout error:", err);
+
+    return responseFormatter.error(
+      req,
+      res,
+      500,
+      MSG.AUTH_LOGOUT_FAILED,
+      CODES.USR_500
+    );
+  }
+};
 
 
 

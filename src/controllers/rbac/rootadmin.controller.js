@@ -698,8 +698,8 @@ exports.deleteUser = async (req, res) => {
       req,
       res,
       MSG.USER_DELETED,
-      { id: user._id },
-      null,
+      "",
+      "",
       201
     );
 

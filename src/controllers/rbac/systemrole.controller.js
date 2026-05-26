@@ -222,7 +222,7 @@ exports.listRoles = async (req, res) => {
         total,
         totalPages: Math.ceil(total / Number(limit)),
       },
-      201
+      200
     );
 
   } catch (err) {

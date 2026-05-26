@@ -50,7 +50,7 @@ function localizePlan(plan, lang) {
  */
 exports.createPlan = async (req, res) => {
   try {
-    const { name, description, price = 0, currency = 'USD', duration = 'MONTHLY', modules = [] } = req.body;
+    const { name, description, price, currency, duration, modules} = req.body;
 
     const validationError = validateLocalizedField(name, 'Plan name');
     if (validationError)
@@ -225,6 +225,7 @@ exports.updatePlan = async (req, res) => {
       return responseFormatter.error(req, res, 404, MSG.PLAN_NOT_FOUND);
 
     const { name, description, price, currency, duration, status, modules } = req.body;
+
     const before = plan.toObject();
 
     if (name) {

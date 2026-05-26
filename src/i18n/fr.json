@@ -60,6 +60,7 @@
   "USER.CREATE_FAILED": "Échec de la création de l'utilisateur.",
   "USER.UPDATE_FAILED": "Échec de la mise à jour de l'utilisateur.",
   "USER.LIST_FAILED": "Échec de la récupération des utilisateurs.",
+  "USER.DELETED":"Utilisateur supprimé avec succès.",
 
   "AUTH.LOGIN_SUCCESS": "Connexion réussie",
   "AUTH.LOGIN_FAILED": "Échec de la connexion. Veuillez réessayer.",
@@ -70,6 +71,7 @@
   "AUTH.ACCOUNT_INACTIVE": "Votre compte est inactif. Veuillez contacter le support.",
   "AUTH.ACCOUNT_LOCKED": "Votre compte est verrouillé. Veuillez contacter le support.",
   "AUTH.LOGOUT_SUCCESS": "Déconnexion réussie",
+  "AUTH.LOGOUT_FAILD": "Échec de la déconnexion",
   "AUTH.LOGOUT_ALL_SUCCESS": "Déconnexion de tous les appareils réussie",
 
   "USER.PROFILE_FETCHED": "Profil utilisateur récupéré avec succès",

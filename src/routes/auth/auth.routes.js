@@ -17,10 +17,11 @@ router.get('/root/me', authMiddleware, userLimiter(), UserController.getMyProfil
 router.post('/root/changepassword',authMiddleware, userLimiter(), UserController.changeMyPassword);
 
 // Update Profile
-// router.put("/root/updateprofile", authMiddleware, userLimiter(), UserController.updateMyProfile);
-
 router.put("/root/updateprofile", authMiddleware, userLimiter(), upload.single("photo"), UserController.updateMyProfile);
 
+
+// Logout route 
+router.post('/root/logout', authMiddleware, loginLimiter(), UserController.rootlogout);
 
 
 /**

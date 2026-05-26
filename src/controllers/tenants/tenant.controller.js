@@ -461,14 +461,69 @@ exports.getTenantById = async (req, res) => {
 
     const lang = req.lang || DEFAULT_LANG;
 
-    const tenant = await Tenant.findOne({ _id: req.params.id, isDeleted: false })
-      .populate({ path: "currentSubscriptionId", select: "planId planName startDate expiryDate status" });
+    const tenant = await Tenant.findOne({
+      _id: req.params.id,
+      isDeleted: false
+    }).populate({
+      path: "currentSubscriptionId",
+      select: "planId startDate expiryDate status",
+      populate: {
+        path: "planId",
+        select: "name"
+      }
+    });
 
     if (!tenant) {
-      return responseFormatter.error(req, res, 404, MSG.TENANT_NOT_FOUND, CODES.USR_404);
+      return responseFormatter.error(
+        req,
+        res,
+        404,
+        MSG.TENANT_NOT_FOUND,
+        CODES.USR_404
+      );
     }
 
+    const admin = await TenantAdmin.findOne({
+      tenantId: tenant._id
+    })
+      .populate({
+        path: "role",
+        match: { isSystem: true },
+        select: "name code"
+      })
+      .select("-tokens -password")
+      .lean();
+
+    /* ================= LOCALIZE TENANT ================= */
+
     const localizedTenant = localizeTenant(tenant, lang);
+
+    /* ================= FORMAT ADMIN ================= */
+
+    if (admin?.role?.name) {
+      admin.role.name =
+        admin.role.name?.[lang] ||
+        admin.role.name?.[DEFAULT_LANG] ||
+        "";
+    }
+
+    localizedTenant.admin = admin || null;
+
+    /* ================= FORMAT SUBSCRIPTION ================= */
+
+    const subscription = localizedTenant.currentSubscriptionId;
+    const plan = tenant?.currentSubscriptionId?.planId;
+
+    if (subscription) {
+      subscription.planName =
+        plan?.name?.[lang] ||
+        plan?.name?.[DEFAULT_LANG] ||
+        "";
+
+      subscription.planId = plan?._id || null;
+    }
+
+    /* ================= AUDIT LOG ================= */
 
     await auditLogger?.({
       req,
@@ -476,16 +531,30 @@ exports.getTenantById = async (req, res) => {
       action: "TENANT_VIEW",
       module: "TENANTS",
       entityId: tenant._id,
-      entityName: localizedTenant.companyName || tenant.contact_email,
+      entityName:
+        localizedTenant.companyName || tenant.contact_email,
       after: localizedTenant,
       message: req.t(MSG.TENANT_FETCHED)
     });
 
-    return responseFormatter.success(req, res, MSG.TENANT_FETCHED, localizedTenant, null, 200);
-
+    return responseFormatter.success(
+      req,
+      res,
+      MSG.TENANT_FETCHED,
+      localizedTenant,
+      null,
+      200
+    );
   } catch (err) {
     console.error("getTenantById error:", err);
-    return responseFormatter.error(req, res, 500, MSG.TENANT_FETCH_FAILED, CODES.USR_500);
+
+    return responseFormatter.error(
+      req,
+      res,
+      500,
+      MSG.TENANT_FETCH_FAILED,
+      CODES.USR_500
+    );
   }
 };
 
@@ -894,30 +963,107 @@ exports.listTenants = async (req, res) => {
     if (!user) return;
 
     const lang = req.lang || DEFAULT_LANG;
-    const { page = 1, limit = 20, search = "", status = "" } = req.query;
 
-    const query = { isDeleted: false };
-    if (search) query["companyName.en"] = { $regex: search, $options: "i" };
-    if (status) query.status = status.toUpperCase();
+    const {
+      page = 1,
+      limit = 20,
+      search = "",
+      status = ""
+    } = req.query;
 
-    const skip = (Number(page) - 1) * Number(limit);
+    /* ================= QUERY ================= */
+
+    const query = {
+      isDeleted: false
+    };
+
+    if (search) {
+      query["companyName.en"] = {
+        $regex: search,
+        $options: "i"
+      };
+    }
+
+    if (status) {
+      query.status = status.toUpperCase();
+    }
+
+    const skip =
+      (Number(page) - 1) * Number(limit);
+
+    /* ================= FETCH ================= */
+
     const [tenants, total] = await Promise.all([
       Tenant.find(query)
-        .populate({ path: "currentSubscriptionId", select: "planId planName startDate expiryDate status" })
+        .populate({
+          path: "currentSubscriptionId",
+          select: "planId startDate expiryDate status",
+          populate: {
+            path: "planId",
+            select: "name"
+          }
+        })
         .sort({ createdAt: -1 })
         .skip(skip)
         .limit(Number(limit)),
+
       Tenant.countDocuments(query)
     ]);
 
-    const localizedTenants = tenants.map(t => localizeTenant(t, lang));
-    const meta = { page: Number(page), limit: Number(limit), total, totalPages: Math.ceil(total / Number(limit)) };
+    /* ================= LOCALIZE ================= */
 
-    return responseFormatter.success(req, res, MSG.TENANT_LIST_FETCHED, localizedTenants, meta, 200);
+    const localizedTenants = tenants.map((tenant) => {
+      const localizedTenant =
+        localizeTenant(tenant, lang);
 
+      const subscription =
+        localizedTenant.currentSubscriptionId;
+
+      const plan =
+        tenant?.currentSubscriptionId?.planId;
+
+      if (subscription) {
+        subscription.planName =
+          plan?.name?.[lang] ||
+          plan?.name?.[DEFAULT_LANG] ||
+          "";
+
+        subscription.planId =
+          plan?._id || null;
+      }
+
+      return localizedTenant;
+    });
+
+    /* ================= META ================= */
+
+    const meta = {
+      page: Number(page),
+      limit: Number(limit),
+      total,
+      totalPages: Math.ceil(
+        total / Number(limit)
+      )
+    };
+
+    return responseFormatter.success(
+      req,
+      res,
+      MSG.TENANT_LIST_FETCHED,
+      localizedTenants,
+      meta,
+      200
+    );
   } catch (err) {
     console.error("listTenants error:", err);
-    return responseFormatter.error(req, res, 500, MSG.TENANT_LIST_FETCH_FAILED, CODES.USR_500);
+
+    return responseFormatter.error(
+      req,
+      res,
+      500,
+      MSG.TENANT_LIST_FETCH_FAILED,
+      CODES.USR_500
+    );
   }
 };
 

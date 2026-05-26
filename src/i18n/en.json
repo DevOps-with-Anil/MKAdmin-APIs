@@ -63,6 +63,7 @@
   "USER.CREATE_FAILED": "Failed to create user.",
   "USER.UPDATE_FAILED": "Failed to update user.",
   "USER.LIST_FAILED": "Failed to fetch users.",
+  "USER.DELETED":"User deleted successfully.",
 
   "AUTH.LOGIN_SUCCESS": "Login successful",
   "AUTH.LOGIN_FAILED": "Login failed. Please try again.",
@@ -73,6 +74,7 @@
   "AUTH.ACCOUNT_INACTIVE": "Your account is inactive. Please contact support.",
   "AUTH.ACCOUNT_LOCKED": "Your account is locked. Please contact support.",
   "AUTH.LOGOUT_SUCCESS": "Logged out successfully",
+  "AUTH.LOGOUT_FAILD": "Logged out faild",
   "AUTH.LOGOUT_ALL_SUCCESS": "Logged out from all devices successfully",
   
   "USER.PROFILE_FETCHED": "User profile fetched successfully",

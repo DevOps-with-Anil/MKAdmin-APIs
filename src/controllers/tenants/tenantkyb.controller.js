@@ -31,8 +31,8 @@ function localizeKYB(kyb, lang = DEFAULT_LANG) {
 
     obj.tenantId.companyName =
         obj.tenantId.companyName?.[lang] || obj.tenantId.companyName?.[DEFAULT_LANG] || "";
-    // obj.description =
-    // obj.description?.[lang] || obj.description?.[DEFAULT_LANG] || "";
+    obj.description =
+        obj.description?.[lang] || obj.description?.[DEFAULT_LANG] || "";
 
     return obj;
 }
@@ -490,6 +490,7 @@ exports.ListTenantKYB = async (req, res) => {
 VIEW TENANT KYB
 ============================================================ */
 // Old
+
 // exports.viewTenantKYB = async (req, res) => {
 //     try {
 
@@ -516,18 +517,6 @@ VIEW TENANT KYB
 //             .populate("tenantId", "companyName contact.email contact.phone, logo")
 //         // .populate("verifiedBy", "name email")
 //         .lean();
-
-//          /*
-//          * FETCH ACTIVE KYB DOC TYPES
-//          */
-//         const kybDocTypes = await KYBDocType.find({
-//             isEnabled: true,
-//             isDeleted: false
-//         }).lean();
-
-//         if (!kybDocTypes) {
-//             return responseFormatter.error(req, res, 404, MSG.KYB_NOT_FOUND);
-//         }
 
 //         return responseFormatter.success(
 //             req,
@@ -583,6 +572,7 @@ exports.viewTenantKYB = async (req, res) => {
                 "companyName contact.email contact.phone logo"
             )
             .lean();
+
 
         /*
          * FETCH ACTIVE KYB DOC TYPES
@@ -646,8 +636,10 @@ exports.viewTenantKYB = async (req, res) => {
         /*
          * FINAL RESPONSE
          */
+
+        const KYBdata = localizeKYB(kyb, lang)
         const responseData = {
-            ...kyb,
+            ...KYBdata,
             documents: formattedDocuments,
         };
 
@@ -655,7 +647,7 @@ exports.viewTenantKYB = async (req, res) => {
             req,
             res,
             MSG.KYB_FETCHED,
-            localizeKYB(responseData, lang),
+            responseData,
             null,
             200
         );

@@ -82,7 +82,7 @@ const tenantSchema = new Schema(
     kybId: { type: Schema.Types.ObjectId, ref: "TenantKYB" },
     kybStatus: {
       type: String,
-      enum: ["PENDING", "UPLOADED", "APPROVED", "REJECTED", "SUSPENDED"],
+      enum: ["PENDING", "UPLOADED", "APPROVED", "REJECTED", "SUSPENDED", "UNDER_REVIEW"],
       default: "PENDING"
     },
 
@@ -90,7 +90,7 @@ const tenantSchema = new Schema(
     currentSubscriptionId: { type: Schema.Types.ObjectId, ref: "TenantSubscription" },
 
     /* STATUS */
-    status: { type: String, enum: ["ACTIVE", "INACTIVE", "SUSPENDED"], default: "INACTIVE" },
+    status: { type: String, enum: ["ACTIVE", "INACTIVE", "SUSPENDED"], default: "ACTIVE" },
 
     /* LOGO */
     logo: { type: String, default: null },
