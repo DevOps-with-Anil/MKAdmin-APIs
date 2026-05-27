@@ -70,7 +70,8 @@ pids/
 # Docker
 # =========================
 .dockerignore
-docker-compose.override.yml
+docker-compose.yml
+Dockerfile
 
 # =========================
 # Misc
@@ -85,3 +86,4 @@ docker-compose.override.yml
 project-tasks
 project-status.md
 AdminAPIs Backend.postman_collection.json
+apiCollection.json
