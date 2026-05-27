@@ -175,7 +175,7 @@ exports.rootlogin = async (req, res) => {
       res,
       MSG.AUTH_LOGIN_SUCCESS,
       {
-       // accessToken,
+        // accessToken,
         session: req.session.user, // for web clarity
         user: {
           _id: user._id,
@@ -701,12 +701,20 @@ exports.rootlogout = async (req, res) => {
 
       /* =========================================
          3️⃣ CLEAR COOKIE
-      ========================================= */
-      res.clearCookie("connect.sid", {
-        path: "/",
+      // ========================================= */
+      // res.clearCookie("connect.sid", {
+      //   httpOnly: true,
+      //   secure: true,
+      //   sameSite: "none",
+      //   domain: ".plf.mkelefa.net"
+      // });
+
+      res.clearCookie(process.env.SESSION_COOKIE_NAME || "connect.sid", {
         httpOnly: true,
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production"
+        secure: process.env.SESSION_COOKIE_SECURE === "true",
+        sameSite: process.env.SESSION_COOKIE_SAME_SITE || "lax",
+        domain: process.env.SESSION_COOKIE_DOMAIN || undefined,
+        path: "/"
       });
 
       /* =========================================

@@ -269,16 +269,18 @@ app.set("trust proxy", 1);
 
 app.use(session({
   store: new RedisStore({ client: redisClient }),
+  name: process.env.SESSION_COOKIE_NAME || "connect.sid",
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    secure: false, // true in production HTTPS
-    sameSite: "lax",
-    maxAge: 1000 * 60 * 10,   // 1000 * 60 * 10  ==> 10 Mins
-  
-    },
+    secure: process.env.SESSION_COOKIE_SECURE === "true",
+    sameSite: process.env.SESSION_COOKIE_SAME_SITE || "lax",
+    domain: process.env.SESSION_COOKIE_DOMAIN || undefined,
+    maxAge: Number(process.env.SESSION_COOKIE_MAX_AGE || 600000),
+    path: "/"
+  },
   rolling: true
 }));
 
