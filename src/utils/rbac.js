@@ -21,7 +21,7 @@ const hasPermission = (role, moduleKey, actionKey) => {
   // System role → always allowed
   if (isSystemRole(role)) return true;
 
-  // console.log("ROle" + "   "+ role.permissions);
+  // // console.log("ROle" + "   "+ role.permissions);
 
   return role.permissions.some(permission =>
     (permission.moduleKey === moduleKey || permission.moduleKey === '*') &&

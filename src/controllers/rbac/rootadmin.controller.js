@@ -434,7 +434,7 @@ exports.updateUser = async (req, res) => {
       if (user.photo) {
         try {
           const oldPath = user.photo.split(req.get("host"))[1];
-          console.log("OLD PATH. :  " + oldPath);
+          // console.log("OLD PATH. :  " + oldPath);
           if (oldPath) {
 
             const fullPath = path.join(

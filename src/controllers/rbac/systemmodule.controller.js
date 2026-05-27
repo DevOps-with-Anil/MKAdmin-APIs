@@ -175,7 +175,7 @@ const createModule = async (req, res) => {
     );
 
   } catch (err) {
-    console.log("ERROR 👉", err);
+    // console.log("ERROR 👉", err);
     return responseFormatter.error(req, res, 500, MSG.MODULE_CREATE_FAILED);
   }
 };
@@ -574,7 +574,7 @@ const updateAction = async (req, res) => {
         action.actionName[langKey] =
           newactionName?.[langKey]?.trim() || "";
 
-        console.log("Updated action:", action.actionName[langKey]);
+        // console.log("Updated action:", action.actionName[langKey]);
       }
     }
     
@@ -592,7 +592,7 @@ const updateAction = async (req, res) => {
     );
 
   } catch (err) {
-    console.log("ERROR 👉", err);
+    // console.log("ERROR 👉", err);
     return responseFormatter.error(req, res, 500, MSG.ACTION_UPDATE_FAILED);
   }
 };

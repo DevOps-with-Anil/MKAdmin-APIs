@@ -20,8 +20,7 @@ module.exports = async (req, res, next) => {
         CODES.USR_401
       );
     }
-
-
+    
     // console.log(req.user?.userType);
 
      let user;
