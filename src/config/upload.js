@@ -9,6 +9,8 @@ const multerS3 = require("multer-s3");
    ENV CONFIG
 ========================================= */
 
+const uploadBasePath = process.env.UPLOAD_PATH;
+
 const STORAGE_TYPE = process.env.STORAGE_TYPE || "local";
 
 const MAX_UPLOAD_SIZE =
@@ -49,28 +51,62 @@ const getFileExtension = (file) => {
 ========================================= */
 
 const getUploadConfig = (file) => {
-  let uploadPath = "uploads/shared/misc";
-  let allowedExtensions = ALLOWED_FILE_TYPES;
+  let uploadPath = path.join(
+    uploadBasePath,
+    "shared",
+    "misc"
+  );
+
+  let allowedExtensions =
+    ALLOWED_FILE_TYPES;
 
   switch (file.fieldname) {
     case "photo":
-      uploadPath = "uploads/rootUsers/profilePics";
-      allowedExtensions = ALLOWED_IMAGE_TYPES;
+      uploadPath = path.join(
+        uploadBasePath,
+        "rootUsers",
+        "profilePics"
+      );
+
+      allowedExtensions =
+        ALLOWED_IMAGE_TYPES;
+
       break;
 
     case "KYBDocs":
-      uploadPath = "uploads/tenant/KYB-Docs";
-      allowedExtensions = ALLOWED_FILE_TYPES;
+      uploadPath = path.join(
+        uploadBasePath,
+        "tenant",
+        "KYB-Docs"
+      );
+
+      allowedExtensions =
+        ALLOWED_FILE_TYPES;
+
       break;
 
     case "tenantLogo":
-      uploadPath = "uploads/tenant/logos";
-      allowedExtensions = ALLOWED_IMAGE_TYPES;
+      uploadPath = path.join(
+        uploadBasePath,
+        "tenant",
+        "logos"
+      );
+
+      allowedExtensions =
+        ALLOWED_IMAGE_TYPES;
+
       break;
 
     default:
-      uploadPath = "uploads/shared/misc";
-      allowedExtensions = ALLOWED_FILE_TYPES;
+      uploadPath = path.join(
+        uploadBasePath,
+        "shared",
+        "misc"
+      );
+
+      allowedExtensions =
+        ALLOWED_FILE_TYPES;
+
       break;
   }
 

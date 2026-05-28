@@ -30,6 +30,7 @@ build/
 tmp/
 temp/
 uploads/
+StorageBucket/
 # =========================
 # OS Files
 # =========================

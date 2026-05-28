@@ -290,10 +290,11 @@ app.use(session({
  * =====================================================
  */
 
+
 app.use(
-  "/uploads",
+  `/${process.env.UPLOAD_PATH}`,
   express.static(
-    path.join(process.cwd(), "uploads")
+    path.join(process.cwd(), process.env.UPLOAD_PATH)
   )
 );
 
