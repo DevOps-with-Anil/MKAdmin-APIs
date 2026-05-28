@@ -126,6 +126,7 @@
   "TENANT.FETCHED": "Tenant details fetched successfully.",
   "TENANT.FETCH_FAILED": "Failed to fetch tenant details.",
   "TENANT.UPDATED": "Tenant has been successfully updated.",
+  "TENANT.LOGO_UPDATED": "Logo has been successfully updated.",
   "TENANT.UPDATE_FAILED": "Failed to update tenant.",
   "TENANT.SOFT_DELETED": "Tenant has been soft deleted.",
   "TENANT.DELETE_FAILED": "Failed to delete tenant.",

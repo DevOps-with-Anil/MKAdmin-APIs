@@ -37,23 +37,6 @@ function localizeTenant(tenant, lang = DEFAULT_LANG) {
   return obj;
 }
 
-// ============================================================
-// Helper to fetch user globally
-// ============================================================
-// async function validateUser(req, res) {
-//   if (!req.user?._id) {
-//     responseFormatter.error(req, res, 401, MSG.AUTH_TOKEN_INVALID, CODES.USR_401);
-//     return null;
-//   }
-
-//   const user = await User.findById(req.user._id);
-//   if (!user) {
-//     responseFormatter.error(req, res, 404, MSG.USER_NOT_FOUND, CODES.USR_404);
-//     return null;
-//   }
-
-//   return user;
-// }
 
 // ============================================================
 // CREATE TENANT
@@ -898,7 +881,7 @@ exports.updateTenantLogo = async (req, res) => {
     return responseFormatter.success(
       req,
       res,
-      "TENANT_UPDATED",
+      MSG.TENANT_LOGO_UPDATED,
       {
         id: tenant._id,
         companyName: tenant.companyName,

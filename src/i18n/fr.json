@@ -120,6 +120,7 @@
   "TENANT.FETCHED": "Détails du locataire récupérés avec succès.",
   "TENANT.FETCH_FAILED": "Échec de la récupération des détails du locataire.",
   "TENANT.UPDATED": "Le locataire a été mis à jour avec succès.",
+  "TENANT.LOGO_UPDATED": "Le logo a été mis à jour avec succès.",
   "TENANT.UPDATE_FAILED": "Échec de la mise à jour du locataire.",
   "TENANT.SOFT_DELETED": "Le locataire a été supprimé en douceur.",
   "TENANT.DELETE_FAILED": "Échec de la suppression du locataire.",
